@@ -1,0 +1,799 @@
+{
+  "schema_version": "2.0",
+  "client_id": "northstar-retail-v2",
+  "company": {
+    "name": "Northstar Retail Group",
+    "industry": "Retail",
+    "subsector": "Omnichannel general merchandise and grocery",
+    "headquarters": "Chicago, Illinois, USA",
+    "operating_regions": [
+      "United States",
+      "Canada",
+      "United Kingdom"
+    ],
+    "employees": 42000,
+    "annual_revenue_usd": 12800000000,
+    "summary": "Fictional composite retailer with stores, ecommerce, loyalty, merchandising, and supply-chain operations."
+  },
+  "narrative_context": {
+    "strategic_priorities": [
+      "Reduce legacy ADM run-cost and rebalance spend toward innovation",
+      "Create a real-time inventory and fulfillment decision layer",
+      "Improve digital conversion, loyalty personalization, and release velocity",
+      "Industrialize support with AI-assisted operations and observability"
+    ],
+    "pain_points": [
+      "Fragmented application estate across stores, ecommerce, merchandising, and supply chain",
+      "High dependency on aging POS, order, and merchandising platforms",
+      "Slow release cycles and duplicated data pipelines",
+      "Inconsistent customer identity, offer, and returns experiences across channels"
+    ],
+    "regulatory_context": [
+      "PCI DSS",
+      "CCPA/CPRA",
+      "GDPR for UK/EU customer data"
+    ],
+    "operating_model_notes": [
+      "Stores and digital channels share inventory and fulfillment responsibilities",
+      "The client wants margin improvement without slowing innovation"
+    ],
+    "current_state_metrics": [
+      {
+        "metric": "Customer-facing release cadence",
+        "current_value": "Monthly",
+        "target_value": "Weekly",
+        "scope": "Digital Commerce",
+        "note": "Release trains are constrained by tightly coupled order, pricing, and identity dependencies."
+      },
+      {
+        "metric": "P1 incident MTTR",
+        "current_value": "6.5 hours",
+        "target_value": "1.5 hours",
+        "scope": "Store Operations and Commerce",
+        "note": "Fragmented observability and legacy escalation paths slow incident recovery."
+      },
+      {
+        "metric": "Inventory sync latency",
+        "current_value": "4-6 hours",
+        "target_value": "<15 minutes",
+        "scope": "Supply Chain and Commerce",
+        "note": "Batch interfaces delay stock and fulfillment decisions across channels."
+      },
+      {
+        "metric": "Duplicate customer record rate",
+        "current_value": "11%",
+        "target_value": "3%",
+        "scope": "Customer and loyalty",
+        "note": "Identity fragmentation reduces personalization accuracy and service consistency."
+      }
+    ],
+    "execution_assumptions": [
+      "Holiday code freeze applies from mid-November through early January for customer-facing platforms.",
+      "Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.",
+      "Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.",
+      "Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites.",
+      "Platform engineering capacity is shared across commerce, loyalty, and supply-chain programs, so sequencing must avoid parallel peak demand."
+    ]
+  },
+  "annual_adm_spend_usd": 95000000,
+  "business_units": [
+    {
+      "name": "Digital Commerce",
+      "owner_role": "Chief Digital Officer",
+      "core_capabilities": [
+        "Ecommerce",
+        "Ordering",
+        "Returns"
+      ],
+      "baseline_kpis": [
+        {
+          "name": "Major releases per year",
+          "value": "12",
+          "unit": "count"
+        },
+        {
+          "name": "Checkout defect escape rate",
+          "value": "3.8",
+          "unit": "pct"
+        }
+      ],
+      "target_kpis": [
+        {
+          "name": "Major releases per year",
+          "value": "26",
+          "unit": "count"
+        },
+        {
+          "name": "Checkout defect escape rate",
+          "value": "1.5",
+          "unit": "pct"
+        }
+      ]
+    },
+    {
+      "name": "Store Operations",
+      "owner_role": "Chief Stores Officer",
+      "core_capabilities": [
+        "POS",
+        "Store tasking",
+        "Workforce productivity"
+      ],
+      "baseline_kpis": [
+        {
+          "name": "POS incident MTTR",
+          "value": "6.5",
+          "unit": "hours"
+        },
+        {
+          "name": "Store task completion SLA",
+          "value": "81",
+          "unit": "pct"
+        }
+      ],
+      "target_kpis": [
+        {
+          "name": "POS incident MTTR",
+          "value": "2.0",
+          "unit": "hours"
+        },
+        {
+          "name": "Store task completion SLA",
+          "value": "95",
+          "unit": "pct"
+        }
+      ]
+    },
+    {
+      "name": "Merchandising",
+      "owner_role": "Chief Merchandising Officer",
+      "core_capabilities": [
+        "Pricing",
+        "Planning",
+        "Supplier operations"
+      ],
+      "baseline_kpis": [
+        {
+          "name": "Price-change batch latency",
+          "value": "18",
+          "unit": "hours"
+        },
+        {
+          "name": "Plan revision cycle time",
+          "value": "10",
+          "unit": "days"
+        }
+      ],
+      "target_kpis": [
+        {
+          "name": "Price-change batch latency",
+          "value": "2",
+          "unit": "hours"
+        },
+        {
+          "name": "Plan revision cycle time",
+          "value": "3",
+          "unit": "days"
+        }
+      ]
+    },
+    {
+      "name": "Supply Chain",
+      "owner_role": "Chief Supply Chain Officer",
+      "core_capabilities": [
+        "Warehouse",
+        "Transport",
+        "Inventory flow"
+      ],
+      "baseline_kpis": [
+        {
+          "name": "Warehouse manual exception rate",
+          "value": "14",
+          "unit": "pct"
+        },
+        {
+          "name": "Shipment ETA update latency",
+          "value": "4",
+          "unit": "hours"
+        }
+      ],
+      "target_kpis": [
+        {
+          "name": "Warehouse manual exception rate",
+          "value": "6",
+          "unit": "pct"
+        },
+        {
+          "name": "Shipment ETA update latency",
+          "value": "15",
+          "unit": "minutes"
+        }
+      ]
+    },
+    {
+      "name": "Customer & Loyalty",
+      "owner_role": "Chief Marketing Officer",
+      "core_capabilities": [
+        "Identity",
+        "Loyalty",
+        "Campaigns"
+      ],
+      "baseline_kpis": [
+        {
+          "name": "Anonymous-to-known match rate",
+          "value": "54",
+          "unit": "pct"
+        },
+        {
+          "name": "Campaign launch lead time",
+          "value": "10",
+          "unit": "days"
+        }
+      ],
+      "target_kpis": [
+        {
+          "name": "Anonymous-to-known match rate",
+          "value": "75",
+          "unit": "pct"
+        },
+        {
+          "name": "Campaign launch lead time",
+          "value": "2",
+          "unit": "days"
+        }
+      ]
+    }
+  ],
+  "apps": [
+    {
+      "id": "APP-001",
+      "name": "OrderCore",
+      "business_unit": "Digital Commerce",
+      "capability": "Order management",
+      "age_years": 14,
+      "tech_stack": [
+        "Java",
+        "Oracle",
+        "VMware"
+      ],
+      "annual_run_cost_usd": 12000000,
+      "business_criticality": "High",
+      "integration_count": 18,
+      "cloud_readiness": "Medium",
+      "disposition": "Refactor",
+      "functional_fit": "Medium",
+      "customer_facing": true,
+      "change_frequency": "High",
+      "data_sensitivity": "High",
+      "hosting_model": "VMware on-prem",
+      "primary_host_region": "Chicago DC",
+      "app_dependencies": [
+        "APP-007",
+        "APP-009",
+        "APP-012"
+      ]
+    },
+    {
+      "id": "APP-002",
+      "name": "StoreOps Suite",
+      "business_unit": "Store Operations",
+      "capability": "Store operations and tasking",
+      "age_years": 11,
+      "tech_stack": [
+        ".NET",
+        "SQL Server",
+        "Windows Server"
+      ],
+      "annual_run_cost_usd": 9500000,
+      "business_criticality": "High",
+      "integration_count": 14,
+      "cloud_readiness": "Medium",
+      "disposition": "Replatform",
+      "functional_fit": "Medium",
+      "customer_facing": false,
+      "change_frequency": "Medium",
+      "data_sensitivity": "Medium",
+      "hosting_model": "Windows VM cluster on-prem",
+      "primary_host_region": "Dallas DC",
+      "app_dependencies": [
+        "APP-010",
+        "APP-009"
+      ]
+    },
+    {
+      "id": "APP-003",
+      "name": "SupplyMesh",
+      "business_unit": "Supply Chain",
+      "capability": "Warehouse and transport orchestration",
+      "age_years": 16,
+      "tech_stack": [
+        "Java",
+        "IBM MQ",
+        "DB2"
+      ],
+      "annual_run_cost_usd": 8700000,
+      "business_criticality": "High",
+      "integration_count": 21,
+      "cloud_readiness": "Low",
+      "disposition": "Rearchitect",
+      "functional_fit": "High",
+      "customer_facing": false,
+      "change_frequency": "Medium",
+      "data_sensitivity": "Medium",
+      "hosting_model": "IBM middleware stack on-prem",
+      "primary_host_region": "Memphis DC",
+      "app_dependencies": [
+        "APP-005",
+        "APP-008",
+        "APP-001"
+      ]
+    },
+    {
+      "id": "APP-004",
+      "name": "Loyalty360",
+      "business_unit": "Customer & Loyalty",
+      "capability": "Loyalty platform",
+      "age_years": 8,
+      "tech_stack": [
+        "Node.js",
+        "PostgreSQL",
+        "Kubernetes"
+      ],
+      "annual_run_cost_usd": 6400000,
+      "business_criticality": "High",
+      "integration_count": 12,
+      "cloud_readiness": "High",
+      "disposition": "Refactor",
+      "functional_fit": "High",
+      "customer_facing": true,
+      "change_frequency": "High",
+      "data_sensitivity": "High",
+      "hosting_model": "Kubernetes on AWS",
+      "primary_host_region": "us-east-1",
+      "app_dependencies": [
+        "APP-009",
+        "APP-011",
+        "APP-007"
+      ]
+    },
+    {
+      "id": "APP-005",
+      "name": "MerchPlanner",
+      "business_unit": "Merchandising",
+      "capability": "Merchandise planning",
+      "age_years": 13,
+      "tech_stack": [
+        "SAP BW",
+        "ABAP",
+        "HANA"
+      ],
+      "annual_run_cost_usd": 5200000,
+      "business_criticality": "Medium",
+      "integration_count": 9,
+      "cloud_readiness": "Medium",
+      "disposition": "Replatform",
+      "functional_fit": "Medium",
+      "customer_facing": false,
+      "change_frequency": "Medium",
+      "data_sensitivity": "Medium",
+      "hosting_model": "SAP BW/HANA appliance",
+      "primary_host_region": "Chicago DC",
+      "app_dependencies": [
+        "APP-006",
+        "APP-003",
+        "APP-007"
+      ]
+    },
+    {
+      "id": "APP-006",
+      "name": "InvoiceHub",
+      "business_unit": "Merchandising",
+      "capability": "Vendor invoicing",
+      "age_years": 10,
+      "tech_stack": [
+        "Java",
+        "Tomcat",
+        "MySQL"
+      ],
+      "annual_run_cost_usd": 4900000,
+      "business_criticality": "Medium",
+      "integration_count": 8,
+      "cloud_readiness": "High",
+      "disposition": "Rehost",
+      "functional_fit": "Medium",
+      "customer_facing": false,
+      "change_frequency": "Low",
+      "data_sensitivity": "Medium",
+      "hosting_model": "VMware on-prem",
+      "primary_host_region": "Chicago DC",
+      "app_dependencies": [
+        "APP-005"
+      ]
+    },
+    {
+      "id": "APP-007",
+      "name": "PricingEngine",
+      "business_unit": "Digital Commerce",
+      "capability": "Pricing and promotions",
+      "age_years": 9,
+      "tech_stack": [
+        "Python",
+        "Redis",
+        "PostgreSQL"
+      ],
+      "annual_run_cost_usd": 5600000,
+      "business_criticality": "High",
+      "integration_count": 16,
+      "cloud_readiness": "High",
+      "disposition": "Rearchitect",
+      "functional_fit": "High",
+      "customer_facing": true,
+      "change_frequency": "High",
+      "data_sensitivity": "Medium",
+      "hosting_model": "AWS container platform",
+      "primary_host_region": "us-east-1",
+      "app_dependencies": [
+        "APP-001",
+        "APP-005",
+        "APP-009"
+      ]
+    },
+    {
+      "id": "APP-008",
+      "name": "WarehouseMobile",
+      "business_unit": "Supply Chain",
+      "capability": "Handheld warehouse workflows",
+      "age_years": 4,
+      "tech_stack": [
+        "React Native",
+        "Go",
+        "PostgreSQL"
+      ],
+      "annual_run_cost_usd": 3800000,
+      "business_criticality": "Medium",
+      "integration_count": 6,
+      "cloud_readiness": "High",
+      "disposition": "Retain",
+      "functional_fit": "High",
+      "customer_facing": false,
+      "change_frequency": "Medium",
+      "data_sensitivity": "Low",
+      "hosting_model": "Cloud-native mobile services on AWS",
+      "primary_host_region": "us-east-2",
+      "app_dependencies": [
+        "APP-003"
+      ]
+    },
+    {
+      "id": "APP-009",
+      "name": "CustomerID",
+      "business_unit": "Customer & Loyalty",
+      "capability": "Customer identity and consent",
+      "age_years": 7,
+      "tech_stack": [
+        "Java",
+        "Kafka",
+        "PostgreSQL"
+      ],
+      "annual_run_cost_usd": 4500000,
+      "business_criticality": "High",
+      "integration_count": 15,
+      "cloud_readiness": "High",
+      "disposition": "Refactor",
+      "functional_fit": "High",
+      "customer_facing": true,
+      "change_frequency": "High",
+      "data_sensitivity": "High",
+      "hosting_model": "Kubernetes on AWS",
+      "primary_host_region": "us-east-1",
+      "app_dependencies": [
+        "APP-004",
+        "APP-001",
+        "APP-011"
+      ]
+    },
+    {
+      "id": "APP-010",
+      "name": "POSLegacy",
+      "business_unit": "Store Operations",
+      "capability": "Legacy point of sale controller",
+      "age_years": 19,
+      "tech_stack": [
+        "C++",
+        "AIX",
+        "Oracle"
+      ],
+      "annual_run_cost_usd": 7900000,
+      "business_criticality": "High",
+      "integration_count": 11,
+      "cloud_readiness": "Low",
+      "disposition": "Retire",
+      "functional_fit": "Low",
+      "customer_facing": true,
+      "change_frequency": "Low",
+      "data_sensitivity": "High",
+      "hosting_model": "AIX on-prem",
+      "primary_host_region": "Dallas DC",
+      "app_dependencies": [
+        "APP-002",
+        "APP-001"
+      ]
+    },
+    {
+      "id": "APP-011",
+      "name": "CampaignMart",
+      "business_unit": "Customer & Loyalty",
+      "capability": "Campaign execution",
+      "age_years": 12,
+      "tech_stack": [
+        "Salesforce Marketing Cloud",
+        "SQL Server"
+      ],
+      "annual_run_cost_usd": 4300000,
+      "business_criticality": "Medium",
+      "integration_count": 10,
+      "cloud_readiness": "Medium",
+      "disposition": "Replatform",
+      "functional_fit": "Medium",
+      "customer_facing": true,
+      "change_frequency": "Medium",
+      "data_sensitivity": "Medium",
+      "hosting_model": "SaaS plus SQL Server integration",
+      "primary_host_region": "Vendor SaaS / Chicago integration hub",
+      "app_dependencies": [
+        "APP-009",
+        "APP-004"
+      ]
+    },
+    {
+      "id": "APP-012",
+      "name": "ReturnsPortal",
+      "business_unit": "Digital Commerce",
+      "capability": "Returns case management",
+      "age_years": 9,
+      "tech_stack": [
+        ".NET",
+        "SQL Server",
+        "IIS"
+      ],
+      "annual_run_cost_usd": 3600000,
+      "business_criticality": "Medium",
+      "integration_count": 7,
+      "cloud_readiness": "High",
+      "disposition": "Rehost",
+      "functional_fit": "Medium",
+      "customer_facing": true,
+      "change_frequency": "Medium",
+      "data_sensitivity": "Medium",
+      "hosting_model": "IIS on VMware",
+      "primary_host_region": "Chicago DC",
+      "app_dependencies": [
+        "APP-001",
+        "APP-009"
+      ]
+    }
+  ],
+  "competitors": [
+    {
+      "name": "Walmart",
+      "segment": "Big-box omnichannel retail",
+      "public_strengths": [
+        "Mass-scale omnichannel fulfillment",
+        "Tech-powered retail operating model"
+      ],
+      "assumed_client_gap": [
+        "Lower fulfillment automation maturity",
+        "Less integrated store-to-digital orchestration"
+      ],
+      "evidence_note": "Composite drawn from public annual reports, investor materials, and retail-tech sector reporting.",
+      "evidence_signals": [
+        "Same-day fulfillment scale",
+        "Marketplace and omnichannel operating model",
+        "AI-enabled inventory and workforce tooling"
+      ]
+    },
+    {
+      "name": "Target",
+      "segment": "Omnichannel general merchandise",
+      "public_strengths": [
+        "Large first-party digital business",
+        "Loyalty-led same-day services"
+      ],
+      "assumed_client_gap": [
+        "Weaker loyalty monetization",
+        "Lower offer personalization consistency"
+      ],
+      "evidence_note": "Composite drawn from public annual reports, investor materials, and retail-tech sector reporting.",
+      "evidence_signals": [
+        "Large first-party digital business",
+        "Loyalty-led same-day services",
+        "Store-led digital fulfillment model"
+      ]
+    },
+    {
+      "name": "Amazon",
+      "segment": "Digital-native retail and marketplace",
+      "public_strengths": [
+        "Marketplace scale",
+        "High-velocity product experimentation"
+      ],
+      "assumed_client_gap": [
+        "Slower release cadence",
+        "Less advanced marketplace tooling"
+      ],
+      "evidence_note": "Composite drawn from public annual reports, investor materials, and retail-tech sector reporting.",
+      "evidence_signals": [
+        "Marketplace scale",
+        "High-velocity experimentation",
+        "Cloud-native digital operating model"
+      ]
+    }
+  ],
+  "data_estate": {
+    "domains": [
+      "Customer and loyalty",
+      "Product and catalog",
+      "Orders and returns",
+      "Pricing and promotions",
+      "Inventory and fulfillment",
+      "Supplier and merchandising"
+    ],
+    "current_platforms": [
+      "Oracle",
+      "SQL Server",
+      "SAP BW/HANA",
+      "S3-compatible object storage",
+      "Kafka"
+    ],
+    "integration_pain_points": [
+      "Duplicate customer records across loyalty, ecommerce, and service applications",
+      "Batch-oriented merchandise and inventory interfaces",
+      "Limited real-time eventing for pricing, stock, and returns"
+    ],
+    "governance_gaps": [
+      "No shared data product ownership model across customer-facing and supply-chain domains"
+    ],
+    "governance_model": "Central data office with federated domain stewardship, but ownership enforcement is inconsistent across commerce and supply-chain domains.",
+    "domain_owners": [
+      {
+        "domain": "Customer and loyalty",
+        "owner_role": "VP Loyalty and Personalization"
+      },
+      {
+        "domain": "Product and catalog",
+        "owner_role": "VP Merchandising Platforms"
+      },
+      {
+        "domain": "Orders and returns",
+        "owner_role": "VP Order Management"
+      },
+      {
+        "domain": "Pricing and promotions",
+        "owner_role": "VP Pricing Strategy"
+      },
+      {
+        "domain": "Inventory and fulfillment",
+        "owner_role": "VP Supply Chain Technology"
+      },
+      {
+        "domain": "Supplier and merchandising",
+        "owner_role": "VP Merchandising Operations"
+      }
+    ],
+    "data_quality_pain_points": [
+      "Duplicate customer keys across commerce, loyalty, and service applications.",
+      "Inconsistent SKU hierarchy and product-attribute standards across merchandising feeds.",
+      "Batch-based inventory snapshots create stale availability signals for same-day fulfillment.",
+      "Supplier master data ownership is fragmented across merchandising and finance teams."
+    ]
+  },
+  "delivery_centers": [
+    {
+      "location": "Bengaluru, India",
+      "type": "Offshore",
+      "primary_roles": [
+        "Modernization engineering",
+        "Platform engineering",
+        "SRE"
+      ],
+      "strategic_reason": "Primary delivery hub for modernization engineering and platform work",
+      "timezone_overlap_hours": 2.5
+    },
+    {
+      "location": "Hyderabad, India",
+      "type": "Offshore",
+      "primary_roles": [
+        "Data engineering",
+        "QA automation",
+        "Customer analytics"
+      ],
+      "strategic_reason": "Secondary hub for data and automation delivery",
+      "timezone_overlap_hours": 2.5
+    },
+    {
+      "location": "Guadalajara, Mexico",
+      "type": "Nearshore",
+      "primary_roles": [
+        "L2 support",
+        "Business analysis",
+        "Product operations"
+      ],
+      "strategic_reason": "North American timezone overlap for business-facing operations",
+      "timezone_overlap_hours": 6.0
+    }
+  ],
+  "targets": {
+    "cloud_migration_pct": 65,
+    "legacy_cost_reduction_pct": 28,
+    "release_frequency_improvement_pct": 45,
+    "change_failure_rate_reduction_pct": 25,
+    "innovation_budget_shift_pct": 20
+  },
+  "financial_assumptions": {
+    "contract_years": 5,
+    "transformation_investment_pct_of_tcv": 22,
+    "investment_curve_pct": [
+      30,
+      24,
+      20,
+      16,
+      10
+    ],
+    "labor_share_pct_of_adm": 64,
+    "current_delivery_mix_pct": {
+      "onshore": 70,
+      "nearshore": 10,
+      "offshore": 20
+    },
+    "target_delivery_mix_pct": {
+      "onshore": 35,
+      "nearshore": 10,
+      "offshore": 55
+    },
+    "rate_card_usd_per_hour": {
+      "onshore": 95,
+      "nearshore": 55,
+      "offshore": 32
+    },
+    "automation_productivity_uplift_pct": 20,
+    "productivity_value_capture_pct": 55,
+    "resilience_value_pct_of_adm": 4,
+    "legacy_savings_rate_by_disposition_pct": {
+      "Retire": 100,
+      "Retain": 3,
+      "Rehost": 15,
+      "Replatform": 25,
+      "Refactor": 32,
+      "Rearchitect": 40
+    },
+    "benefit_ramp_curves_pct": {
+      "workforce": [
+        15,
+        35,
+        60,
+        85,
+        100
+      ],
+      "legacy": [
+        8,
+        30,
+        58,
+        82,
+        100
+      ],
+      "productivity": [
+        10,
+        35,
+        65,
+        85,
+        100
+      ],
+      "resilience": [
+        10,
+        35,
+        65,
+        85,
+        100
+      ]
+    }
+  }
+}

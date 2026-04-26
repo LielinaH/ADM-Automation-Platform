@@ -35,7 +35,7 @@ Several important things are **not** defined by the brief and should therefore b
 | Parameter | Status | Recommended handling |
 |---|---|---|
 | Exact ROI denominator | Unspecified | Compute ROI against transformation investment, not against total TCV; store this assumption in `financial_assumptions` |
-| Whether annual ADM spend includes infra, app run, change, or only support | Unspecified | Treat as a required declared assumption in ingress notes |
+| Whether annual ADM spend includes infra, app run, change, or only support | Unspecified | Treat as a required declared assumption in `inputs/clients/<client_id>.meta.yaml` |
 | Whether revenue uplift should be monetized | Unspecified | Keep optional; do not invent it without explicit input |
 | Exact required app count | Unspecified | Use recommended richness thresholds rather than hard fail |
 | Whether all 12 sections must appear as separate top-level visible nav items | Unspecified | Keep 12 logical sections, allow visual consolidation in renderer |
@@ -63,7 +63,7 @@ Those sources imply five ingress rules:
 
 For the fictional sample itself, a public-source-informed composite is the cleanest approach. The assessment asks for a fictional client, so the right move is not to rename a real company but to synthesize from open sources. For retail, that is easy: entity["company","Walmart","retailer"] publicly frames itself as a people-led, tech-powered company spanning stores and eCommerce; entity["company","Target","retailer"] describes a $20 billion first-party digital business, strong loyalty economics, same-day service growth, store-led digital fulfillment, and AI-enhanced inventory and workforce tooling; and the entity["organization","National Retail Federation","retail trade association"] describes current retail technology pressure as scaling AI, connecting systems, and turning data into faster real-time decisions. That is more than enough to design a realistic fictional retail ingress without copying any one company. fileciteturn1file0 citeturn10view0turn11view1turn11view3turn11view4turn10view2turn10view3
 
-## Canonical ingress schema
+## Canonical ingress contract
 
 The safest implementation is:
 
@@ -75,10 +75,30 @@ The safest implementation is:
 
 JSON should be the canonical runtime form because hashing, deterministic comparisons, and rerun caching are easier with a canonical serializer. YAML support is still useful because humans tend to draft dossier-like inputs more comfortably in YAML.
 
+This markdown file should be treated as a **human authoring guide and contract definition**, not as a pipeline input. The pipeline should never parse this document directly. The machine-ingest boundary should be one of the canonical client payloads below:
+
+| Layer | Artifact | Consumer | Purpose |
+|---|---|---|---|
+| Contract / guidance | `adm-ingress-contract.md` | Humans | Explains required fields, assumptions, and validation rules |
+| Canonical client payload | `inputs/clients/<client_id>.json` | Pipeline | Single machine-readable source of truth for a client run |
+| Optional YAML authoring twin | `inputs/clients/<client_id>.yaml` | Humans, then pipeline after conversion | Must convert 1:1 into the canonical JSON payload with no extra keys |
+| Optional authoring metadata | `inputs/clients/<client_id>.meta.yaml` | Humans | Notes such as provenance and assumption tracking; not read by the pipeline |
+| Derived facts | `runs/<client_id>/facts.json` | Prompts and renderer | Code-computed values only |
+
 ### Top-level schema
+
+This document defines two closed contract profiles:
+
+- `schema_version: "1.0"` for the minimal canonical ingress contract
+- `schema_version: "2.0"` for the benchmark-enriched profile used when targeting Cisco-level output depth
+
+The canonical v1 payload is **exactly one JSON object with 12 top-level fields**. The optional YAML authoring twin must serialize to the same object shape. Unknown top-level keys should fail validation in v1.
+
+The canonical v1 schema is **closed at every level**. Unknown keys inside nested objects such as `company`, `narrative_context`, `business_units[]`, `apps[]`, `competitors[]`, `data_estate`, `delivery_centers[]`, `targets`, and `financial_assumptions` should also fail validation unless the field is explicitly listed in this contract.
 
 | Field | Type | Required | Example | Notes |
 |---|---|---:|---|---|
+| `schema_version` | string | Yes | `1.0` | Must be exactly `1.0` for this contract |
 | `client_id` | string | Yes | `northstar-retail-v1` | Stable slug for filenames, hashes, logs |
 | `company` | object | Yes | `{name, industry, ...}` | Company identity and business scale |
 | `narrative_context` | object | Yes | `{strategic_priorities, pain_points, ...}` | Replaces missing freeform “business line intelligence” attachment |
@@ -90,9 +110,52 @@ JSON should be the canonical runtime form because hashing, deterministic compari
 | `delivery_centers` | array<object> | Yes | `[{location:"Bengaluru, India",...}]` | Delivery-center architecture section |
 | `targets` | object | Yes | `{cloud_migration_pct:65,...}` | KPI and roadmap targets |
 | `financial_assumptions` | object | Yes | `{contract_years:5,...}` | Code-only calculations |
-| `section_preferences` | object | No | `{output_language:"en-US", currency:"USD"}` | Better kept optional |
-| `provenance` | object | No | `{research_basis:"...", created_on:"..."}` | Audit trail |
-| `assumption_log` | array<object> | No | `[{topic:"ROI denominator",...}]` | Explicit unresolved assumptions |
+
+### Minimum valid ingress contract
+
+This is the **minimum valid machine-ingest shape** that the pipeline should accept. It is intentionally smaller than the recommended richness target and is only meant to define the validation boundary, not the quality bar for the final ADM.
+
+| Block | Minimum valid requirement |
+|---|---|
+| `schema_version` | Must equal `"1.0"` |
+| `client_id` | Non-empty slug-safe string |
+| `company` | Must include `name`, `industry`, `headquarters`, `operating_regions`, `employees`, `annual_revenue_usd`, `summary` |
+| `narrative_context` | Must include non-empty `strategic_priorities`, `pain_points`, and `regulatory_context` arrays |
+| `annual_adm_spend_usd` | Positive number |
+| `business_units` | At least 1 item; each item must include `name` and `owner_role` |
+| `apps` | At least 1 item; each item must include `id`, `name`, `business_unit`, `capability`, `age_years`, `tech_stack`, `annual_run_cost_usd`, `business_criticality`, `integration_count`, and `cloud_readiness`; `tech_stack` must be non-empty |
+| `competitors` | At least 1 item; each item must include `name`, `segment`, `public_strengths`, and `assumed_client_gap`; both arrays must be non-empty |
+| `data_estate` | Must include non-empty `domains`, `current_platforms`, and `integration_pain_points` arrays |
+| `delivery_centers` | At least 1 item; each item must include `location`, `type`, `primary_roles`, and `strategic_reason`; `primary_roles` must be non-empty |
+| `targets` | Must include all five target percentages defined below |
+| `financial_assumptions` | Must include every field listed under `Required financial inputs` below |
+
+Any additional richness beyond that minimum should be treated as optional enrichment, not as part of the core contract boundary.
+
+### Centralized enum definitions
+
+All enums should be defined once and reused consistently across validation, calculation, prompting, and rendering.
+
+| Enum name | Allowed values | Used by |
+|---|---|---|
+| `business_criticality` | `Low`, `Medium`, `High` | `apps[].business_criticality` |
+| `cloud_readiness` | `Low`, `Medium`, `High` | `apps[].cloud_readiness` |
+| `disposition` | `Retire`, `Retain`, `Rehost`, `Replatform`, `Refactor`, `Rearchitect` | `apps[].disposition`, modernization matrix, financial disposition savings |
+| `functional_fit` | `Low`, `Medium`, `High` | `apps[].functional_fit` |
+| `change_frequency` | `Low`, `Medium`, `High` | `apps[].change_frequency` |
+| `data_sensitivity` | `Low`, `Medium`, `High` | `apps[].data_sensitivity` |
+| `lifecycle_status` | `Run`, `Contain`, `Transform` | `apps[].lifecycle_status` |
+| `delivery_center_type` | `Onshore`, `Nearshore`, `Offshore` | `delivery_centers[].type` |
+
+### Authoring metadata outside the canonical payload
+
+The following fields may still be useful to humans, but they are **out of contract** unless future code explicitly consumes them. Keep them in `inputs/clients/<client_id>.meta.yaml`, not in the canonical JSON/YAML payload.
+
+| Metadata field | Purpose |
+|---|---|
+| `section_preferences` | Human formatting or style preferences that are not required for validation or calculations |
+| `provenance` | Research basis, creation date, or audit notes |
+| `assumption_log` | Explicit unresolved assumptions and human review notes |
 
 ### `company`
 
@@ -137,7 +200,7 @@ This is the most important nested object.
 | `business_unit` | string | Yes | `Digital Commerce` | BU slicing |
 | `capability` | string | Yes | `Order management` | Tells the story of the app |
 | `age_years` | integer | Yes | `14` | Technical-debt signal |
-| `tech_stack` | array<string> | Yes | `["Java","Oracle","VMware"]` | Modernization logic |
+| `tech_stack` | array<string> | Yes | `["Java","Oracle","VMware"]` | Modernization logic; must be non-empty |
 | `annual_run_cost_usd` | number | Yes | `12000000` | Legacy-cost reduction base |
 | `business_criticality` | enum | Yes | `High` | Risk and sequencing |
 | `integration_count` | integer | Yes | `18` | Dependency complexity |
@@ -167,8 +230,8 @@ That matters because the brief explicitly calls for a six-column modernization m
 |---|---|---:|---|
 | `name` | string | Yes | `Walmart` |
 | `segment` | string | Yes | `Big-box omnichannel retail` |
-| `public_strengths` | array<string> | Yes | `["Mass-scale omnichannel fulfillment", ...]` |
-| `assumed_client_gap` | array<string> | Yes | `["Lower fulfillment automation maturity", ...]` |
+| `public_strengths` | array<string> | Yes | `["Mass-scale omnichannel fulfillment", ...]` | Must be non-empty |
+| `assumed_client_gap` | array<string> | Yes | `["Lower fulfillment automation maturity", ...]` | Must be non-empty |
 | `evidence_note` | string | No | `Based on public annual reports and NRF sector signals` |
 
 ### `data_estate`
@@ -187,7 +250,7 @@ That matters because the brief explicitly calls for a six-column modernization m
 |---|---|---:|---|
 | `location` | string | Yes | `Bengaluru, India` |
 | `type` | enum | Yes | `Offshore` / `Nearshore` / `Onshore` |
-| `primary_roles` | array<string> | Yes | `["Modernization engineering","SRE"]` |
+| `primary_roles` | array<string> | Yes | `["Modernization engineering","SRE"]` | Must be non-empty |
 | `strategic_reason` | string | Yes | `Deep engineering pool for modernization work` |
 | `timezone_overlap_hours` | number | No | `3.5` |
 
@@ -199,33 +262,76 @@ That matters because the brief explicitly calls for a six-column modernization m
 | `legacy_cost_reduction_pct` | number | Yes | `28` |
 | `release_frequency_improvement_pct` | number | Yes | `45` |
 | `change_failure_rate_reduction_pct` | number | Yes | `25` |
-| `offshore_delivery_mix_target_pct` | number | Yes | `55` |
 | `innovation_budget_shift_pct` | number | Yes | `20` |
-| `min_roi_pct` | number | No | `35` |
 
-`min_roi_pct` is optional because the brief requires code to compute ROI; it can still be useful as a constraint or guardrail for scenario selection. fileciteturn1file0
+Delivery-model targets should live only in `financial_assumptions.current_delivery_mix_pct` and `financial_assumptions.target_delivery_mix_pct`. They should not be duplicated under `targets`, because the pipeline needs one source of truth for workforce-arbitrage calculations.
+
+
+The brief note above is descriptive only. Optimizer constraints are intentionally excluded from the canonical v1 payload and, if ever implemented, belong in a separate appendix-level artifact.
 
 ### `financial_assumptions`
 
+#### Percentage semantics
+
+All percent-like values in the canonical v1 payload should use the **same convention: whole-number percentages in the range `0-100`**. Code may normalize them internally by dividing by `100.0`, but the ingress contract should never mix ratios like `0.22` with percentages like `22`.
+
+| Pattern | Example | Meaning |
+|---|---|---|
+| Scalar percent | `22` | Twenty-two percent |
+| Delivery-mix percent | `{onshore: 70, nearshore: 10, offshore: 20}` | Mix shares that must sum to `100` |
+| Investment curve | `[30, 24, 20, 16, 10]` | Percent allocation by year that must sum to `100` |
+| Benefit ramp curve | `[15, 35, 60, 85, 100]` | Cumulative percent realization by year |
+
+#### Required financial inputs
+
 | Field | Type | Required | Example | Notes |
 |---|---|---:|---|---|
-| `contract_years` | integer | Yes | `5` | Should default to 5 because the brief demands 5-year TCV |
-| `transformation_investment_pct_of_tcv` | number | Yes | `0.22` | Recommended explicit denominator |
-| `investment_curve` | array<number> | Yes | `[0.30,0.24,0.20,0.16,0.10]` | Must sum to 1.00 |
-| `labor_share_pct_of_adm` | number | Yes | `0.64` | Workforce-savings base |
-| `current_delivery_mix_pct` | object | Yes | `{onshore:70, nearshore:10, offshore:20}` | Must sum to 100 |
-| `target_delivery_mix_pct` | object | Yes | `{onshore:35, nearshore:10, offshore:55}` | Must sum to 100 |
-| `rate_card_usd_per_hour` | object | Yes | `{onshore:95, nearshore:55, offshore:32}` | Blended-rate model |
-| `hours_per_fte_per_year` | integer | Yes | `1760` | FTE conversion |
-| `automation_productivity_uplift_pct` | number | Yes | `20` | Optional productivity stream |
-| `productivity_value_capture_pct` | number | Yes | `55` | Conservative capture assumption |
-| `resilience_value_pct_of_adm` | number | Yes | `4.0` | Downtime/resilience proxy |
-| `legacy_savings_rate_by_disposition_pct` | object | Yes | `{Retire:100,...}` | Disposition economics |
-| `benefit_ramp_curves_pct` | object | Yes | `{workforce:[15,35,...], ...}` | Year-by-year realization |
+| `contract_years` | integer | Yes | `5` | Must equal `5` in v1 |
+| `transformation_investment_pct_of_tcv` | number | Yes | `22` | Whole-number percent of 5-year TCV |
+| `investment_curve_pct` | array<number> | Yes | `[30,24,20,16,10]` | Whole-number yearly allocation; must sum to `100` |
+| `labor_share_pct_of_adm` | number | Yes | `64` | Whole-number percent of annual ADM spend |
+| `current_delivery_mix_pct` | object | Yes | `{onshore:70, nearshore:10, offshore:20}` | Must contain exactly `onshore`, `nearshore`, `offshore`; values must sum to `100` |
+| `target_delivery_mix_pct` | object | Yes | `{onshore:35, nearshore:10, offshore:55}` | Must contain exactly `onshore`, `nearshore`, `offshore`; values must sum to `100` |
+| `rate_card_usd_per_hour` | object | Yes | `{onshore:95, nearshore:55, offshore:32}` | Must contain exactly `onshore`, `nearshore`, `offshore` |
+| `legacy_savings_rate_by_disposition_pct` | object | Yes | `{Retire:100,...}` | Must contain exactly `Retire`, `Retain`, `Rehost`, `Replatform`, `Refactor`, and `Rearchitect` |
+| `benefit_ramp_curves_pct.workforce` | array<number> | Yes | `[15,35,60,85,100]` | Workforce-savings realization by year |
+| `benefit_ramp_curves_pct.legacy` | array<number> | Yes | `[8,30,58,82,100]` | Legacy-savings realization by year |
+
+#### Optional value-stream inputs
+
+If the following fields are omitted, the calculation layer should treat them as `0` and skip their matching benefit curves.
+
+| Field | Type | Required | Example | Notes |
+|---|---|---:|---|---|
+| `automation_productivity_uplift_pct` | number | No | `20` | Optional productivity stream; default to `0` if omitted |
+| `productivity_value_capture_pct` | number | No | `55` | Optional capture assumption; default to `0` if omitted |
+| `resilience_value_pct_of_adm` | number | No | `4` | Optional downtime/resilience proxy; default to `0` if omitted |
+| `benefit_ramp_curves_pct.productivity` | array<number> | No | `[10,35,65,85,100]` | Required only when productivity value is non-zero |
+| `benefit_ramp_curves_pct.resilience` | array<number> | No | `[10,35,65,85,100]` | Required only when resilience value is non-zero |
+
+In v1, `benefit_ramp_curves_pct` is also a closed object. It must contain exactly `workforce` and `legacy`, and it may additionally contain `productivity` and `resilience` only when those value streams are used.
+
+### Financial contract and field ownership
+
+The ingress should distinguish between **client facts**, **calculation inputs**, and **scenario policy**. That separation keeps the client payload stable and prevents the pipeline from mixing business facts with optimizer tuning.
+
+| Field class | Belongs in canonical client payload? | Examples | Rule |
+|---|---|---|---|
+| Required client facts | Yes | `annual_adm_spend_usd`, `apps[]`, `competitors[]`, `delivery_centers[]` | These describe the client estate and should always travel with the run |
+| Required calculation inputs | Yes | `contract_years`, `investment_curve_pct`, `current_delivery_mix_pct`, `target_delivery_mix_pct`, `legacy_savings_rate_by_disposition_pct` | These directly affect `compute_facts()` and must be explicit |
+| Optional assumption-driven value streams | Yes, if used | `automation_productivity_uplift_pct`, `productivity_value_capture_pct`, `resilience_value_pct_of_adm` | If omitted, code should treat them as `0` and skip their benefit curves |
+| Derived outputs | No | `tcv_5y_usd`, `roi_pct`, `disposition_counts` | These belong only in `facts.json` or rendered output |
+
+If a field does not change the base `compute_facts()` path and is not part of the client dossier itself, it should not be required in `inputs/clients/<client_id>.json`.
 
 ### Optional technical-enrichment extension
 
-The assessment does not require server-level inventory, but AWS and MPA show that richer discovery can materially improve business case and prioritization fidelity. If you want the **ideal** path rather than just the minimum acceptable path, add optional technical enrichment either per app or as a sibling object:
+The assessment does not require server-level inventory, but AWS and MPA show that richer discovery can materially improve business case and prioritization fidelity. This extension is **not part of canonical v1**. Because the canonical v1 schema is closed at every level, the fields below should not be added to `inputs/clients/<client_id>.json` or its 1:1 YAML twin. They require either:
+
+- a separate non-canonical research artifact, or
+- a future schema version that explicitly adds them to the contract
+
+If a future schema version introduces them, they could be attached per app or as a sibling object:
 
 | Field | Type | Required | Example | Source rationale |
 |---|---|---:|---|---|
@@ -238,36 +344,158 @@ The assessment does not require server-level inventory, but AWS and MPA show tha
 | `app_dependencies` | array<string> | No | `["APP-009","APP-007"]` | Better wave planning |
 | `network_latency_ms` | number | No | `12` | Useful for sequencing/risk |
 
-This extension is not required by the assessment, but it is consistent with vendor guidance on better-fidelity portfolio planning. citeturn4view2turn4view4turn6view0
+This extension is not required by the assessment, and it is intentionally outside canonical v1 even though it is consistent with vendor guidance on better-fidelity portfolio planning. citeturn4view2turn4view4turn6view0
+
+### Benchmark enrichment profile (`schema_version: "2.0"`)
+
+If the goal is to get materially closer to the Cisco benchmark, the pipeline needs a richer ingress than canonical `v1`. The safest way to do that is **not** to loosen `v1`, but to introduce a second closed contract profile with the same 12 top-level fields and richer nested objects.
+
+The benchmark-enriched `v2` rules are:
+
+- `schema_version` must equal `"2.0"`.
+- The top-level object shape stays the same as `v1`.
+- Closed-schema behavior still applies at every level.
+- Unknown nested keys still fail unless they are explicitly listed in the `v2` additions below.
+
+#### `narrative_context` additions for `v2`
+
+| Field | Type | Required | Example | Why it matters |
+|---|---|---:|---|---|
+| `current_state_metrics` | array<object> | Yes | `[{metric:"Release cadence", current_value:"Monthly", target_value:"Weekly"}]` | Quantifies pain points and target improvements |
+| `execution_assumptions` | array<string> | Yes | `["Holiday code freeze applies from mid-November through early January"]` | Makes roadmap and delivery assumptions explicit |
+
+#### `business_units[]` additions for `v2`
+
+| Field | Type | Required | Example | Why it matters |
+|---|---|---:|---|---|
+| `baseline_kpis` | array<object> | Yes | `[{name:"Major releases per year", value:"12", unit:"count"}]` | Anchors current-state performance by business unit |
+| `target_kpis` | array<object> | Yes | `[{name:"Major releases per year", value:"26", unit:"count"}]` | Anchors outcome targets by business unit |
+
+#### `apps[]` additions for `v2`
+
+| Field | Type | Required | Example | Why it matters |
+|---|---|---:|---|---|
+| `hosting_model` | string | Yes | `VMware on-prem` | Supports hosting and modernization narrative |
+| `primary_host_region` | string | Yes | `Chicago DC` | Helps wave planning and target-state design |
+| `app_dependencies` | array<string> | Yes | `["APP-007","APP-009"]` | Supports sequencing and dependency-aware roadmap design |
+
+#### `competitors[]` additions for `v2`
+
+| Field | Type | Required | Example | Why it matters |
+|---|---|---:|---|---|
+| `evidence_note` | string | Yes | `Composite drawn from public annual reports, investor materials, and retail-tech sector reporting.` | Makes benchmarking claims more defensible |
+| `evidence_signals` | array<string> | Yes | `["Same-day fulfillment scale", "AI-enabled inventory workflows"]` | Connects benchmark claims to explicit public signals |
+
+#### `data_estate` additions for `v2`
+
+| Field | Type | Required | Example | Why it matters |
+|---|---|---:|---|---|
+| `governance_model` | string | Yes | `Central data office with federated domain stewardship` | Makes governance maturity explicit |
+| `domain_owners` | array<object> | Yes | `[{domain:"Customer and loyalty", owner_role:"VP Loyalty and Personalization"}]` | Supports data-ownership and AI-readiness narrative |
+| `data_quality_pain_points` | array<string> | Yes | `["Duplicate customer keys across commerce and loyalty"]` | Makes target-state data remediation specific |
+
+These `v2` additions are the minimum enrichment pack needed to move from a good ADM to a benchmark-oriented ADM. They directly address the biggest gaps left by `v1`: evidence-backed benchmarking, dependency-aware wave planning, quantified current-state pain points, richer business-unit metrics, and explicit governance/execution assumptions.
 
 ### File naming conventions and immediate downstream artifact
 
 | Artifact | Convention | Example |
 |---|---|---|
 | Canonical ingress | `inputs/clients/<client_id>.json` | `inputs/clients/northstar-retail-v1.json` |
-| Optional YAML authoring | `inputs/clients/<client_id>.yaml` | `inputs/clients/northstar-retail-v1.yaml` |
+| Benchmark-enriched ingress | `inputs/clients/<client_id>.json` with `schema_version: "2.0"` | `inputs/clients/northstar-retail-v2.json` |
+| Optional YAML authoring twin | `inputs/clients/<client_id>.yaml` | `inputs/clients/northstar-retail-v1.yaml` |
+| Optional authoring metadata | `inputs/clients/<client_id>.meta.yaml` | `inputs/clients/northstar-retail-v1.meta.yaml` |
 | Computed facts | `runs/<client_id>/facts.json` | `runs/northstar-retail-v1/facts.json` |
 
-#### Minimal ingress snippet
+#### Minimum valid ingress example
 
 ```json
 {
+  "schema_version": "1.0",
   "client_id": "northstar-retail-v1",
-  "annual_adm_spend_usd": 95000000,
   "company": {
     "name": "Northstar Retail Group",
-    "industry": "Retail"
+    "industry": "Retail",
+    "headquarters": "Chicago, Illinois, USA",
+    "operating_regions": ["United States"],
+    "employees": 42000,
+    "annual_revenue_usd": 12800000000,
+    "summary": "Fictional omnichannel retailer."
   },
+  "narrative_context": {
+    "strategic_priorities": ["Reduce ADM run-cost"],
+    "pain_points": ["Fragmented application estate"],
+    "regulatory_context": ["PCI DSS"]
+  },
+  "annual_adm_spend_usd": 95000000,
+  "business_units": [
+    {
+      "name": "Digital Commerce",
+      "owner_role": "Chief Digital Officer"
+    }
+  ],
   "apps": [
     {
       "id": "APP-001",
       "name": "OrderCore",
       "business_unit": "Digital Commerce",
+      "capability": "Order management",
       "age_years": 14,
       "tech_stack": ["Java", "Oracle", "VMware"],
-      "annual_run_cost_usd": 12000000
+      "annual_run_cost_usd": 12000000,
+      "business_criticality": "High",
+      "integration_count": 18,
+      "cloud_readiness": "Medium"
     }
-  ]
+  ],
+  "competitors": [
+    {
+      "name": "Walmart",
+      "segment": "Big-box omnichannel retail",
+      "public_strengths": ["Mass-scale omnichannel fulfillment"],
+      "assumed_client_gap": ["Lower fulfillment automation maturity"]
+    }
+  ],
+  "data_estate": {
+    "domains": ["Orders and returns"],
+    "current_platforms": ["Oracle"],
+    "integration_pain_points": ["Batch-oriented order interfaces"]
+  },
+  "delivery_centers": [
+    {
+      "location": "Bengaluru, India",
+      "type": "Offshore",
+      "primary_roles": ["Modernization engineering"],
+      "strategic_reason": "Primary delivery hub for modernization work"
+    }
+  ],
+  "targets": {
+    "cloud_migration_pct": 65,
+    "legacy_cost_reduction_pct": 28,
+    "release_frequency_improvement_pct": 45,
+    "change_failure_rate_reduction_pct": 25,
+    "innovation_budget_shift_pct": 20
+  },
+  "financial_assumptions": {
+    "contract_years": 5,
+    "transformation_investment_pct_of_tcv": 22,
+    "investment_curve_pct": [30, 24, 20, 16, 10],
+    "labor_share_pct_of_adm": 64,
+    "current_delivery_mix_pct": {"onshore": 70, "nearshore": 10, "offshore": 20},
+    "target_delivery_mix_pct": {"onshore": 35, "nearshore": 10, "offshore": 55},
+    "rate_card_usd_per_hour": {"onshore": 95, "nearshore": 55, "offshore": 32},
+    "legacy_savings_rate_by_disposition_pct": {
+      "Retire": 100,
+      "Retain": 3,
+      "Rehost": 15,
+      "Replatform": 25,
+      "Refactor": 32,
+      "Rearchitect": 40
+    },
+    "benefit_ramp_curves_pct": {
+      "workforce": [15, 35, 60, 85, 100],
+      "legacy": [8, 30, 58, 82, 100]
+    }
+  }
 }
 ```
 
@@ -283,10 +511,11 @@ This extension is not required by the assessment, but it is consistent with vend
 }
 ```
 
-### Sample ingress JSON
+### Sample canonical ingress JSON
 
 ```json
 {
+  "schema_version": "1.0",
   "client_id": "northstar-retail-v1",
   "company": {
     "name": "Northstar Retail Group",
@@ -642,15 +871,13 @@ This extension is not required by the assessment, but it is consistent with vend
     "legacy_cost_reduction_pct": 28,
     "release_frequency_improvement_pct": 45,
     "change_failure_rate_reduction_pct": 25,
-    "offshore_delivery_mix_target_pct": 55,
-    "innovation_budget_shift_pct": 20,
-    "min_roi_pct": 35
+    "innovation_budget_shift_pct": 20
   },
   "financial_assumptions": {
     "contract_years": 5,
-    "transformation_investment_pct_of_tcv": 0.22,
-    "investment_curve": [0.30, 0.24, 0.20, 0.16, 0.10],
-    "labor_share_pct_of_adm": 0.64,
+    "transformation_investment_pct_of_tcv": 22,
+    "investment_curve_pct": [30, 24, 20, 16, 10],
+    "labor_share_pct_of_adm": 64,
     "current_delivery_mix_pct": {
       "onshore": 70,
       "nearshore": 10,
@@ -666,10 +893,9 @@ This extension is not required by the assessment, but it is consistent with vend
       "nearshore": 55,
       "offshore": 32
     },
-    "hours_per_fte_per_year": 1760,
     "automation_productivity_uplift_pct": 20,
     "productivity_value_capture_pct": 55,
-    "resilience_value_pct_of_adm": 4.0,
+    "resilience_value_pct_of_adm": 4,
     "legacy_savings_rate_by_disposition_pct": {
       "Retire": 100,
       "Retain": 3,
@@ -684,33 +910,14 @@ This extension is not required by the assessment, but it is consistent with vend
       "productivity": [10, 35, 65, 85, 100],
       "resilience": [10, 35, 65, 85, 100]
     }
-  },
-  "section_preferences": {
-    "output_language": "en-US",
-    "currency": "USD"
-  },
-  "provenance": {
-    "research_basis": "Fictional composite inspired by public retail annual reports, NRF retail-tech signals, and cloud modernization reference architectures.",
-    "created_on": "2026-04-26"
-  },
-  "assumption_log": [
-    {
-      "topic": "ROI denominator",
-      "status": "assumed",
-      "note": "ROI is computed against transformation investment rather than total TCV."
-    },
-    {
-      "topic": "Annual ADM spend coverage",
-      "status": "assumed",
-      "note": "ADM spend is treated as total managed-application service spend, while app run-cost totals are allowed to be lower due to shared tooling, support, and overhead."
-    }
-  ]
+  }
 }
 ```
 
-### Sample ingress YAML
+### Sample canonical ingress YAML authoring twin
 
 ```yaml
+schema_version: "1.0"
 client_id: northstar-retail-v1
 
 company:
@@ -812,29 +1019,33 @@ targets:
   legacy_cost_reduction_pct: 28
   release_frequency_improvement_pct: 45
   change_failure_rate_reduction_pct: 25
-  offshore_delivery_mix_target_pct: 55
   innovation_budget_shift_pct: 20
-  min_roi_pct: 35
 
 financial_assumptions:
   contract_years: 5
-  transformation_investment_pct_of_tcv: 0.22
-  investment_curve: [0.30, 0.24, 0.20, 0.16, 0.10]
-  labor_share_pct_of_adm: 0.64
+  transformation_investment_pct_of_tcv: 22
+  investment_curve_pct: [30, 24, 20, 16, 10]
+  labor_share_pct_of_adm: 64
   current_delivery_mix_pct: {onshore: 70, nearshore: 10, offshore: 20}
   target_delivery_mix_pct: {onshore: 35, nearshore: 10, offshore: 55}
   rate_card_usd_per_hour: {onshore: 95, nearshore: 55, offshore: 32}
-  hours_per_fte_per_year: 1760
   automation_productivity_uplift_pct: 20
   productivity_value_capture_pct: 55
-  resilience_value_pct_of_adm: 4.0
+  resilience_value_pct_of_adm: 4
   legacy_savings_rate_by_disposition_pct: {Retire: 100, Retain: 3, Rehost: 15, Replatform: 25, Refactor: 32, Rearchitect: 40}
   benefit_ramp_curves_pct:
     workforce: [15, 35, 60, 85, 100]
     legacy: [8, 30, 58, 82, 100]
     productivity: [10, 35, 65, 85, 100]
     resilience: [10, 35, 65, 85, 100]
+```
 
+### Optional authoring metadata companion
+
+If a human author wants to preserve research notes or publishing preferences, keep them in a separate metadata companion rather than in the canonical client payload.
+
+```yaml
+# inputs/clients/northstar-retail-v1.meta.yaml
 section_preferences:
   output_language: en-US
   currency: USD
@@ -847,16 +1058,28 @@ assumption_log:
   - topic: ROI denominator
     status: assumed
     note: ROI is computed against transformation investment rather than total TCV.
-  - topic: Annual ADM spend coverage
-    status: assumed
-    note: ADM spend is treated as total managed-application service spend, while app run-cost totals are allowed to be lower due to shared tooling, support, and overhead.
 ```
+
+### Appendix: Future run-profile artifact
+
+If a later implementation introduces scenario optimization, keep that policy in a separate artifact rather than in the canonical client payload.
+
+```json
+{
+  "client_id": "northstar-retail-v1",
+  "min_roi_pct": 35
+}
+```
+
+This appendix is intentionally outside the v1 ingress contract. It exists only to show where future optimizer constraints would live if the pipeline later consumes them.
 
 ## Richness targets and section coverage
 
 The brief does not specify a minimum app count or depth level, but the benchmark quality and vendor portfolio guidance make it clear that a trivial input will not support a substantive ADM. A realistic ingress should be sized to support 12 logical sections, not just to pass schema validation. AWS and Google both emphasize that prioritization and wave planning get materially better when the inventory and dependency picture is sufficiently detailed. citeturn4view1turn6view0turn3view3
 
 ### Richness levels and expected output quality
+
+These richness bands describe **content quality**, not schema validity. A payload can be contract-valid at the minimum boundary above and still fall below the recommended richness for a strong ADM.
 
 | Ingress richness | Apps | Business units | Competitors | Delivery centers | Data domains | Financial assumption fields | Expected HTML quality |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -913,25 +1136,43 @@ A good ingress design needs two kinds of validation: **hard validation** that pr
 
 | Rule | Severity |
 |---|---|
+| `schema_version` must equal `"1.0"` | Fail |
 | `client_id` must be non-empty, slug-safe, and unique within the run set | Fail |
+| Canonical payload must contain only the 12 top-level fields defined in the v1 schema | Fail |
+| Canonical payload must not contain out-of-contract metadata such as `section_preferences`, `provenance`, or `assumption_log` | Fail |
+| Unknown nested keys inside canonical objects must fail validation unless the field is explicitly listed in this contract | Fail |
 | `annual_adm_spend_usd` must be `> 0` | Fail |
+| `narrative_context.strategic_priorities`, `.pain_points`, and `.regulatory_context` must each be non-empty | Fail |
 | `business_units[].name` must be unique | Fail |
 | Every `apps[].business_unit` must exist in `business_units[].name` | Fail |
 | Every `apps[].id` must be unique | Fail |
-| Every app must have `name`, `capability`, `age_years`, `tech_stack`, and `annual_run_cost_usd` | Fail |
+| Every app must have `id`, `name`, `business_unit`, `capability`, `age_years`, `tech_stack`, `annual_run_cost_usd`, `business_criticality`, `integration_count`, and `cloud_readiness` | Fail |
+| `apps[].tech_stack` must be non-empty | Fail |
 | `age_years` must be integer `>= 0` | Fail |
 | `annual_run_cost_usd` must be `> 0` | Fail |
 | `business_criticality` must be one of `Low`, `Medium`, `High` | Fail |
 | `cloud_readiness` must be one of `Low`, `Medium`, `High` | Fail |
-| If `disposition` is supplied, it must be one of the six allowed output values | Fail |
+| If `functional_fit` is supplied, it must be one of `Low`, `Medium`, `High` | Fail |
+| If `change_frequency` is supplied, it must be one of `Low`, `Medium`, `High` | Fail |
+| If `data_sensitivity` is supplied, it must be one of `Low`, `Medium`, `High` | Fail |
+| If `lifecycle_status` is supplied, it must be one of `Run`, `Contain`, or `Transform` | Fail |
+| If `disposition` is supplied, it must be one of `Retire`, `Retain`, `Rehost`, `Replatform`, `Refactor`, or `Rearchitect` | Fail |
 | `competitors` must contain at least one item | Fail |
+| `competitors[].public_strengths` must be non-empty | Fail |
+| `competitors[].assumed_client_gap` must be non-empty | Fail |
+| `data_estate.domains`, `.current_platforms`, and `.integration_pain_points` must each be non-empty | Fail |
 | `delivery_centers` must contain at least one item | Fail |
+| `delivery_centers[].type` must be one of `Onshore`, `Nearshore`, or `Offshore` | Fail |
+| `delivery_centers[].primary_roles` must be non-empty | Fail |
 | `targets` percentage values must be in `[0,100]` | Fail |
-| `financial_assumptions.contract_years` must equal `5` unless explicitly overridden by future design | Fail or Warn, depending on scope |
-| `investment_curve.length == contract_years` and `sum(investment_curve) == 1.0 ± 0.001` | Fail |
+| `financial_assumptions.contract_years` must equal `5` | Fail |
+| `financial_assumptions.investment_curve_pct.length == contract_years` and `sum(investment_curve_pct) == 100 ± 0.001` | Fail |
 | `current_delivery_mix_pct` and `target_delivery_mix_pct` must each sum to `100` | Fail |
-| `legacy_savings_rate_by_disposition_pct` must define all six dispositions | Fail |
-| `benefit_ramp_curves_pct` arrays must each have length equal to `contract_years` | Fail |
+| `current_delivery_mix_pct`, `target_delivery_mix_pct`, and `rate_card_usd_per_hour` must each contain exactly `onshore`, `nearshore`, and `offshore` keys | Fail |
+| `legacy_savings_rate_by_disposition_pct` must contain exactly `Retire`, `Retain`, `Rehost`, `Replatform`, `Refactor`, and `Rearchitect` | Fail |
+| `benefit_ramp_curves_pct.workforce` and `.legacy` must each have length equal to `contract_years` | Fail |
+| `benefit_ramp_curves_pct` must not contain keys other than `workforce`, `legacy`, `productivity`, and `resilience` | Fail |
+| If productivity or resilience value streams are non-zero, the matching `benefit_ramp_curves_pct` arrays must exist and have length equal to `contract_years` | Fail |
 
 ### Quality validation rules
 
@@ -951,7 +1192,9 @@ A good ingress design needs two kinds of validation: **hard validation** that pr
 Before computing `facts.json`, the system should complete this checklist:
 
 - Canonicalize the input into deterministic JSON.
-- Validate schema and enums.
+- If the source was YAML, convert it 1:1 into canonical JSON with no extra keys.
+- Verify `schema_version == "1.0"` before any other processing.
+- Validate schema and centralized enums.
 - Validate referential integrity across business units, apps, and competitors.
 - Compute a `client_input_sha256`.
 - Compute derived portfolio summaries such as app count, BU count, average app age, total app run cost, and disposition counts.
@@ -1055,14 +1298,15 @@ def compute_facts(client):
 
     # Assumption: ROI denominator is transformation investment, not total TCV
     transformation_investment_total_usd = (
-        tcv_5y_usd * fa["transformation_investment_pct_of_tcv"]
+        tcv_5y_usd * (fa["transformation_investment_pct_of_tcv"] / 100.0)
     )
     investment_by_year_usd = [
-        transformation_investment_total_usd * w for w in fa["investment_curve"]
+        transformation_investment_total_usd * (w / 100.0)
+        for w in fa["investment_curve_pct"]
     ]
 
     # Offshore labor arbitrage
-    labor_spend = spend * fa["labor_share_pct_of_adm"]
+    labor_spend = spend * (fa["labor_share_pct_of_adm"] / 100.0)
     current_blended = blended_rate(
         fa["rate_card_usd_per_hour"],
         fa["current_delivery_mix_pct"]
@@ -1085,16 +1329,26 @@ def compute_facts(client):
     # Optional but useful value streams
     annual_productivity_value = (
         labor_spend *
-        (fa["automation_productivity_uplift_pct"] / 100.0) *
-        (fa["productivity_value_capture_pct"] / 100.0)
+        (fa.get("automation_productivity_uplift_pct", 0) / 100.0) *
+        (fa.get("productivity_value_capture_pct", 0) / 100.0)
     )
-    annual_resilience_value = spend * (fa["resilience_value_pct_of_adm"] / 100.0)
+    annual_resilience_value = spend * (
+        fa.get("resilience_value_pct_of_adm", 0) / 100.0
+    )
 
     # Realization curves
     work_curve = [x / 100.0 for x in fa["benefit_ramp_curves_pct"]["workforce"]]
     leg_curve  = [x / 100.0 for x in fa["benefit_ramp_curves_pct"]["legacy"]]
-    prod_curve = [x / 100.0 for x in fa["benefit_ramp_curves_pct"]["productivity"]]
-    res_curve  = [x / 100.0 for x in fa["benefit_ramp_curves_pct"]["resilience"]]
+    prod_curve = [
+        x / 100.0 for x in fa["benefit_ramp_curves_pct"].get(
+            "productivity", [0] * years
+        )
+    ]
+    res_curve  = [
+        x / 100.0 for x in fa["benefit_ramp_curves_pct"].get(
+            "resilience", [0] * years
+        )
+    ]
 
     yearly_business_value_usd = []
     for i in range(years):
@@ -1149,8 +1403,10 @@ A defensible rule-based approach is:
 | Age `<= 5`, high readiness, low dependencies, high fit | `Retain` | Already modern enough |
 | Low readiness, low/moderate dependencies, stable workload | `Rehost` | Fast move, low code change |
 | Medium readiness, moderate dependencies, moderate fit | `Replatform` | Limited code change with platform benefit |
-| High readiness, high business differentiation, frequent change | `Refactor` | Preserve capability but improve architecture/code |
 | High criticality, high dependencies, aging core platform | `Rearchitect` | Structural redesign required |
+| High readiness, high business differentiation, frequent change | `Refactor` | Preserve capability but improve architecture/code |
+
+Evaluate `Rearchitect` before `Refactor` so large, tightly coupled core platforms are not accidentally categorized as incremental refactors.
 
 #### Pseudocode
 
@@ -1180,13 +1436,13 @@ def auto_disposition(app):
     if readiness == "Medium" and integrations <= 14 and fit in ("Medium", "High"):
         return "Replatform"
 
+    if criticality == "High" and integrations >= 15 and age >= 10:
+        return "Rearchitect"
+
     if readiness == "High" and (
         customer_facing or change_freq == "High" or fit == "High"
     ) and integrations <= 18:
         return "Refactor"
-
-    if criticality == "High" and integrations >= 15:
-        return "Rearchitect"
 
     return "Replatform"
 ```
