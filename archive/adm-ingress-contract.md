@@ -99,7 +99,7 @@ The canonical v1 schema is **closed at every level**. Unknown keys inside nested
 | Field | Type | Required | Example | Notes |
 |---|---|---:|---|---|
 | `schema_version` | string | Yes | `1.0` | Must be exactly `1.0` for this contract |
-| `client_id` | string | Yes | `northstar-retail-v1` | Stable slug for filenames, hashes, logs |
+| `client_id` | string | Yes | `northstar-retail` | Stable slug for filenames, hashes, logs |
 | `company` | object | Yes | `{name, industry, ...}` | Company identity and business scale |
 | `narrative_context` | object | Yes | `{strategic_priorities, pain_points, ...}` | Replaces missing freeform “business line intelligence” attachment |
 | `annual_adm_spend_usd` | number | Yes | `95000000` | Base commercial input |
@@ -145,7 +145,13 @@ All enums should be defined once and reused consistently across validation, calc
 | `change_frequency` | `Low`, `Medium`, `High` | `apps[].change_frequency` |
 | `data_sensitivity` | `Low`, `Medium`, `High` | `apps[].data_sensitivity` |
 | `lifecycle_status` | `Run`, `Contain`, `Transform` | `apps[].lifecycle_status` |
+| `vendor_lock_in` | `Low`, `Medium`, `High` | `apps[].vendor_lock_in` |
+| `hosting_environment_type` | `OnPremDC`, `CloudRegion`, `VendorSaaSHybrid` | `apps[].hosting_environment_type` |
 | `delivery_center_type` | `Onshore`, `Nearshore`, `Offshore` | `delivery_centers[].type` |
+| `confidence` | `Low`, `Medium`, `High` | `competitors[].competitor_metrics[].confidence`, `business_units[].kpis[].confidence`, `financial_assumptions.assumption_provenance[].confidence`, `narrative_context.current_state_metrics[].confidence` |
+| `evidence_type` | `internal_assessment`, `annual_report`, `investor_material`, `earnings_call`, `industry_report`, `strategy_model` | `narrative_context.current_state_metrics[].evidence_type`, `business_units[].kpis[].evidence_type`, `competitors[].competitor_metrics[].evidence_type` |
+| `dependency_type` | `Identity`, `Pricing`, `Order`, `Returns`, `StoreOps`, `POS`, `Fulfillment`, `Merchandising`, `SupplyChain`, `Loyalty`, `Campaign`, `DataPlatform`, `Supplier` | `apps[].dependency_metadata[].dependency_type` |
+| `dependency_criticality` | `Low`, `Medium`, `High` | `apps[].dependency_metadata[].dependency_criticality` |
 
 ### Authoring metadata outside the canonical payload
 
@@ -341,7 +347,7 @@ If a future schema version introduces them, they could be attached per app or as
 | `cpu_peak_utilization_pct` | number | No | `52` | Better cost-fit estimates |
 | `ram_total_gb` | number | No | `128` | Better right-sizing |
 | `shared_infrastructure` | boolean | No | `true` | Important migration dependency |
-| `app_dependencies` | array<string> | No | `["APP-009","APP-007"]` | Better wave planning |
+| `app_dependencies` | array<string> | No | `["APP-009","APP-007"]` | If used outside canonical contracts, derive it from `dependency_metadata[].depends_on` rather than authoring it separately |
 | `network_latency_ms` | number | No | `12` | Useful for sequencing/risk |
 
 This extension is not required by the assessment, and it is intentionally outside canonical v1 even though it is consistent with vendor guidance on better-fidelity portfolio planning. citeturn4view2turn4view4turn6view0
@@ -356,28 +362,33 @@ The benchmark-enriched `v2` rules are:
 - The top-level object shape stays the same as `v1`.
 - Closed-schema behavior still applies at every level.
 - Unknown nested keys still fail unless they are explicitly listed in the `v2` additions below.
+- `schema_version: "2.0"` is the frozen benchmark-enriched contract. Any added, removed, or renamed field requires a new schema version rather than an in-place edit.
 
 #### `narrative_context` additions for `v2`
 
 | Field | Type | Required | Example | Why it matters |
 |---|---|---:|---|---|
-| `current_state_metrics` | array<object> | Yes | `[{metric:"Release cadence", current_value:"Monthly", target_value:"Weekly"}]` | Quantifies pain points and target improvements |
+| `current_state_metrics` | array<object> | Yes | `[{name:"Inventory sync latency", baseline_value:6, baseline_unit:"hours", target_value:15, target_unit:"minutes", scope:"Supply Chain and Commerce", evidence_type:"internal_assessment", evidence_note:"Modeled from current-state operations review", confidence:"Medium"}]` | Quantifies pain points in a machine-friendly way |
 | `execution_assumptions` | array<string> | Yes | `["Holiday code freeze applies from mid-November through early January"]` | Makes roadmap and delivery assumptions explicit |
 
 #### `business_units[]` additions for `v2`
 
 | Field | Type | Required | Example | Why it matters |
 |---|---|---:|---|---|
-| `baseline_kpis` | array<object> | Yes | `[{name:"Major releases per year", value:"12", unit:"count"}]` | Anchors current-state performance by business unit |
-| `target_kpis` | array<object> | Yes | `[{name:"Major releases per year", value:"26", unit:"count"}]` | Anchors outcome targets by business unit |
+| `kpis` | array<object> | Yes | `[{name:"Major releases per year", baseline_value:12, baseline_unit:"count", target_value:26, target_unit:"count", evidence_type:"internal_assessment", evidence_note:"Modeled from BU transformation dossier", confidence:"Medium"}]` | Anchors current-state performance and target outcomes by business unit |
 
 #### `apps[]` additions for `v2`
 
 | Field | Type | Required | Example | Why it matters |
 |---|---|---:|---|---|
 | `hosting_model` | string | Yes | `VMware on-prem` | Supports hosting and modernization narrative |
-| `primary_host_region` | string | Yes | `Chicago DC` | Helps wave planning and target-state design |
-| `app_dependencies` | array<string> | Yes | `["APP-007","APP-009"]` | Supports sequencing and dependency-aware roadmap design |
+| `hosting_environment_type` | enum | Yes | `OnPremDC` | Normalizes hosting placement for grouping and rendering |
+| `host_location_code` | string | Yes | `US-CHI-DC` | Machine-stable location key for aggregation |
+| `host_location_label` | string | Yes | `Chicago DC` | Human-readable hosting location |
+| `dependency_metadata` | array<object> | Yes | `[{depends_on:"APP-009", dependency_type:"Identity", dependency_criticality:"High"}]` | Canonical dependency source; derive any dependency list projection from this array |
+| `migration_blockers` | array<string> | Yes | `["shared database coupling","holiday freeze window"]` | Makes roadmap risk and cutover limits explicit |
+| `vendor_lock_in` | enum | Yes | `Medium` | Signals contract or platform lock constraints |
+| `release_constraint` | string | Yes | `Holiday freeze blocks customer-facing cutovers in Q4` | Prevents unrealistic sequencing |
 
 #### `competitors[]` additions for `v2`
 
@@ -385,6 +396,7 @@ The benchmark-enriched `v2` rules are:
 |---|---|---:|---|---|
 | `evidence_note` | string | Yes | `Composite drawn from public annual reports, investor materials, and retail-tech sector reporting.` | Makes benchmarking claims more defensible |
 | `evidence_signals` | array<string> | Yes | `["Same-day fulfillment scale", "AI-enabled inventory workflows"]` | Connects benchmark claims to explicit public signals |
+| `competitor_metrics` | array<object> | Yes | `[{metric_name:"same_day_fulfillment_coverage", metric_value:"broad national coverage", metric_year:2025, evidence_type:"annual_report", evidence_note:"Based on public investor and annual-report statements", confidence:"Medium"}]` | Lets the benchmarking section cite concrete signals instead of generic claims |
 
 #### `data_estate` additions for `v2`
 
@@ -394,24 +406,47 @@ The benchmark-enriched `v2` rules are:
 | `domain_owners` | array<object> | Yes | `[{domain:"Customer and loyalty", owner_role:"VP Loyalty and Personalization"}]` | Supports data-ownership and AI-readiness narrative |
 | `data_quality_pain_points` | array<string> | Yes | `["Duplicate customer keys across commerce and loyalty"]` | Makes target-state data remediation specific |
 
-These `v2` additions are the minimum enrichment pack needed to move from a good ADM to a benchmark-oriented ADM. They directly address the biggest gaps left by `v1`: evidence-backed benchmarking, dependency-aware wave planning, quantified current-state pain points, richer business-unit metrics, and explicit governance/execution assumptions.
+#### `delivery_centers[]` additions for `v2`
+
+| Field | Type | Required | Example | Why it matters |
+|---|---|---:|---|---|
+| `location_code` | string | Yes | `IN-BLR` | Machine-stable key for maps, grouping, and staffing math |
+| `fte_share_pct` | number | Yes | `45` | Makes delivery weight explicit across listed centers |
+| `wave_ownership` | array<string> | Yes | `["Wave 2 modernization","Platform engineering"]` | Ties delivery locations to execution responsibility |
+| `governance_owner_role` | string | Yes | `Transformation Director` | Makes operating accountability explicit |
+| `primary_scope` | string | Yes | `Engineering build and platform operations` | Clarifies why the center exists in the model |
+
+#### `financial_assumptions` additions for `v2`
+
+| Field | Type | Required | Example | Why it matters |
+|---|---|---:|---|---|
+| `assumption_provenance` | array<object> | Yes | `[{assumption_name:"target_delivery_mix_pct.offshore", value:55, assumption_basis:"Modeled operating assumption for year-3 target state", confidence:"Medium", owner_function:"strategy"}]` | Makes major commercial assumptions auditable instead of looking invented |
+
+#### `v2` normalization conventions
+
+- `apps[].dependency_metadata` is the single source of truth for app-to-app dependencies. Do not author `app_dependencies` in canonical `v2`.
+- Evidence-bearing metric objects use the shared fields `evidence_type`, `evidence_note`, and `confidence`.
+- Hosting and delivery locations use a machine key plus a human label: `host_location_code` / `host_location_label` for apps and `location_code` / `location` for delivery centers.
+- Assumptions use `assumption_basis` and `owner_function` to distinguish modeled commercial logic from evidence-backed observed metrics.
+
+These `v2` additions are the minimum enrichment pack needed to move from a good ADM to a benchmark-oriented ADM. They directly address the biggest gaps left by `v1`: evidence-backed benchmarking, normalized KPI evidence, dependency-aware wave planning, normalized hosting and delivery locations, explicit delivery ownership, and auditable commercial assumptions.
 
 ### File naming conventions and immediate downstream artifact
 
 | Artifact | Convention | Example |
 |---|---|---|
-| Canonical ingress | `inputs/clients/<client_id>.json` | `inputs/clients/northstar-retail-v1.json` |
-| Benchmark-enriched ingress | `inputs/clients/<client_id>.json` with `schema_version: "2.0"` | `inputs/clients/northstar-retail-v2.json` |
-| Optional YAML authoring twin | `inputs/clients/<client_id>.yaml` | `inputs/clients/northstar-retail-v1.yaml` |
-| Optional authoring metadata | `inputs/clients/<client_id>.meta.yaml` | `inputs/clients/northstar-retail-v1.meta.yaml` |
-| Computed facts | `runs/<client_id>/facts.json` | `runs/northstar-retail-v1/facts.json` |
+| Canonical ingress | `inputs/clients/<client_id>.json` | `inputs/clients/northstar-retail.json` |
+| Benchmark-enriched ingress | `inputs/clients/<client_id>.json` with `schema_version: "2.0"` | `inputs/clients/northstar-retail.json` |
+| Optional YAML authoring twin | `inputs/clients/<client_id>.yaml` | `inputs/clients/northstar-retail.yaml` |
+| Optional authoring metadata | `inputs/clients/<client_id>.meta.yaml` | `inputs/clients/northstar-retail.meta.yaml` |
+| Computed facts | `runs/<client_id>/facts.json` | `runs/northstar-retail/facts.json` |
 
 #### Minimum valid ingress example
 
 ```json
 {
   "schema_version": "1.0",
-  "client_id": "northstar-retail-v1",
+  "client_id": "northstar-retail",
   "company": {
     "name": "Northstar Retail Group",
     "industry": "Retail",
@@ -503,7 +538,7 @@ These `v2` additions are the minimum enrichment pack needed to move from a good 
 
 ```json
 {
-  "client_id": "northstar-retail-v1",
+  "client_id": "northstar-retail",
   "client_input_sha256": "9b2f...example...",
   "tcv_5y_usd": 475000000,
   "transformation_investment_total_usd": 104500000,
@@ -516,7 +551,7 @@ These `v2` additions are the minimum enrichment pack needed to move from a good 
 ```json
 {
   "schema_version": "1.0",
-  "client_id": "northstar-retail-v1",
+  "client_id": "northstar-retail",
   "company": {
     "name": "Northstar Retail Group",
     "industry": "Retail",
@@ -918,7 +953,7 @@ These `v2` additions are the minimum enrichment pack needed to move from a good 
 
 ```yaml
 schema_version: "1.0"
-client_id: northstar-retail-v1
+client_id: northstar-retail
 
 company:
   name: Northstar Retail Group
@@ -1045,7 +1080,7 @@ financial_assumptions:
 If a human author wants to preserve research notes or publishing preferences, keep them in a separate metadata companion rather than in the canonical client payload.
 
 ```yaml
-# inputs/clients/northstar-retail-v1.meta.yaml
+# inputs/clients/northstar-retail.meta.yaml
 section_preferences:
   output_language: en-US
   currency: USD
@@ -1066,7 +1101,7 @@ If a later implementation introduces scenario optimization, keep that policy in 
 
 ```json
 {
-  "client_id": "northstar-retail-v1",
+  "client_id": "northstar-retail",
   "min_roi_pct": 35
 }
 ```
@@ -1136,7 +1171,7 @@ A good ingress design needs two kinds of validation: **hard validation** that pr
 
 | Rule | Severity |
 |---|---|
-| `schema_version` must equal `"1.0"` | Fail |
+| `schema_version` must equal `"1.0"` or `"2.0"` | Fail |
 | `client_id` must be non-empty, slug-safe, and unique within the run set | Fail |
 | Canonical payload must contain only the 12 top-level fields defined in the v1 schema | Fail |
 | Canonical payload must not contain out-of-contract metadata such as `section_preferences`, `provenance`, or `assumption_log` | Fail |
@@ -1173,6 +1208,16 @@ A good ingress design needs two kinds of validation: **hard validation** that pr
 | `benefit_ramp_curves_pct.workforce` and `.legacy` must each have length equal to `contract_years` | Fail |
 | `benefit_ramp_curves_pct` must not contain keys other than `workforce`, `legacy`, `productivity`, and `resilience` | Fail |
 | If productivity or resilience value streams are non-zero, the matching `benefit_ramp_curves_pct` arrays must exist and have length equal to `contract_years` | Fail |
+| If `schema_version == "2.0"`, every `business_units[].kpis` item must include `name`, `baseline_value`, `baseline_unit`, `target_value`, `target_unit`, `evidence_type`, `evidence_note`, and `confidence` | Fail |
+| If `schema_version == "2.0"`, every `narrative_context.current_state_metrics` item must include `name`, `baseline_value`, `baseline_unit`, `target_value`, `target_unit`, `scope`, `evidence_type`, `evidence_note`, and `confidence` | Fail |
+| If `schema_version == "2.0"`, every app must include `hosting_environment_type`, `host_location_code`, and `host_location_label` | Fail |
+| If `schema_version == "2.0"`, `app_dependencies` must not appear anywhere in canonical app objects | Fail |
+| If `schema_version == "2.0"`, every `apps[].dependency_metadata` item must include `depends_on`, `dependency_type`, and `dependency_criticality`, `depends_on` must match a known app `id`, and each `depends_on` value must be unique within the app | Fail |
+| If `schema_version == "2.0"`, every app must include non-empty `migration_blockers`, `vendor_lock_in`, and `release_constraint` | Fail |
+| If `schema_version == "2.0"`, every competitor must include non-empty `competitor_metrics`, and every metric must include `metric_name`, `metric_value`, `metric_year`, `evidence_type`, `evidence_note`, and `confidence` | Fail |
+| If `schema_version == "2.0"`, every delivery center must include `location_code`, `fte_share_pct`, non-empty `wave_ownership`, `governance_owner_role`, and `primary_scope` | Fail |
+| If `schema_version == "2.0"`, `sum(delivery_centers[].fte_share_pct) == 100` | Fail |
+| If `schema_version == "2.0"`, `financial_assumptions.assumption_provenance` must be non-empty and every item must include `assumption_name`, `value`, `assumption_basis`, `confidence`, and `owner_function` | Fail |
 
 ### Quality validation rules
 
@@ -1183,9 +1228,11 @@ A good ingress design needs two kinds of validation: **hard validation** that pr
 | Fewer than 3 competitors | Warn | Benchmarking becomes weak |
 | Fewer than 5 data domains | Warn | Cloud/data/AI sections become generic |
 | Fewer than 3 delivery centers | Warn | Delivery architecture feels shallow |
+| In `v2`, fewer than 2 `competitor_metrics` per competitor | Warn | Benchmark evidence becomes too generic |
 | `sum(app annual run cost) / annual ADM spend` outside `0.50–1.20` | Warn | Could indicate implausible spend/run-cost mix |
 | More than 60% of apps missing optional fields like `functional_fit`, `change_frequency`, `customer_facing` | Warn | Disposition logic loses nuance |
 | More than 40% of apps in one BU | Warn | Risk of an unbalanced portfolio story |
+| In `v2`, more than 25% of evidence-bearing metric or assumption items use `confidence = Low` | Warn | The final ADM may read invented rather than evidence-backed |
 
 ### Minimal ingestion checklist
 
@@ -1193,7 +1240,7 @@ Before computing `facts.json`, the system should complete this checklist:
 
 - Canonicalize the input into deterministic JSON.
 - If the source was YAML, convert it 1:1 into canonical JSON with no extra keys.
-- Verify `schema_version == "1.0"` before any other processing.
+- Verify `schema_version` is supported before any other processing. Use `"1.0"` for canonical ingress and `"2.0"` for the benchmark-enriched profile.
 - Validate schema and centralized enums.
 - Validate referential integrity across business units, apps, and competitors.
 - Compute a `client_input_sha256`.
@@ -1248,7 +1295,7 @@ The following values are consistent with the sample ingress and the calculation 
 
 ```json
 {
-  "client_id": "northstar-retail-v1",
+  "client_id": "northstar-retail",
   "client_input_sha256": "example-hash-redacted",
   "annual_adm_spend_usd": 95000000,
   "tcv_5y_usd": 475000000,
