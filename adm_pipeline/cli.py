@@ -25,6 +25,9 @@ from adm_pipeline.utils import ensure_dir, read_json, slugify, utc_now_iso, writ
 from adm_pipeline.validation import validate_client_payload
 
 
+LOCAL_ENV_PATH = Path(".adm.env")
+
+
 @dataclass
 class DashboardState:
     input_path: Path | None
@@ -35,6 +38,7 @@ class DashboardState:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _load_local_env()
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv:
         argv = ["dashboard"]
@@ -48,6 +52,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return args.func(args)
+    except KeyboardInterrupt:
+        print("\nExiting.")
+        return 130
     except Exception as exc:  # noqa: BLE001
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
@@ -161,7 +168,7 @@ def add_provider_args(parser: argparse.ArgumentParser) -> None:
 def cmd_dashboard(args: argparse.Namespace) -> int:
     state = DashboardState(
         input_path=args.input_path or _default_input_path(),
-        profile_name=list_profiles(args.profiles_config)[0],
+        profile_name=_choose_dashboard_default_profile(args.profiles_config),
         profiles_config=args.profiles_config,
         runs_root=args.runs_root,
         provider_overrides={},
@@ -216,16 +223,16 @@ def _print_dashboard_snapshot(state: DashboardState) -> None:
     print(f"- Selected profile: {selected_profile or '<none>'}")
     if payload:
         print(f"- Client: {payload['company']['name']} ({payload['client_id']})")
-        print(f"- Runs root: {state.runs_root / payload['client_id']}")
+    print(f"- Runs root: {state.runs_root / payload['client_id']}")
     active_overrides = _current_provider_overrides(state)
     if active_overrides:
         override_text = ", ".join(f"{key}={value}" for key, value in active_overrides.items())
         print(f"- Provider overrides: {override_text}")
     print("- Providers:")
-    for name, profile in profiles.items():
+    for name, profile in _ordered_profile_items(profiles):
         marker = "*" if name == selected_profile else " "
         status = _provider_dashboard_status(profile.get("provider_kind"), profile)
-        print(f"  {marker} {name}: {profile.get('provider_kind')} / {profile.get('model')} [{status}]")
+        print(f"  {marker} {_profile_display_name(name, profile)}: {profile.get('provider_kind')} / {profile.get('model')} [{status}]")
     if client_id:
         runs = list_runs(state.runs_root / client_id)
         print("- Latest runs:")
@@ -244,15 +251,17 @@ def _dashboard_provider_menu(state: DashboardState) -> None:
     while True:
         default_profile, profiles = list_profiles(state.profiles_config)
         selected = state.profile_name or default_profile
+        ordered_items = _ordered_profile_items(profiles)
         print()
         print("Provider setup")
-        for index, (name, profile) in enumerate(profiles.items(), start=1):
+        names = [name for name, _profile in ordered_items]
+        for index, (name, profile) in enumerate(ordered_items, start=1):
             marker = "*" if name == selected else " "
             status = _provider_dashboard_status(profile.get("provider_kind"), profile)
             overrides = state.provider_overrides.get(name, {})
             suffix = f" overrides={overrides}" if overrides else ""
-            print(f"  {index}. {marker} {name} -> {profile.get('provider_kind')} / {profile.get('model')} [{status}]{suffix}")
-        print("  s. Select provider")
+            print(f"  {index}. {marker} {_profile_display_name(name, profile)} -> {profile.get('provider_kind')} / {profile.get('model')} [{status}]{suffix}")
+        print("  s. Select provider by number")
         print("  k. Enter or update API key for selected provider")
         print("  t. Test selected provider")
         print("  m. Set model override")
@@ -263,7 +272,15 @@ def _dashboard_provider_menu(state: DashboardState) -> None:
         print("  c. Clear overrides for selected provider")
         print("  b. Back")
         choice = input("Select option: ").strip().lower()
-        if choice == "s":
+        if choice.isdigit():
+            chosen = _select_profile_by_number(names, choice)
+            if chosen:
+                state.profile_name = chosen
+                print(f"Selected provider: {_profile_display_name(chosen, profiles[chosen])}")
+            else:
+                print("Invalid selection.")
+            _pause()
+        elif choice == "s":
             state.profile_name = _prompt_select_profile(profiles, selected)
         elif choice == "k":
             _prompt_provider_key(state, profiles, selected)
@@ -417,20 +434,14 @@ def _dashboard_runs_menu(state: DashboardState) -> None:
 
 
 def _prompt_select_profile(profiles: dict, selected: str | None) -> str | None:
-    names = list(profiles.keys())
     raw = input("Enter provider number: ").strip()
     if not raw:
         return selected
-    try:
-        index = int(raw) - 1
-    except ValueError:
-        print("Invalid number.")
-        return selected
-    if 0 <= index < len(names):
-        chosen = names[index]
+    chosen = _select_profile_by_number(list(profiles.keys()), raw)
+    if chosen:
         print(f"Selected provider: {chosen}")
         return chosen
-    print("Invalid selection.")
+    print("Invalid number.")
     return selected
 
 
@@ -452,7 +463,8 @@ def _prompt_provider_key(state: DashboardState, profiles: dict, selected: str | 
         _pause()
         return
     os.environ[env_name] = value
-    print(f"{env_name} set for this dashboard session.")
+    _save_local_env_var(env_name, value)
+    print(f"{env_name} saved to {LOCAL_ENV_PATH} and set for this dashboard session.")
     ok, message = _test_provider_config(resolve_profile(profile_name=selected, config_path=state.profiles_config, overrides={}), live=False)
     print(message)
     if ok:
@@ -470,7 +482,7 @@ def _test_selected_provider(state: DashboardState, selected: str | None, *, live
     provider_config = _resolve_selected_provider(state)
     ok, message = _test_provider_config(provider_config, live=live)
     print(message)
-    if not ok and provider_config.api_key_env:
+    if not ok and provider_config.api_key_env and not os.environ.get(provider_config.api_key_env):
         print(f"Tip: set {provider_config.api_key_env} from option 1.")
 
 
@@ -943,17 +955,31 @@ def _print_validation_errors(report) -> None:
 
 
 def _probe_lmstudio(base_url: str = "http://127.0.0.1:1234/v1") -> tuple[bool, str]:
+    model_ids = _list_lmstudio_models(base_url)
+    if not model_ids:
+        url = base_url.rstrip("/") + "/models"
+        req = request.Request(url, method="GET")
+        try:
+            with request.urlopen(req, timeout=5) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except Exception as exc:  # noqa: BLE001
+            return False, str(exc)
+        model_ids = [item.get("id") for item in payload.get("data", []) if isinstance(item, dict)]
+        if not model_ids:
+            return True, "Server reachable but no models listed."
+    return True, "Models: " + ", ".join(model_ids)
+
+
+def _list_lmstudio_models(base_url: str = "http://127.0.0.1:1234/v1") -> list[str]:
     url = base_url.rstrip("/") + "/models"
     req = request.Request(url, method="GET")
     try:
         with request.urlopen(req, timeout=5) as response:
             payload = json.loads(response.read().decode("utf-8"))
     except Exception as exc:  # noqa: BLE001
-        return False, str(exc)
+        return []
     model_ids = [item.get("id") for item in payload.get("data", []) if isinstance(item, dict)]
-    if not model_ids:
-        return True, "Server reachable but no models listed."
-    return True, "Models: " + ", ".join(model_ids)
+    return [model_id for model_id in model_ids if model_id]
 
 
 def _test_provider_config(config: ProviderConfig, *, live: bool) -> tuple[bool, str]:
@@ -1098,6 +1124,78 @@ def _provider_dashboard_status(provider_kind: str | None, profile: dict) -> str:
     if env_name:
         return f"{env_name} missing"
     return "configured"
+
+
+def _ordered_profile_items(profiles: dict[str, dict]) -> list[tuple[str, dict]]:
+    def sort_key(item: tuple[str, dict]) -> tuple[int, str]:
+        name, profile = item
+        kind = profile.get("provider_kind")
+        if kind == "openrouter":
+            return (0, name)
+        if kind == "gemini":
+            return (1, name)
+        if kind == "lmstudio_openai_compat":
+            return (2, name)
+        if kind == "mock":
+            return (9, name)
+        return (5, name)
+
+    return sorted(profiles.items(), key=sort_key)
+
+
+def _select_profile_by_number(names: list[str], raw: str) -> str | None:
+    try:
+        index = int(raw) - 1
+    except ValueError:
+        return None
+    if 0 <= index < len(names):
+        return names[index]
+    return None
+
+
+def _profile_display_name(name: str, profile: dict) -> str:
+    provider_kind = profile.get("provider_kind")
+    if provider_kind == "mock":
+        return f"{name} [pipeline self-test]"
+    if provider_kind == "lmstudio_openai_compat":
+        return f"{name} [real local model]"
+    return name
+
+
+def _choose_dashboard_default_profile(config_path: Path) -> str | None:
+    default_profile, profiles = list_profiles(config_path)
+    for name, profile in _ordered_profile_items(profiles):
+        status = _provider_dashboard_status(profile.get("provider_kind"), profile)
+        if status in {"OPENROUTER_API_KEY set", "GEMINI_API_KEY set", "local-ok"}:
+            return name
+    return default_profile
+
+
+def _load_local_env() -> None:
+    if not LOCAL_ENV_PATH.exists():
+        return
+    for raw_line in LOCAL_ENV_PATH.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if key and key not in os.environ:
+            os.environ[key] = value.strip()
+
+
+def _save_local_env_var(key: str, value: str) -> None:
+    existing: dict[str, str] = {}
+    if LOCAL_ENV_PATH.exists():
+        for raw_line in LOCAL_ENV_PATH.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            env_key, env_value = line.split("=", 1)
+            existing[env_key.strip()] = env_value.strip()
+    existing[key] = value
+    lines = [f"{env_key}={env_value}" for env_key, env_value in sorted(existing.items())]
+    LOCAL_ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
