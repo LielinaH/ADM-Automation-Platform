@@ -16,7 +16,6 @@ dependencies = []
 [project.optional-dependencies]
 providers = [
   "openai>=1.40.0",
-  "litellm>=1.70.0",
 ]
 
 [project.scripts]

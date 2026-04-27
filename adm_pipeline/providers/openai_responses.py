@@ -45,6 +45,7 @@ class OpenAIResponsesProvider:
             },
             reasoning={"effort": self.config.reasoning_effort},
             temperature=self.config.temperature,
+            max_output_tokens=self.config.max_output_tokens,
             timeout=self.config.timeout_seconds,
         )
         payload = response.model_dump()

@@ -8,6 +8,7 @@ from typing import Protocol
 from adm_pipeline.constants import (
     DEFAULT_MAX_RETRIES,
     DEFAULT_MODEL,
+    DEFAULT_MAX_OUTPUT_TOKENS,
     DEFAULT_REASONING_EFFORT,
     DEFAULT_TEMPERATURE,
     DEFAULT_TIMEOUT_SECONDS,
@@ -25,6 +26,8 @@ class ProviderConfig:
     reasoning_effort: str = DEFAULT_REASONING_EFFORT
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
     max_retries: int = DEFAULT_MAX_RETRIES
+    max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS
+    profile_name: str | None = None
 
 
 class SectionProvider(Protocol):

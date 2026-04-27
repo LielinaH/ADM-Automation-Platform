@@ -1,9 +1,10 @@
-"""OpenRouter provider via LiteLLM."""
+"""OpenRouter provider via direct HTTP."""
 
 from __future__ import annotations
 
 import json
 import os
+from urllib import error, request
 
 from adm_pipeline.providers.base import ProviderConfig
 from adm_pipeline.types import ProviderUsage, SectionResult
@@ -12,31 +13,53 @@ from adm_pipeline.types import ProviderUsage, SectionResult
 class OpenRouterProvider:
     def __init__(self, config: ProviderConfig) -> None:
         self.config = config
-        try:
-            from litellm import completion
-        except ImportError as exc:  # pragma: no cover - optional dependency
-            raise RuntimeError("litellm package is required for the openrouter provider") from exc
-        self._completion = completion
         env_key = config.api_key_env or "OPENROUTER_API_KEY"
-        if not os.environ.get(env_key):
+        api_key = os.environ.get(env_key)
+        if not api_key:
             raise RuntimeError(f"Environment variable {env_key} is required")
+        self._api_key = api_key
+        self._endpoint = (config.base_url or "https://openrouter.ai/api/v1").rstrip("/") + "/chat/completions"
 
     def generate_section(self, section_packet, schema, prompt, *, repair_notes=None) -> SectionResult:
-        response = self._completion(
-            model=self.config.model,
-            messages=[
+        payload = {
+            "model": self.config.model,
+            "messages": [
                 {
                     "role": "user",
                     "content": _build_prompt(prompt, repair_notes),
                 }
             ],
-            temperature=self.config.temperature,
-            timeout=self.config.timeout_seconds,
+            "temperature": self.config.temperature,
+            "max_tokens": self.config.max_output_tokens,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": f"{section_packet['section_id']}_output",
+                    "strict": True,
+                    "schema": schema,
+                },
+            },
+        }
+        req = request.Request(
+            self._endpoint,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self._api_key}",
+            },
+            method="POST",
         )
-        payload = response.model_dump() if hasattr(response, "model_dump") else dict(response)
-        text_output = payload["choices"][0]["message"]["content"]
+        try:
+            with request.urlopen(req, timeout=self.config.timeout_seconds) as response:
+                response_payload = json.loads(response.read().decode("utf-8"))
+        except error.HTTPError as exc:
+            details = exc.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"OpenRouter HTTP {exc.code}: {details}") from exc
+        except error.URLError as exc:
+            raise RuntimeError(f"OpenRouter request failed: {exc.reason}") from exc
+        text_output = response_payload["choices"][0]["message"]["content"]
         normalized = json.loads(text_output)
-        usage_payload = payload.get("usage", {})
+        usage_payload = response_payload.get("usage", {})
         usage = ProviderUsage(
             input_tokens=usage_payload.get("prompt_tokens"),
             output_tokens=usage_payload.get("completion_tokens"),
@@ -45,10 +68,10 @@ class OpenRouterProvider:
         )
         return SectionResult(
             section_id=section_packet["section_id"],
-            raw_response=payload,
+            raw_response=response_payload,
             normalized=normalized,
             usage=usage,
-            response_id=payload.get("id"),
+            response_id=response_payload.get("id"),
         )
 
 

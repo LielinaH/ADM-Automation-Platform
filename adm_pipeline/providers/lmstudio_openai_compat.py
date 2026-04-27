@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from urllib import error, request
 
 from adm_pipeline.providers.base import ProviderConfig
 from adm_pipeline.types import ProviderUsage, SectionResult
@@ -13,29 +14,45 @@ class LMStudioProvider:
         self.config = config
         if self.config.base_url is None:
             self.config.base_url = "http://127.0.0.1:1234/v1"
-        try:
-            from openai import OpenAI
-        except ImportError as exc:  # pragma: no cover - optional dependency
-            raise RuntimeError("openai package is required for the lmstudio_openai_compat provider") from exc
-        self._client = OpenAI(api_key="lm-studio", base_url=self.config.base_url)
+        self._endpoint = self.config.base_url.rstrip("/") + "/chat/completions"
 
     def generate_section(self, section_packet, schema, prompt, *, repair_notes=None) -> SectionResult:
-        response = self._client.chat.completions.create(
-            model=self.config.model,
-            messages=[
+        payload = {
+            "model": self.config.model,
+            "messages": [
                 {
                     "role": "user",
                     "content": _build_prompt(prompt, repair_notes),
                 }
             ],
-            temperature=self.config.temperature,
-            timeout=self.config.timeout_seconds,
-            response_format={"type": "json_object"},
+            "temperature": self.config.temperature,
+            "max_tokens": self.config.max_output_tokens,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": f"{section_packet['section_id']}_output",
+                    "schema": schema,
+                },
+            },
+        }
+        body = json.dumps(payload).encode("utf-8")
+        req = request.Request(
+            self._endpoint,
+            data=body,
+            headers={"Content-Type": "application/json", "Authorization": "Bearer lm-studio"},
+            method="POST",
         )
-        payload = response.model_dump()
-        text_output = payload["choices"][0]["message"]["content"]
+        try:
+            with request.urlopen(req, timeout=self.config.timeout_seconds) as response:
+                response_payload = json.loads(response.read().decode("utf-8"))
+        except error.HTTPError as exc:
+            details = exc.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"LM Studio HTTP {exc.code}: {details}") from exc
+        except error.URLError as exc:
+            raise RuntimeError(f"LM Studio request failed: {exc.reason}") from exc
+        text_output = response_payload["choices"][0]["message"]["content"]
         normalized = json.loads(text_output)
-        usage_payload = payload.get("usage", {})
+        usage_payload = response_payload.get("usage", {})
         usage = ProviderUsage(
             input_tokens=usage_payload.get("prompt_tokens"),
             output_tokens=usage_payload.get("completion_tokens"),
@@ -44,10 +61,10 @@ class LMStudioProvider:
         )
         return SectionResult(
             section_id=section_packet["section_id"],
-            raw_response=payload,
+            raw_response=response_payload,
             normalized=normalized,
             usage=usage,
-            response_id=payload.get("id"),
+            response_id=response_payload.get("id"),
         )
 
 

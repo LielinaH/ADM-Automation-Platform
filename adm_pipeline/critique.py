@@ -22,7 +22,8 @@ def critique_sections(run_dir: Path, facts: JsonObject, sections: dict[str, Json
         if section_id not in sections:
             issues.append(CritiqueIssue(section_id, "error", "missing_section", "Required section output is missing"))
             continue
-        report = validate_section_payload(section_id, sections[section_id])
+        section_packet = _load_section_packet(run_dir, section_id)
+        report = validate_section_payload(section_id, sections[section_id], section_packet)
         for error in report.errors:
             issues.append(CritiqueIssue(section_id, "error", "schema_invalid", error))
 
@@ -82,6 +83,13 @@ def load_generated_sections(run_dir: Path) -> dict[str, JsonObject]:
         if path.exists():
             sections[section_id] = read_json(path)
     return sections
+
+
+def _load_section_packet(run_dir: Path, section_id: str) -> JsonObject | None:
+    path = run_dir / "section_inputs" / f"{section_id}.json"
+    if path.exists():
+        return read_json(path)
+    return None
 
 
 def _placeholder_issues(sections: dict[str, JsonObject]) -> list[CritiqueIssue]:

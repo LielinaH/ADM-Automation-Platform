@@ -1,0 +1,58 @@
+{
+  "provider": "mock",
+  "model": "mock-model",
+  "repair_notes": [],
+  "content": {
+    "section_id": "sec01",
+    "title": "Executive Summary",
+    "phase": "Diagnose",
+    "summary": "Northstar Retail Group can shift a $95.00M annual ADM estate from legacy sustainment toward faster digital execution and better operating leverage.",
+    "narrative": [
+      "The Northstar estate spans 12 business applications across 5 business units, with an average age of 11.0 years.",
+      "With a five-year transformation investment of $104.50M, the modeled business value reaches $156.69M and a target ROI of 49.94%."
+    ],
+    "kpi_cards": [
+      {
+        "label": "Total Program Investment",
+        "value": "$104.50M",
+        "subtitle": "5-Year transformation spend",
+        "fact_key": "transformation_investment_total_usd"
+      },
+      {
+        "label": "Cumulative Business Value",
+        "value": "$156.69M",
+        "subtitle": "All modeled value streams",
+        "fact_key": "cumulative_business_value_usd"
+      },
+      {
+        "label": "Target ROI",
+        "value": "49.94%",
+        "subtitle": "Net value / investment",
+        "fact_key": "roi_pct"
+      }
+    ],
+    "tables": [],
+    "cards": [],
+    "chart": null,
+    "matrix": null,
+    "timeline": [],
+    "delivery_cards": [],
+    "callouts": [
+      "Legacy cost reduction target: 28%",
+      "Cloud migration target: 65%",
+      "Innovation budget shift target: 20%",
+      "Release-frequency improvement target: 45%"
+    ],
+    "fact_refs": [
+      "transformation_investment_total_usd",
+      "cumulative_business_value_usd",
+      "roi_pct",
+      "apps_in_scope"
+    ],
+    "evidence_refs": [],
+    "required_widgets": [
+      "kpi-grid",
+      "hero-callout"
+    ]
+  }
+}

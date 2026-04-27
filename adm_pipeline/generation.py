@@ -8,7 +8,7 @@ from pathlib import Path
 import time
 
 from adm_pipeline.constants import BENCHMARK_STYLE_VERSION, PROMPT_SET_VERSION, SECTION_CONFIG_BY_ID, SECTION_SCHEMA_VERSION
-from adm_pipeline.providers import LMStudioProvider, MockProvider, OpenAIResponsesProvider, OpenRouterProvider, ProviderConfig, SectionProvider
+from adm_pipeline.providers import GeminiProvider, LMStudioProvider, MockProvider, OpenAIResponsesProvider, OpenRouterProvider, ProviderConfig, SectionProvider
 from adm_pipeline.run_state import load_manifest, save_manifest
 from adm_pipeline.sections import section_json_schema, validate_section_payload
 from adm_pipeline.types import JsonObject
@@ -18,6 +18,7 @@ from adm_pipeline.utils import read_json, write_json
 def resolve_provider(config: ProviderConfig) -> SectionProvider:
     providers = {
         "mock": MockProvider,
+        "gemini": GeminiProvider,
         "openai_responses": OpenAIResponsesProvider,
         "lmstudio_openai_compat": LMStudioProvider,
         "openrouter": OpenRouterProvider,
@@ -30,6 +31,30 @@ def resolve_provider(config: ProviderConfig) -> SectionProvider:
 def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
     section_id = section_packet["section_id"]
     config = SECTION_CONFIG_BY_ID[section_id]
+    schema_summary = {
+        "section_id": section_id,
+        "title": config.title,
+        "phase": config.phase,
+        "required_top_level_fields": [
+            "section_id",
+            "title",
+            "phase",
+            "summary",
+            "narrative",
+            "kpi_cards",
+            "tables",
+            "cards",
+            "chart",
+            "matrix",
+            "timeline",
+            "delivery_cards",
+            "callouts",
+            "fact_refs",
+            "evidence_refs",
+            "required_widgets",
+        ],
+        "required_widgets": list(SECTION_CONFIG_BY_ID[section_id].required_widgets),
+    }
     return (
         f"You are generating section {section_id} ({config.title}) for an ADM document.\n"
         f"Prompt set version: {PROMPT_SET_VERSION}\n"
@@ -37,9 +62,10 @@ def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
         f"Section schema version: {SECTION_SCHEMA_VERSION}\n"
         "Return JSON only, matching the supplied schema.\n"
         "Do not emit HTML. All figures must come from the provided facts and section input packet.\n"
-        "Keep the tone analytical, benchmark-oriented, and executive-ready.\n\n"
-        f"Schema:\n{json.dumps(schema, indent=2)}\n\n"
-        f"Section input packet:\n{json.dumps(section_packet, indent=2)}"
+        "Keep the tone analytical, benchmark-oriented, and executive-ready.\n"
+        "Use short, information-dense paragraphs. Avoid placeholders and unsupported claims.\n\n"
+        f"Output contract summary:\n{json.dumps(schema_summary, separators=(',', ':'))}\n\n"
+        f"Section input packet:\n{json.dumps(section_packet, separators=(',', ':'))}"
     )
 
 
@@ -57,7 +83,7 @@ def generate_sections(
         normalized_path = run_dir / "sections" / f"{section_id}.normalized.json"
         if normalized_path.exists() and not force:
             existing = read_json(normalized_path)
-            if validate_section_payload(section_id, existing).ok:
+            if validate_section_payload(section_id, existing, packet).ok:
                 generated[section_id] = existing
                 manifest.setdefault("sections", {}).setdefault(section_id, {})
                 manifest["sections"][section_id].update(
@@ -138,7 +164,7 @@ def _generate_one_section(
         started = time.perf_counter()
         try:
             result = provider.generate_section(packet, schema, prompt, repair_notes=repair_notes)
-            report = validate_section_payload(section_id, result.normalized)
+            report = validate_section_payload(section_id, result.normalized, packet)
             if not report.ok:
                 raise RuntimeError("; ".join(report.errors))
             write_json(raw_path, result.raw_response)

@@ -30,8 +30,9 @@ def render_report(run_dir: Path, *, out_path: Path | None = None) -> Path:
 
 def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[str, dict[str, Any]]) -> str:
     title = f"{client['company']['name']} ADM"
-    sidebar = _render_sidebar()
-    body_sections = "\n".join(_render_section(sections[section.identifier], facts) for section in SECTIONS)
+    nav = _render_sidebar(client, facts)
+    masthead = _render_masthead(client, facts)
+    screens = "\n".join(_render_screen(sections[section.identifier], facts, client) for section in SECTIONS)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,419 +41,1398 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
   <title>{escape(title)}</title>
   <style>
     :root {{
-      --nav-bg: #0e1d2c;
-      --nav-text: #dbe7f4;
-      --page-bg: #eef3f7;
-      --panel: #ffffff;
-      --ink: #12263a;
+      --nav-bg: #0b1621;
+      --nav-panel: #0f1e2d;
+      --nav-text: #e5edf5;
+      --nav-muted: #8da4bb;
+      --page-bg: #edf2f7;
+      --surface: #ffffff;
+      --surface-alt: #f6fafc;
+      --surface-ink: #14283a;
       --muted: #5f7283;
-      --accent: #0c7abf;
-      --accent-soft: #d7edf9;
-      --emerald: #0b8f63;
-      --amber: #f59e0b;
-      --border: #d7e0e8;
-      --shadow: 0 24px 60px rgba(16, 42, 67, 0.08);
+      --border: #dbe4eb;
+      --line: #edf2f6;
+      --cyan: #00bceb;
+      --cyan-deep: #00779b;
+      --teal: #0f8f74;
+      --mint: #4dc7ae;
+      --ink: #0f2234;
+      --shadow-xl: 0 36px 80px rgba(12, 34, 52, 0.12);
+      --shadow-lg: 0 18px 42px rgba(12, 34, 52, 0.08);
+      --radius-xl: 28px;
+      --radius-2xl: 42px;
     }}
     * {{ box-sizing: border-box; }}
     html {{ scroll-behavior: smooth; }}
     body {{
       margin: 0;
       font-family: "Segoe UI", "Aptos", "Helvetica Neue", Arial, sans-serif;
-      background: radial-gradient(circle at top right, #f7fbfd 0, #eef3f7 55%, #e7edf3 100%);
       color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.10), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(15,143,116,0.08), transparent 28%),
+        linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
     }}
-    .layout {{
+    a {{ color: inherit; }}
+    .shell {{
       display: grid;
-      grid-template-columns: 300px minmax(0, 1fr);
+      grid-template-columns: 320px minmax(0, 1fr);
       min-height: 100vh;
     }}
     .sidebar {{
       position: sticky;
       top: 0;
       height: 100vh;
-      padding: 32px 24px;
-      background: linear-gradient(180deg, #12263a 0%, #0d1824 100%);
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at top left, rgba(0,188,235,0.18), transparent 24%),
+        linear-gradient(180deg, var(--nav-panel) 0%, var(--nav-bg) 100%);
       color: var(--nav-text);
+      border-right: 1px solid rgba(255,255,255,0.07);
       display: flex;
       flex-direction: column;
-      gap: 24px;
     }}
-    .brand {{
-      padding: 18px 18px 16px;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      background: rgba(255,255,255,0.04);
+    .brand-block {{
+      padding: 28px 28px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(2,8,14,0.24);
     }}
-    .brand h1 {{
-      margin: 0 0 8px;
-      font-size: 26px;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
+    .brand-row {{
+      display: flex;
+      gap: 16px;
+      align-items: center;
     }}
-    .brand p {{
+    .brand-mark {{
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--cyan) 0%, #62d4f4 100%);
+      color: white;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 32px rgba(0,188,235,0.28);
+      flex: none;
+    }}
+    .brand-mark svg {{
+      width: 30px;
+      height: 30px;
+    }}
+    .brand-title {{
       margin: 0;
-      color: rgba(219,231,244,0.82);
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 28px;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      font-weight: 900;
     }}
-    .sidebar-group-title {{
-      margin: 18px 0 10px;
-      font-size: 11px;
+    .brand-subtitle {{
+      margin: 6px 0 0;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: rgba(219,231,244,0.62);
+      letter-spacing: 0.42em;
+      color: rgba(229,237,245,0.62);
+      font-weight: 800;
     }}
-    .sidebar a {{
-      display: block;
-      padding: 9px 12px;
+    .brand-meta {{
+      margin-top: 18px;
+      display: grid;
+      gap: 8px;
+      color: var(--nav-muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }}
+    .brand-metrics {{
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }}
+    .brand-kpi {{
+      padding: 12px 12px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+    }}
+    .brand-kpi .label {{
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(229,237,245,0.55);
       margin-bottom: 6px;
-      border-radius: 12px;
-      color: inherit;
-      text-decoration: none;
-      font-size: 14px;
     }}
-    .sidebar a:hover {{
+    .brand-kpi .value {{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: white;
+    }}
+    .nav-scroll {{
+      padding: 24px 0 12px;
+      flex: 1;
+    }}
+    .nav-group {{
+      margin-bottom: 22px;
+    }}
+    .nav-group-title {{
+      padding: 0 28px;
+      margin-bottom: 10px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.34em;
+      color: rgba(229,237,245,0.46);
+    }}
+    .nav-link {{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 28px;
+      border-left: 4px solid transparent;
+      text-decoration: none;
+      color: var(--nav-muted);
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+    }}
+    .nav-link:hover {{
+      background: rgba(255,255,255,0.045);
+      color: white;
+    }}
+    .nav-link.active {{
+      background: linear-gradient(90deg, rgba(0,188,235,0.24), rgba(0,188,235,0.05));
+      color: white;
+      border-left-color: var(--cyan);
+    }}
+    .nav-index {{
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 900;
       background: rgba(255,255,255,0.08);
+      color: rgba(229,237,245,0.9);
+      flex: none;
+    }}
+    .nav-link.active .nav-index {{
+      background: var(--cyan);
+      color: #08212f;
     }}
     .sidebar-footer {{
-      margin-top: auto;
+      padding: 20px 28px 28px;
+      border-top: 1px solid rgba(255,255,255,0.08);
       display: grid;
       gap: 12px;
     }}
     .print-button {{
+      appearance: none;
       border: none;
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-weight: 700;
-      color: white;
-      background: linear-gradient(135deg, #0c7abf 0%, #0f9dcf 100%);
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, var(--cyan) 0%, #54d8f6 100%);
+      color: #092132;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
       cursor: pointer;
+      box-shadow: 0 16px 38px rgba(0,188,235,0.22);
     }}
-    main {{
-      padding: 36px;
+    .footer-caption {{
+      color: rgba(229,237,245,0.58);
+      font-size: 11px;
+      line-height: 1.5;
+    }}
+    .workspace {{
+      min-width: 0;
+      padding: 26px 28px 34px;
       display: grid;
-      gap: 28px;
+      gap: 18px;
     }}
-    .section {{
-      background: rgba(255,255,255,0.78);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(215,224,232,0.95);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
+    .masthead {{
+      position: relative;
       overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+      gap: 20px;
+      padding: 26px 28px;
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.16), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(15,143,116,0.11), transparent 24%),
+        linear-gradient(135deg, #fdfefe 0%, #f2f8fb 100%);
+      border: 1px solid rgba(219,228,235,0.94);
+      box-shadow: var(--shadow-lg);
     }}
-    .section-header {{
-      padding: 28px 30px 18px;
-      border-bottom: 1px solid rgba(215,224,232,0.85);
-      background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(242,247,250,0.88));
+    .masthead::after {{
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: -70px;
+      width: 230px;
+      height: 230px;
+      border-radius: 44px;
+      transform: rotate(-14deg);
+      background: linear-gradient(135deg, rgba(0,188,235,0.08), rgba(15,143,116,0.05));
+      pointer-events: none;
     }}
-    .section-header .eyebrow {{
-      font-size: 12px;
+    .masthead-copy,
+    .masthead-stats {{
+      position: relative;
+      z-index: 1;
+    }}
+    .masthead-label {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(0,188,235,0.10);
+      color: var(--cyan-deep);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--accent);
-      font-weight: 700;
+    }}
+    .masthead-label::before {{
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 0 5px rgba(0,188,235,0.12);
+    }}
+    .masthead-title {{
+      margin: 18px 0 10px;
+      font-size: 56px;
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+      text-transform: uppercase;
+      font-style: italic;
+      color: var(--surface-ink);
+      max-width: 760px;
+    }}
+    .masthead-copy p {{
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.68;
+      font-weight: 600;
+    }}
+    .masthead-meta {{
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }}
+    .masthead-meta span {{
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(219,228,235,0.94);
+      color: #4e6578;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 22px rgba(12, 34, 52, 0.05);
+    }}
+    .masthead-stats {{
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }}
+    .masthead-stat {{
+      padding: 18px 18px 20px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.90);
+      border: 1px solid rgba(219,228,235,0.94);
+      box-shadow: 0 12px 30px rgba(12, 34, 52, 0.06);
+    }}
+    .masthead-stat .label {{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #73889b;
       margin-bottom: 10px;
     }}
-    .section-header h2 {{
-      margin: 0 0 10px;
+    .masthead-stat .value {{
       font-size: 32px;
-      line-height: 1.06;
-      letter-spacing: -0.03em;
+      line-height: 1.0;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      color: var(--surface-ink);
     }}
-    .section-header p {{
-      margin: 0;
+    .masthead-stat .detail {{
+      margin-top: 8px;
       color: var(--muted);
-      font-size: 16px;
-      line-height: 1.6;
-      max-width: 880px;
+      font-size: 13px;
+      line-height: 1.55;
+      font-weight: 600;
     }}
-    .section-body {{
-      padding: 28px 30px 34px;
+    .workspace-frame {{
+      background: linear-gradient(180deg, rgba(255,255,255,0.56), rgba(255,255,255,0.28));
+      border: 1px solid rgba(219,228,235,0.92);
+      border-radius: 46px;
+      box-shadow: var(--shadow-xl);
+      min-height: calc(100vh - 72px);
+      position: relative;
+      padding: 24px;
+    }}
+    .screen {{
+      display: block;
+      padding: 54px 58px 58px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(219,228,235,0.92);
+      border-radius: 38px;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.10), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(15,143,116,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(245,249,252,0.96));
+    }}
+    .screen.active {{
+      border-color: rgba(0,188,235,0.30);
+      box-shadow: 0 22px 56px rgba(12, 34, 52, 0.12);
+    }}
+    .screen::before {{
+      content: "";
+      position: absolute;
+      top: 28px;
+      right: 32px;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      border: 1px dashed rgba(0,119,155,0.12);
+      opacity: 0.8;
+      pointer-events: none;
+    }}
+    .screen::after {{
+      content: "";
+      position: absolute;
+      top: 56px;
+      right: 58px;
+      width: 160px;
+      height: 160px;
+      border-radius: 36px;
+      background: linear-gradient(135deg, rgba(0,188,235,0.08), rgba(15,143,116,0.05));
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }}
+    .screen-head {{
+      position: relative;
+      z-index: 1;
+      margin-bottom: 34px;
+      padding-bottom: 26px;
+      border-bottom: 2px solid rgba(15,34,52,0.06);
+    }}
+    .screen-meta-strip {{
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }}
+    .screen-index {{
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
       display: grid;
-      gap: 24px;
-    }}
-    .hero {{
-      display: grid;
-      grid-template-columns: 1.7fr 1fr;
-      gap: 20px;
-      align-items: stretch;
-    }}
-    .panel {{
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 22px;
-    }}
-    .panel h3 {{
-      margin: 0 0 12px;
+      place-items: center;
+      background: linear-gradient(135deg, var(--surface-ink) 0%, #1e3d55 100%);
+      color: white;
       font-size: 18px;
-      letter-spacing: -0.02em;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      box-shadow: 0 16px 34px rgba(20, 40, 58, 0.22);
+    }}
+    .screen-tag {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(0,188,235,0.08);
+      color: var(--cyan-deep);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }}
+    .screen-tag .dot {{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 0 5px rgba(0,188,235,0.12);
+    }}
+    .screen-title {{
+      margin: 18px 0 10px;
+      font-size: 54px;
+      line-height: 0.96;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+      text-transform: uppercase;
+      color: var(--surface-ink);
+      max-width: 820px;
+      font-style: italic;
+    }}
+    .screen-summary {{
+      margin: 0;
+      max-width: 920px;
+      font-size: 19px;
+      line-height: 1.65;
+      color: var(--muted);
+      font-weight: 600;
+    }}
+    .content-stack {{
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 26px;
+    }}
+    .hero-grid {{
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.9fr);
+      gap: 22px;
+      align-items: start;
+    }}
+    .statement-card,
+    .section-block,
+    .data-card,
+    .trace-card {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      box-shadow: var(--shadow-lg);
+    }}
+    .statement-card {{
+      padding: 30px;
+      display: grid;
+      gap: 22px;
+    }}
+    .statement-card.cover-aside {{
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.10), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f6fafc 100%);
+    }}
+    .statement-card h3,
+    .section-block h3,
+    .data-card h3,
+    .trace-card h3 {{
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+      color: var(--surface-ink);
+    }}
+    .section-block,
+    .data-card,
+    .trace-card {{
+      padding: 26px;
     }}
     .narrative {{
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }}
     .narrative p {{
       margin: 0;
-      line-height: 1.7;
-      color: #264154;
+      font-size: 16px;
+      line-height: 1.72;
+      color: #274153;
     }}
-    .kpi-grid {{
+    .summary-callouts {{
+      display: grid;
+      gap: 12px;
+    }}
+    .summary-callout {{
+      display: flex;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(0,188,235,0.06), rgba(0,188,235,0.02));
+      border: 1px solid rgba(0,188,235,0.12);
+      color: #1f4459;
+      font-weight: 600;
+      line-height: 1.55;
+    }}
+    .summary-callout .bullet {{
+      margin-top: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+      flex: none;
+    }}
+    .kpi-band {{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 14px;
     }}
     .kpi-card {{
-      padding: 18px;
-      background: linear-gradient(180deg, #fbfdff 0%, #f3f8fb 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #f5fafc 100%);
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: 24px;
+      padding: 18px 18px 20px;
+      min-height: 132px;
     }}
     .kpi-card .label {{
-      color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
+      line-height: 1.4;
+      font-weight: 900;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      color: #6b8093;
       margin-bottom: 10px;
-      font-weight: 700;
     }}
     .kpi-card .value {{
-      font-size: 28px;
-      line-height: 1.1;
-      letter-spacing: -0.04em;
-      font-weight: 800;
+      font-size: 34px;
+      line-height: 1.0;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+      color: var(--surface-ink);
+      margin-bottom: 8px;
     }}
     .kpi-card .subtitle {{
-      margin-top: 8px;
-      color: var(--muted);
       font-size: 13px;
-      line-height: 1.5;
+      line-height: 1.55;
+      color: var(--muted);
+      font-weight: 600;
     }}
-    .callouts {{
+    .insight-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }}
+    .insight-card {{
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
       display: grid;
       gap: 10px;
     }}
-    .callout {{
-      padding: 14px 16px;
-      background: #f4fafc;
-      border-left: 4px solid var(--accent);
-      border-radius: 14px;
-      color: #1f435a;
+    .benchmark-card {{
+      position: relative;
+      overflow: hidden;
+      padding-top: 24px;
     }}
-    .cards {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    .benchmark-card::before {{
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--cyan), var(--mint));
+    }}
+    .benchmark-chip {{
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(0,188,235,0.08);
+      color: var(--cyan-deep);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }}
+    .insight-card .title {{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--surface-ink);
+    }}
+    .insight-card .metric {{
+      font-size: 30px;
+      line-height: 1.0;
+      letter-spacing: -0.05em;
+      font-weight: 950;
+      color: var(--cyan-deep);
+    }}
+    .insight-card .detail {{
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.6;
+    }}
+    .table-card {{
+      overflow: hidden;
+      padding: 0;
+    }}
+    .table-title {{
+      padding: 24px 26px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 14px;
     }}
-    .card {{
-      padding: 18px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: white;
-      display: grid;
-      gap: 10px;
-    }}
-    .card .title {{
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }}
-    .card .metric {{
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-    }}
-    .card ul {{
+    .table-title p {{
       margin: 0;
-      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
     }}
-    .card li {{
-      margin: 6px 0;
-      color: #335066;
-    }}
-    .table-shell {{
+    .table-scroll {{
       overflow-x: auto;
+      border-top: 1px solid var(--line);
     }}
     table {{
       width: 100%;
       border-collapse: collapse;
+      min-width: 760px;
       font-size: 14px;
-      min-width: 680px;
     }}
-    th, td {{
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-      text-align: left;
-      vertical-align: top;
+    thead {{
+      background: linear-gradient(180deg, #f7fafc 0%, #eef4f8 100%);
     }}
     th {{
-      font-size: 12px;
-      letter-spacing: 0.08em;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      font-weight: 900;
       text-transform: uppercase;
-      color: var(--muted);
+      color: #6b8093;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
     }}
-    .matrix {{
+    td {{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      color: #254052;
+      line-height: 1.55;
+    }}
+    tbody tr:nth-child(even) {{
+      background: rgba(246,250,252,0.68);
+    }}
+    .viz-shell {{
+      padding: 26px;
+    }}
+    .viz-head {{
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }}
+    .viz-head p {{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      max-width: 540px;
+    }}
+    .svg-shell {{
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbfd 100%);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 18px;
+    }}
+    .matrix-grid {{
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 12px;
+      gap: 14px;
     }}
     .matrix-column {{
-      background: white;
+      background: linear-gradient(180deg, #ffffff 0%, #f5f9fb 100%);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      min-height: 180px;
+      border-radius: 22px;
+      padding: 18px;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+    }}
+    .matrix-column::before {{
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--cyan), var(--mint));
+      opacity: 0.85;
     }}
     .matrix-column h4 {{
-      margin: 0 0 10px;
+      margin: 6px 0 12px;
       font-size: 15px;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-weight: 900;
+      color: var(--surface-ink);
     }}
     .matrix-column ul {{
       margin: 0;
       padding-left: 18px;
-    }}
-    .timeline {{
       display: grid;
-      gap: 14px;
+      gap: 9px;
+      color: #2b4659;
+      line-height: 1.5;
+      font-size: 14px;
+    }}
+    .timeline-flow {{
+      position: relative;
+      margin-left: 18px;
+      padding-left: 48px;
+      display: grid;
+      gap: 28px;
+      border-left: 8px solid #eef4f8;
     }}
     .timeline-item {{
-      display: grid;
-      grid-template-columns: 130px 1fr;
-      gap: 18px;
-      align-items: start;
-      padding: 18px;
-      background: white;
-      border-radius: 18px;
+      position: relative;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbfd 100%);
       border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 24px 24px 22px;
+      box-shadow: var(--shadow-lg);
+    }}
+    .timeline-item::before {{
+      content: "";
+      position: absolute;
+      left: -61px;
+      top: 26px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--cyan);
+      border: 6px solid white;
+      box-shadow: 0 10px 22px rgba(0,188,235,0.24);
+    }}
+    .timeline-top {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      align-items: center;
+      margin-bottom: 14px;
     }}
     .timeline-year {{
-      font-weight: 800;
-      color: var(--accent);
+      font-size: 34px;
+      line-height: 1.0;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      color: var(--surface-ink);
+    }}
+    .timeline-phase {{
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #edf6fb;
+      color: var(--cyan-deep);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
     }}
     .timeline-meta {{
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6b8093;
     }}
-    .svg-shell {{
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 16px;
+    .timeline-body {{
+      font-size: 18px;
+      line-height: 1.7;
+      color: #314d60;
+      font-weight: 600;
+      max-width: 860px;
     }}
     .delivery-grid {{
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
     }}
     .delivery-card {{
-      background: linear-gradient(180deg, #ffffff 0%, #f7fbfd 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 18px;
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: var(--shadow-lg);
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }}
-    .delivery-card .share {{
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--emerald);
+    .delivery-top {{
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
     }}
-    .footer-note {{
+    .delivery-place {{
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--surface-ink);
+    }}
+    .delivery-type {{
       color: var(--muted);
       font-size: 13px;
-      text-align: center;
-      padding-top: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
     }}
-    @media (max-width: 1100px) {{
-      .layout {{ grid-template-columns: 1fr; }}
+    .delivery-share {{
+      font-size: 34px;
+      line-height: 1.0;
+      font-weight: 950;
+      color: var(--teal);
+      letter-spacing: -0.05em;
+      white-space: nowrap;
+    }}
+    .delivery-card ul {{
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      color: #305062;
+      line-height: 1.5;
+      font-size: 14px;
+    }}
+    .delivery-strip {{
+      display: flex;
+      height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #edf3f7;
+      border: 1px solid var(--border);
+    }}
+    .delivery-strip span {{
+      height: 100%;
+    }}
+    .trace-card details {{
+      display: grid;
+      gap: 16px;
+    }}
+    .trace-card summary {{
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--surface-ink);
+      list-style: none;
+    }}
+    .trace-card summary::-webkit-details-marker {{
+      display: none;
+    }}
+    .trace-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }}
+    .trace-item {{
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      min-height: 92px;
+    }}
+    .trace-item .key {{
+      font-size: 10px;
+      line-height: 1.5;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #6b8093;
+      margin-bottom: 8px;
+    }}
+    .trace-item .value {{
+      font-size: 14px;
+      line-height: 1.55;
+      color: #294559;
+      font-weight: 700;
+      word-break: break-word;
+    }}
+    .cover-visual {{
+      position: relative;
+      overflow: hidden;
+      border-radius: 26px;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(circle at top left, rgba(0,188,235,0.16), transparent 24%),
+        linear-gradient(135deg, #113049 0%, #0f2234 54%, #0d1824 100%);
+      min-height: 230px;
+      padding: 22px;
+      color: white;
+      box-shadow: 0 18px 46px rgba(11, 22, 33, 0.24);
+    }}
+    .cover-visual::after {{
+      content: "";
+      position: absolute;
+      right: -44px;
+      top: -56px;
+      width: 180px;
+      height: 180px;
+      border-radius: 36px;
+      transform: rotate(-18deg);
+      background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+    }}
+    .cover-visual-top {{
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }}
+    .cover-badge {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }}
+    .cover-logo {{
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+    }}
+    .cover-visual h3 {{
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      color: white;
+    }}
+    .cover-visual p {{
+      margin: 0;
+      max-width: 420px;
+      color: rgba(229,237,245,0.82);
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 600;
+    }}
+    .cover-stat-ribbon {{
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }}
+    .cover-stat {{
+      padding: 12px 12px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+    }}
+    .cover-stat .label {{
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(229,237,245,0.62);
+      margin-bottom: 6px;
+    }}
+    .cover-stat .value {{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: white;
+    }}
+    .cover-kpis {{
+      display: grid;
+      gap: 16px;
+    }}
+    .cover-mini {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }}
+    .cover-mini .mini {{
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+    }}
+    .cover-mini .mini .label {{
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #708496;
+      margin-bottom: 6px;
+    }}
+    .cover-mini .mini .value {{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--surface-ink);
+    }}
+    .footer-note {{
+      margin-top: 4px;
+      text-align: center;
+      color: #728799;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }}
+    .hide-screen {{
+      display: none;
+    }}
+    @media (max-width: 1320px) {{
+      .masthead {{ grid-template-columns: 1fr; }}
+      .hero-grid {{ grid-template-columns: 1fr; }}
+      .matrix-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+    }}
+    @media (max-width: 1120px) {{
+      .shell {{ grid-template-columns: 1fr; }}
       .sidebar {{ position: relative; height: auto; }}
-      .hero {{ grid-template-columns: 1fr; }}
-      .matrix {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-      main {{ padding: 20px; }}
+      .workspace {{ padding: 18px; }}
+      .workspace-frame {{ min-height: auto; }}
+      .masthead-title {{ font-size: 42px; }}
+      .screen {{ padding: 28px 22px 30px; }}
+      .screen-title {{ font-size: 40px; }}
+      .matrix-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+    }}
+    @media (max-width: 780px) {{
+      .brand-metrics,
+      .cover-mini,
+      .cover-stat-ribbon {{
+        grid-template-columns: 1fr;
+      }}
+      .screen-title {{
+        font-size: 32px;
+      }}
+      .matrix-grid {{
+        grid-template-columns: 1fr;
+      }}
+      .timeline-flow {{
+        margin-left: 0;
+        padding-left: 28px;
+      }}
+      .timeline-item::before {{
+        left: -41px;
+      }}
     }}
     @media print {{
-      .sidebar {{ display: none; }}
-      .layout {{ grid-template-columns: 1fr; }}
       body {{ background: white; }}
-      main {{ padding: 0; }}
-      .section {{ box-shadow: none; border: 1px solid #d0d7de; break-inside: avoid; }}
+      .shell {{ display: block; }}
+      .sidebar {{ display: none; }}
+      .workspace {{ padding: 0; }}
+      .workspace-frame {{
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+      }}
+      .masthead {{
+        page-break-after: avoid;
+        box-shadow: none;
+      }}
+      .screen {{
+        break-inside: avoid;
+        page-break-inside: avoid;
+        padding: 22px 0 30px;
+        background: white;
+        border: none;
+        box-shadow: none;
+        margin-bottom: 12px;
+      }}
+      .screen::before,
+      .screen::after {{
+        display: none;
+      }}
     }}
   </style>
 </head>
 <body>
-  <div class="layout">
-    {sidebar}
-    <main>
-      {body_sections}
-      <div class="footer-note">Generated from structured ingress and code-computed financials. Annual ADM spend: {escape(format_currency(facts["annual_adm_spend_usd"]))}.</div>
+  <div class="shell">
+    {nav}
+    <main class="workspace">
+      <div class="workspace-frame">
+        {masthead}
+        {screens}
+      </div>
+      <div class="footer-note">Structured ingress · code-computed financials · benchmark-aligned HTML artifact</div>
     </main>
   </div>
   <script>
-    document.querySelectorAll('.sidebar a[href^="#"]').forEach(function(link) {{
-      link.addEventListener('click', function(event) {{
-        var target = document.querySelector(this.getAttribute('href'));
-        if (!target) return;
-        event.preventDefault();
-        target.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+    (function() {{
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+      var links = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
+      function activate(id) {{
+        var resolved = id || (sections[0] && sections[0].id);
+        links.forEach(function(link) {{
+          link.classList.toggle('active', link.getAttribute('href') === '#' + resolved);
+        }});
+        sections.forEach(function(section) {{
+          section.classList.toggle('active', section.id === resolved);
+        }});
+      }}
+      links.forEach(function(link) {{
+        link.addEventListener('click', function() {{
+          var targetId = this.getAttribute('href').slice(1);
+          activate(targetId);
+        }});
       }});
-    }});
+      if ('IntersectionObserver' in window) {{
+        var observer = new IntersectionObserver(function(entries) {{
+          entries.forEach(function(entry) {{
+            if (entry.isIntersecting) {{
+              activate(entry.target.id);
+            }}
+          }});
+        }}, {{
+          rootMargin: '-22% 0px -54% 0px',
+          threshold: [0.2, 0.45, 0.7]
+        }});
+        sections.forEach(function(section) {{
+          observer.observe(section);
+        }});
+      }}
+      window.addEventListener('hashchange', function() {{
+        activate(window.location.hash.slice(1));
+      }});
+      activate(window.location.hash.slice(1));
+    }})();
   </script>
 </body>
 </html>"""
 
 
-def _render_sidebar() -> str:
+def _render_sidebar(client: dict[str, Any], facts: dict[str, Any]) -> str:
     groups: dict[str, list[str]] = {}
-    for section in SECTIONS:
+    for index, section in enumerate(SECTIONS, start=1):
         groups.setdefault(section.nav_group, []).append(
-            f'<a href="#{section.identifier}">{escape(section.title)}</a>'
+            f'<a class="nav-link{" active" if index == 1 else ""}" href="#{section.identifier}"><span class="nav-index">{index:02d}</span><span>{escape(section.title)}</span></a>'
         )
-    group_html = []
-    for group_name, links in groups.items():
-        group_html.append(
-            f'<div><div class="sidebar-group-title">{escape(group_name)}</div>{"".join(links)}</div>'
-        )
+    group_html = "".join(
+        f'<div class="nav-group"><div class="nav-group-title">{escape(group_name)}</div>{"".join(links)}</div>'
+        for group_name, links in groups.items()
+    )
+    initials = _company_initials(client["company"]["name"])
     return (
         '<aside class="sidebar">'
-        '<div class="brand"><h1>ADM</h1><p>Northstar benchmark pipeline output with 12 assessment-aligned sections, critique-driven repair, and final HTML QA.</p></div>'
-        + "".join(group_html)
-        + '<div class="sidebar-footer"><button class="print-button" type="button" data-action="print-report" onclick="window.print()">Export / Print</button></div></aside>'
+        '<div class="brand-block">'
+        '<div class="brand-row">'
+        f'<div class="brand-mark" aria-hidden="true">{_render_mark_svg(initials)}</div>'
+        '<div>'
+        f'<h1 class="brand-title">{escape(client["company"]["name"])}</h1>'
+        '<p class="brand-subtitle">Transformation Master Plan</p>'
+        '</div>'
+        '</div>'
+        f'<div class="brand-meta"><div>{escape(client["company"]["industry"])} · {escape(client["company"].get("subsector", ""))}</div><div>{escape(client["company"]["headquarters"])}</div></div>'
+        '<div class="brand-metrics">'
+        f'<div class="brand-kpi"><div class="label">Annual ADM</div><div class="value">{escape(format_currency(facts["annual_adm_spend_usd"]))}</div></div>'
+        f'<div class="brand-kpi"><div class="label">Target ROI</div><div class="value">{escape(f"{facts["roi_pct"]:.2f}%")}</div></div>'
+        f'<div class="brand-kpi"><div class="label">Apps</div><div class="value">{facts["apps_in_scope"]}</div></div>'
+        f'<div class="brand-kpi"><div class="label">Value</div><div class="value">{escape(format_currency(facts["cumulative_business_value_usd"]))}</div></div>'
+        '</div>'
+        '</div>'
+        f'<div class="nav-scroll">{group_html}</div>'
+        '<div class="sidebar-footer">'
+        '<button class="print-button" type="button" data-action="print-report" onclick="window.print()">Export / Print</button>'
+        '<div class="footer-caption">Choose a section from the left rail. Print mode expands every screen for publication output.</div>'
+        '</div>'
+        '</aside>'
     )
 
 
-def _render_section(section: dict[str, Any], facts: dict[str, Any]) -> str:
-    body_parts = [
-        _render_narrative(section.get("narrative", [])),
-        _render_kpis(section),
-        _render_cards(section),
-        _render_tables(section.get("tables", [])),
-        _render_chart(section.get("chart")),
-        _render_matrix(section.get("matrix")),
-        _render_timeline(section.get("timeline", [])),
-        _render_delivery_cards(section.get("delivery_cards", [])),
-        _render_callouts(section.get("callouts", [])),
-        _render_fact_refs(section.get("fact_refs", []), facts),
-    ]
-    if section["section_id"] == "sec01":
-        body = _render_hero(section, facts)
-    else:
-        body = "".join(part for part in body_parts if part)
+def _render_masthead(client: dict[str, Any], facts: dict[str, Any]) -> str:
+    company = client["company"]
     return (
-        f'<section id="{escape(section["section_id"])}" class="section" data-section-id="{escape(section["section_id"])}">'
-        f'<div class="section-header"><div class="eyebrow">{escape(section["phase"])}</div><h2>{escape(section["title"])}</h2><p>{escape(section["summary"])}</p></div>'
-        f'<div class="section-body">{body}</div>'
-        "</section>"
+        '<section class="masthead" aria-label="Report cover summary">'
+        '<div class="masthead-copy">'
+        '<div class="masthead-label">Account Development Master</div>'
+        f'<h1 class="masthead-title">{escape(company["name"])} transformation blueprint</h1>'
+        f'<p>This publication-ready ADM translates structured client inputs into an executive narrative, transformation roadmap, financial case, and delivery blueprint aligned to the Cisco benchmark style while preserving code-traceable calculations.</p>'
+        '<div class="masthead-meta">'
+        f'<span>{escape(company["industry"])}</span>'
+        f'<span>{escape(company.get("subsector", "Enterprise Transformation"))}</span>'
+        f'<span>{escape(company["headquarters"])}</span>'
+        f'<span>{facts["apps_in_scope"]} apps in scope</span>'
+        '</div>'
+        '</div>'
+        '<div class="masthead-stats">'
+        f'<div class="masthead-stat"><div class="label">Five-Year Contract Value</div><div class="value">{escape(format_currency(facts["tcv_5y_usd"]))}</div><div class="detail">Computed from the locked ADM spend baseline across the full program horizon.</div></div>'
+        f'<div class="masthead-stat"><div class="label">Transformation Investment</div><div class="value">{escape(format_currency(facts["transformation_investment_total_usd"]))}</div><div class="detail">Code-derived investment curve applied across the five-year transformation horizon.</div></div>'
+        f'<div class="masthead-stat"><div class="label">Modeled Business Value</div><div class="value">{escape(format_currency(facts["cumulative_business_value_usd"]))}</div><div class="detail">Workforce, legacy, productivity, and resilience value streams combined into one benchmark-ready value story.</div></div>'
+        '</div>'
+        '</section>'
     )
 
 
-def _render_hero(section: dict[str, Any], facts: dict[str, Any]) -> str:
+def _render_screen(section: dict[str, Any], facts: dict[str, Any], client: dict[str, Any]) -> str:
+    body = _render_screen_body(section, facts, client)
+    active_class = " active" if section["section_id"] == SECTIONS[0].identifier else ""
+    section_number = _section_number(section["section_id"])
     return (
-        '<div class="hero">'
-        f'<div class="panel" data-widget="hero-callout" data-filled="true"><h3>Program Thesis</h3>{_render_narrative(section.get("narrative", []))}{_render_callouts(section.get("callouts", []))}</div>'
-        f'<div class="panel">{_render_kpis(section, override_widget="kpi-grid")}{_render_fact_refs(section.get("fact_refs", []), facts)}</div>'
-        "</div>"
+        f'<section id="{escape(section["section_id"])}" class="screen{active_class}" data-section-id="{escape(section["section_id"])}">'
+        f'<div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">{section_number:02d}</div><div class="screen-tag"><span class="dot"></span>{escape(section["phase"])}</div></div><h2 class="screen-title">{escape(section["title"])}</h2><p class="screen-summary">{escape(section["summary"])}</p></div>'
+        f'<div class="content-stack">{body}</div>'
+        '</section>'
     )
+
+
+def _render_screen_body(section: dict[str, Any], facts: dict[str, Any], client: dict[str, Any]) -> str:
+    section_id = section["section_id"]
+    if section_id == "sec01":
+        return _render_executive_screen(section, facts, client)
+    if section_id == "sec02":
+        return _render_portfolio_screen(section, facts)
+    if section_id == "sec03":
+        return _render_inventory_screen(section, facts)
+    if section_id == "sec04":
+        return _render_benchmark_screen(section, facts)
+    if section_id == "sec05":
+        return _render_strategy_screen(section, facts)
+    if section_id == "sec06":
+        return _render_factory_screen(section, facts)
+    if section_id == "sec07":
+        return _render_cloud_data_screen(section, facts)
+    if section_id == "sec08":
+        return _render_financial_screen(section, facts)
+    if section_id == "sec09":
+        return _render_roadmap_screen(section, facts)
+    if section_id == "sec10":
+        return _render_delivery_screen(section, facts)
+    if section_id == "sec11":
+        return _render_summary_screen(section, facts)
+    if section_id == "sec12":
+        return _render_partnership_screen(section, facts)
+    return _render_generic_screen(section, facts)
+
+
+def _render_executive_screen(section: dict[str, Any], facts: dict[str, Any], client: dict[str, Any]) -> str:
+    return (
+        '<div class="hero-grid">'
+        f'<div class="statement-card" data-widget="hero-callout" data-filled="true"><h3>Transformation Thesis</h3>{_render_narrative(section.get("narrative", []))}{_render_summary_callouts(section.get("callouts", []))}</div>'
+        '<div class="statement-card cover-aside">'
+        f'{_render_kpi_band(section.get("kpi_cards", []), "kpi-grid")}'
+        f'{_render_cover_visual(client, facts)}'
+        '<div class="cover-mini">'
+        f'<div class="mini"><div class="label">Enterprise Revenue</div><div class="value">{escape(format_currency(float(client["company"]["annual_revenue_usd"])))}</div></div>'
+        f'<div class="mini"><div class="label">Employees</div><div class="value">{client["company"]["employees"]:,}</div></div>'
+        f'<div class="mini"><div class="label">App Estate</div><div class="value">{facts["apps_in_scope"]} apps</div></div>'
+        f'<div class="mini"><div class="label">Delivery Centers</div><div class="value">{facts["delivery_center_count"]}</div></div>'
+        '</div>'
+        '</div>'
+        '</div>'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_portfolio_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Portfolio Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_insight_cards(section.get("cards", []), "portfolio-cards")}'
+        f'{_render_visual_block("Portfolio Distribution by Business Unit", "Cost and application count concentration across the estate.", _render_chart(section.get("chart")), "portfolio-chart")}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_inventory_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Inventory Framing", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_tables(section.get("tables", []))}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_benchmark_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Benchmark Positioning", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_benchmark_cards(section.get("cards", []), "competitor-cards")}'
+        f'{_render_tables(section.get("tables", []))}'
+        + _render_traceability(section.get("evidence_refs", []), None, title="Evidence Markers")
+    )
+
+
+def _render_strategy_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Strategic Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_insight_cards(section.get("cards", []), "transformation-pillars")}'
+        + _render_traceability(section.get("evidence_refs", []), None, title="Evidence Markers")
+    )
+
+
+def _render_factory_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Factory Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_matrix(section.get("matrix"))}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_cloud_data_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Cloud & Data Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_insight_cards(section.get("cards", []), "cloud-data-cards")}'
+        f'{_render_tables(section.get("tables", []))}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_financial_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Financial Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_kpi_band(section.get("kpi_cards", []), "financial-kpis")}'
+        f'{_render_tables(section.get("tables", []))}'
+        f'{_render_visual_block("5-Year Investment vs Value", "The financial section uses only code-computed values from the facts engine.", _render_chart(section.get("chart")), "financial-chart")}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_roadmap_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Roadmap Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_timeline(section.get("timeline", []))}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_delivery_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    strip = _render_delivery_strip(section.get("delivery_cards", []))
+    return (
+        f'{_render_section_block("Delivery Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'<div class="section-block"><h3>Delivery Footprint Allocation</h3>{strip}</div>'
+        f'{_render_delivery_cards(section.get("delivery_cards", []))}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_summary_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Executive Synthesis", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_insight_cards(section.get("cards", []), "benchmark-summary")}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_partnership_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Operating Model Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_insight_cards(section.get("cards", []), "partnership-overview")}'
+        f'{_render_section_block("Execution Assumptions", _render_summary_callouts(section.get("callouts", [])))}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_generic_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+    return (
+        f'{_render_section_block("Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_kpi_band(section.get("kpi_cards", []), "kpi-grid")}'
+        f'{_render_insight_cards(section.get("cards", []), "cards")}'
+        f'{_render_tables(section.get("tables", []))}'
+        + _render_traceability(section.get("fact_refs", []), facts)
+    )
+
+
+def _render_section_block(title: str, inner: str) -> str:
+    if not inner:
+        return ""
+    return f'<div class="section-block"><h3>{escape(title)}</h3>{inner}</div>'
 
 
 def _render_narrative(paragraphs: list[str]) -> str:
@@ -461,11 +1441,17 @@ def _render_narrative(paragraphs: list[str]) -> str:
     return '<div class="narrative">' + "".join(f"<p>{escape(text)}</p>" for text in paragraphs) + "</div>"
 
 
-def _render_kpis(section: dict[str, Any], *, override_widget: str | None = None) -> str:
-    cards = section.get("kpi_cards", [])
+def _render_summary_callouts(callouts: list[str]) -> str:
+    if not callouts:
+        return ""
+    return '<div class="summary-callouts">' + "".join(
+        f'<div class="summary-callout"><span class="bullet"></span><span>{escape(item)}</span></div>' for item in callouts
+    ) + "</div>"
+
+
+def _render_kpi_band(cards: list[dict[str, Any]], widget: str) -> str:
     if not cards:
         return ""
-    widget = override_widget or ("financial-kpis" if section["section_id"] == "sec08" else "kpi-grid")
     items = []
     for card in cards:
         items.append(
@@ -473,50 +1459,55 @@ def _render_kpis(section: dict[str, Any], *, override_widget: str | None = None)
             f'<div class="label">{escape(card["label"])}</div>'
             f'<div class="value">{escape(card["value"])}</div>'
             f'<div class="subtitle">{escape(card["subtitle"])}</div>'
-            "</div>"
+            '</div>'
         )
-    return f'<div class="kpi-grid" data-widget="{escape(widget)}" data-filled="true">{"".join(items)}</div>'
+    return f'<div class="kpi-band" data-widget="{escape(widget)}" data-filled="true">{"".join(items)}</div>'
 
 
-def _render_callouts(callouts: list[str]) -> str:
-    if not callouts:
-        return ""
-    return '<div class="callouts">' + "".join(f'<div class="callout">{escape(item)}</div>' for item in callouts) + "</div>"
-
-
-def _render_cards(section: dict[str, Any]) -> str:
-    cards = section.get("cards", [])
+def _render_insight_cards(cards: list[dict[str, Any]], widget: str) -> str:
     if not cards:
         return ""
-    widget = _cards_widget_name(section["section_id"])
     rendered = []
     for card in cards:
-        pieces = [f'<div class="title">{escape(str(card.get("title", "")))}</div>']
-        if card.get("segment"):
-            pieces.append(f'<div class="subtitle">{escape(str(card["segment"]))}</div>')
-        if card.get("metric"):
-            pieces.append(f'<div class="metric">{escape(str(card["metric"]))}</div>')
-        if card.get("detail"):
-            pieces.append(f'<div>{escape(str(card["detail"]))}</div>')
+        title = card.get("title") or ""
+        metric = card.get("metric") or card.get("value") or ""
+        detail = card.get("detail") or card.get("subtitle") or ""
+        lists = []
         if card.get("strengths"):
-            pieces.append("<strong>Public strengths</strong><ul>" + "".join(f"<li>{escape(item)}</li>" for item in card["strengths"]) + "</ul>")
+            lists.append("<strong>Public strengths</strong><ul>" + "".join(f"<li>{escape(item)}</li>" for item in card["strengths"]) + "</ul>")
         if card.get("gaps"):
-            pieces.append("<strong>Northstar gap</strong><ul>" + "".join(f"<li>{escape(item)}</li>" for item in card["gaps"]) + "</ul>")
+            lists.append("<strong>Client gap</strong><ul>" + "".join(f"<li>{escape(item)}</li>" for item in card["gaps"]) + "</ul>")
         if card.get("signals"):
-            pieces.append("<strong>Signals</strong><ul>" + "".join(f"<li>{escape(item)}</li>" for item in card["signals"]) + "</ul>")
-        rendered.append(f'<div class="card">{"".join(pieces)}</div>')
-    return f'<div class="cards" data-widget="{escape(widget)}" data-filled="true">{"".join(rendered)}</div>'
+            lists.append("<strong>Signals</strong><ul>" + "".join(f"<li>{escape(item)}</li>" for item in card["signals"]) + "</ul>")
+        rendered.append(
+            '<div class="insight-card">'
+            f'<div class="title">{escape(str(title))}</div>'
+            + (f'<div class="metric">{escape(str(metric))}</div>' if metric else "")
+            + (f'<div class="detail">{escape(str(detail))}</div>' if detail else "")
+            + "".join(lists)
+            + '</div>'
+        )
+    return f'<div class="insight-grid" data-widget="{escape(widget)}" data-filled="true">{"".join(rendered)}</div>'
 
 
-def _cards_widget_name(section_id: str) -> str:
-    return {
-        "sec02": "portfolio-cards",
-        "sec04": "competitor-cards",
-        "sec05": "transformation-pillars",
-        "sec07": "cloud-data-cards",
-        "sec11": "benchmark-summary",
-        "sec12": "partnership-overview",
-    }.get(section_id, "cards")
+def _render_benchmark_cards(cards: list[dict[str, Any]], widget: str) -> str:
+    if not cards:
+        return ""
+    rendered = []
+    for card in cards:
+        strengths = "".join(f"<li>{escape(item)}</li>" for item in card.get("strengths", []))
+        gaps = "".join(f"<li>{escape(item)}</li>" for item in card.get("gaps", []))
+        signals = "".join(f"<li>{escape(item)}</li>" for item in card.get("signals", []))
+        rendered.append(
+            '<div class="insight-card benchmark-card">'
+            f'<div class="benchmark-chip">{escape(str(card.get("segment", "")))}</div>'
+            f'<div class="title">{escape(str(card.get("title", "")))}</div>'
+            f'<div><strong>Public strengths</strong><ul>{strengths}</ul></div>'
+            f'<div><strong>Northstar gap</strong><ul>{gaps}</ul></div>'
+            f'<div><strong>Signals</strong><ul>{signals}</ul></div>'
+            '</div>'
+        )
+    return f'<div class="insight-grid" data-widget="{escape(widget)}" data-filled="true">{"".join(rendered)}</div>'
 
 
 def _render_tables(tables: list[dict[str, Any]]) -> str:
@@ -531,10 +1522,23 @@ def _render_tables(tables: list[dict[str, Any]]) -> str:
         )
         widget_attr = f' data-widget="{escape(table["widget"])}" data-filled="true"' if table.get("widget") else ""
         rendered.append(
-            f'<div class="panel table-shell"{widget_attr}><h3>{escape(table["title"])}</h3>'
-            f"<table><thead><tr>{header}</tr></thead><tbody>{rows}</tbody></table></div>"
+            f'<div class="data-card table-card"{widget_attr}>'
+            f'<div class="table-title"><div><h3>{escape(table["title"])}</h3><p>{len(table["rows"])} rows</p></div></div>'
+            f'<div class="table-scroll"><table><thead><tr>{header}</tr></thead><tbody>{rows}</tbody></table></div>'
+            '</div>'
         )
     return "".join(rendered)
+
+
+def _render_visual_block(title: str, caption: str, inner: str, widget: str) -> str:
+    if not inner:
+        return ""
+    return (
+        f'<div class="data-card viz-shell" data-widget="{escape(widget)}" data-filled="true">'
+        f'<div class="viz-head"><div><h3>{escape(title)}</h3></div><p>{escape(caption)}</p></div>'
+        f'{inner}'
+        '</div>'
+    )
 
 
 def _render_chart(chart: dict[str, Any] | None) -> str:
@@ -545,59 +1549,68 @@ def _render_chart(chart: dict[str, Any] | None) -> str:
         svg = _render_financial_svg(chart["series"])
     else:
         svg = _render_simple_bar_svg(chart["series"])
-    return f'<div class="svg-shell" data-widget="{escape(widget)}" data-filled="true"><h3>{escape(chart["title"])}</h3>{svg}</div>'
+    return f'<div class="svg-shell">{svg}</div>'
 
 
 def _render_simple_bar_svg(series: list[dict[str, Any]]) -> str:
-    width = 760
-    height = 260
+    width = 900
+    height = 340
+    base_y = 266
     max_value = max(max(float(item["value"]), 1.0) for item in series)
-    bar_width = 70
-    gap = 24
-    x = 60
+    bar_width = 90
+    gap = 42
+    x = 82
     bars = []
     labels = []
     for item in series:
         value = float(item["value"])
-        bar_height = (value / max_value) * 160
-        y = 210 - bar_height
-        bars.append(f'<rect x="{x}" y="{y:.1f}" width="{bar_width}" height="{bar_height:.1f}" rx="14" fill="#0c7abf" opacity="0.9"></rect>')
-        labels.append(f'<text x="{x + bar_width/2:.1f}" y="230" text-anchor="middle" font-size="12" fill="#5f7283">{escape(str(item["label"]))}</text>')
-        labels.append(f'<text x="{x + bar_width/2:.1f}" y="{y - 8:.1f}" text-anchor="middle" font-size="12" fill="#12263a">{value:.0f}</text>')
+        bar_height = (value / max_value) * 170
+        y = base_y - bar_height
+        bars.append(f'<rect x="{x}" y="{y:.1f}" width="{bar_width}" height="{bar_height:.1f}" rx="18" fill="#00bceb"></rect>')
+        labels.append(f'<text x="{x + bar_width/2:.1f}" y="{base_y + 28}" text-anchor="middle" font-size="12" font-weight="800" fill="#6b8093">{escape(str(item["label"]))}</text>')
+        labels.append(f'<text x="{x + bar_width/2:.1f}" y="{y - 10:.1f}" text-anchor="middle" font-size="13" font-weight="900" fill="#12263a">{value:.0f}</text>')
         x += bar_width + gap
-    return f'<svg viewBox="0 0 {width} {height}" width="100%" height="260" role="img">{"".join(bars)}{"".join(labels)}</svg>'
+    grid = "".join(f'<line x1="64" y1="{y}" x2="840" y2="{y}" stroke="#edf2f6" stroke-width="1"></line>' for y in (266, 210, 154, 98, 42))
+    axis = '<line x1="64" y1="266" x2="840" y2="266" stroke="#d8e2ea" stroke-width="2"></line>'
+    return f'<svg viewBox="0 0 {width} {height}" width="100%" height="340" role="img">{grid}{axis}{"".join(bars)}{"".join(labels)}</svg>'
 
 
 def _render_financial_svg(series: list[dict[str, Any]]) -> str:
-    width = 760
-    height = 290
+    width = 920
+    height = 380
+    base_y = 286
     max_value = max(max(float(item["investment"]), float(item["value"]), 1.0) for item in series)
-    scale = 170 / max_value
+    scale = 196 / max_value
     bars = []
-    points = []
+    value_points = []
     labels = []
-    x = 70
+    x = 92
     for item in series:
         investment = float(item["investment"])
         value = float(item["value"])
         investment_h = investment * scale
-        value_y = 220 - (value * scale)
-        bars.append(f'<rect x="{x}" y="{220 - investment_h:.1f}" width="42" height="{investment_h:.1f}" rx="10" fill="#b7d7ea"></rect>')
-        points.append(f"{x + 72},{value_y:.1f}")
-        labels.append(f'<text x="{x + 20}" y="246" font-size="12" fill="#5f7283">{escape(item["label"])}</text>')
-        x += 120
-    polyline = f'<polyline fill="none" stroke="#0b8f63" stroke-width="4" points="{" ".join(points)}"></polyline>'
+        investment_y = base_y - investment_h
+        value_y = base_y - (value * scale)
+        bars.append(f'<rect x="{x}" y="{investment_y:.1f}" width="56" height="{investment_h:.1f}" rx="14" fill="#d7edf7"></rect>')
+        value_points.append(f"{x + 90},{value_y:.1f}")
+        labels.append(f'<text x="{x + 28}" y="{base_y + 28}" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">{escape(item["label"])}</text>')
+        x += 142
+    polyline = f'<polyline fill="none" stroke="#0f8f74" stroke-width="5" points="{" ".join(value_points)}"></polyline>'
     circles = "".join(
-        f'<circle cx="{point.split(",")[0]}" cy="{point.split(",")[1]}" r="5" fill="#0b8f63"></circle>'
-        for point in points
+        f'<circle cx="{point.split(",")[0]}" cy="{point.split(",")[1]}" r="6" fill="#0f8f74" stroke="white" stroke-width="3"></circle>'
+        for point in value_points
     )
+    grid = "".join(f'<line x1="74" y1="{y}" x2="864" y2="{y}" stroke="#edf2f6" stroke-width="1"></line>' for y in (286, 236, 186, 136, 86, 36))
     legend = (
-        '<text x="42" y="24" font-size="12" fill="#5f7283">Investment</text>'
-        '<rect x="18" y="13" width="16" height="10" rx="3" fill="#b7d7ea"></rect>'
-        '<text x="150" y="24" font-size="12" fill="#5f7283">Business Value</text>'
-        '<line x1="118" y1="18" x2="142" y2="18" stroke="#0b8f63" stroke-width="4"></line>'
+        '<g>'
+        '<rect x="22" y="18" width="18" height="10" rx="3" fill="#d7edf7"></rect>'
+        '<text x="48" y="27" font-size="12" font-weight="900" fill="#6b8093">Investment</text>'
+        '<line x1="160" y1="23" x2="184" y2="23" stroke="#0f8f74" stroke-width="5"></line>'
+        '<text x="192" y="27" font-size="12" font-weight="900" fill="#6b8093">Business Value</text>'
+        '</g>'
     )
-    return f'<svg viewBox="0 0 {width} {height}" width="100%" height="290" role="img">{legend}{"".join(bars)}{polyline}{circles}{"".join(labels)}</svg>'
+    axis = '<line x1="74" y1="286" x2="864" y2="286" stroke="#d8e2ea" stroke-width="2"></line>'
+    return f'<svg viewBox="0 0 {width} {height}" width="100%" height="380" role="img">{legend}{grid}{axis}{"".join(bars)}{polyline}{circles}{"".join(labels)}</svg>'
 
 
 def _render_matrix(matrix: dict[str, Any] | None) -> str:
@@ -607,7 +1620,7 @@ def _render_matrix(matrix: dict[str, Any] | None) -> str:
     for name, items in matrix["items"].items():
         item_list = "".join(f"<li>{escape(item)}</li>" for item in items)
         columns.append(f'<div class="matrix-column"><h4>{escape(name)}</h4><ul>{item_list}</ul></div>')
-    return f'<div class="matrix" data-widget="{escape(matrix["widget"])}" data-filled="true">{"".join(columns)}</div>'
+    return f'<div class="data-card" data-widget="{escape(matrix["widget"])}" data-filled="true"><h3>Modernization Matrix</h3><div class="matrix-grid">{"".join(columns)}</div></div>'
 
 
 def _render_timeline(items: list[dict[str, Any]]) -> str:
@@ -617,11 +1630,11 @@ def _render_timeline(items: list[dict[str, Any]]) -> str:
     for item in items:
         rendered.append(
             '<div class="timeline-item">'
-            f'<div><div class="timeline-year">{escape(item["year"])}</div><div class="timeline-meta">{escape(item["phase"])}</div></div>'
-            f'<div><strong>{escape(item["milestone"])}</strong><div class="timeline-meta">Investment {escape(item["investment"])} | Business Value {escape(item["business_value"])}</div></div>'
-            "</div>"
+            f'<div class="timeline-top"><div class="timeline-year">{escape(item["year"])}</div><div class="timeline-phase">{escape(item["phase"])}</div><div class="timeline-meta">Investment {escape(item["investment"])} · Business Value {escape(item["business_value"])}</div></div>'
+            f'<div class="timeline-body">{escape(item["milestone"])}</div>'
+            '</div>'
         )
-    return f'<div class="timeline" data-widget="roadmap-timeline" data-filled="true">{"".join(rendered)}</div>'
+    return f'<div class="data-card" data-widget="roadmap-timeline" data-filled="true"><h3>Execution Sequence</h3><div class="timeline-flow">{"".join(rendered)}</div></div>'
 
 
 def _render_delivery_cards(cards: list[dict[str, Any]]) -> str:
@@ -632,29 +1645,127 @@ def _render_delivery_cards(cards: list[dict[str, Any]]) -> str:
         waves = "".join(f"<li>{escape(item)}</li>" for item in card["wave_ownership"])
         rendered.append(
             '<div class="delivery-card">'
-            f'<div class="title">{escape(card["title"])}</div>'
-            f'<div>{escape(card["subtitle"])}</div>'
-            f'<div class="share">{escape(str(card["fte_share_pct"]))}%</div>'
+            '<div class="delivery-top">'
+            f'<div><div class="delivery-place">{escape(card["title"])}</div><div class="delivery-type">{escape(card["subtitle"])}</div></div>'
+            f'<div class="delivery-share">{escape(str(card["fte_share_pct"]))}%</div>'
+            '</div>'
             f'<div>{escape(card["primary_scope"])}</div>'
             f'<div><strong>Governance:</strong> {escape(card["governance_owner_role"])}</div>'
             f'<div><strong>Wave ownership</strong><ul>{waves}</ul></div>'
-            "</div>"
+            '</div>'
         )
     return f'<div class="delivery-grid" data-widget="delivery-layout" data-filled="true">{"".join(rendered)}</div>'
 
 
-def _render_fact_refs(fact_refs: list[str], facts: dict[str, Any]) -> str:
+def _render_delivery_strip(cards: list[dict[str, Any]]) -> str:
+    if not cards:
+        return ""
+    colors = ["#00bceb", "#0f8f74", "#073b5a", "#8fdcc8"]
+    segments = []
+    legend = []
+    for index, card in enumerate(cards):
+        color = colors[index % len(colors)]
+        share = float(card["fte_share_pct"])
+        segments.append(f'<span style="width:{share}%;background:{color};" title="{escape(card["title"])} {share:.0f}%"></span>')
+        legend.append(f'<div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:{color};display:inline-block;"></span><span style="font-size:12px;font-weight:800;color:#5f7283;">{escape(card["title"])} · {share:.0f}%</span></div>')
+    return f'<div class="delivery-strip">{"".join(segments)}</div><div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;">{"".join(legend)}</div>'
+
+
+def _render_traceability(fact_refs: list[str], facts: dict[str, Any] | None, *, title: str = "Data Basis") -> str:
     if not fact_refs:
         return ""
-    rows = []
+    items = []
     for key in fact_refs:
-        value = facts.get(key)
-        if isinstance(value, float):
-            if key.endswith("_pct") or key == "roi_pct":
-                rendered = f"{value:.2f}%"
-            else:
-                rendered = format_currency(value)
-        else:
-            rendered = escape(str(value))
-        rows.append(f"<tr><th>{escape(key)}</th><td>{escape(str(rendered))}</td></tr>")
-    return f'<div class="panel"><h3>Fact Traceability</h3><table><tbody>{"".join(rows)}</tbody></table></div>'
+        value = _format_fact_lookup(key, facts)
+        items.append(
+            '<div class="trace-item">'
+            f'<div class="key">{escape(str(key))}</div>'
+            f'<div class="value">{escape(value)}</div>'
+            '</div>'
+        )
+    return (
+        '<div class="trace-card">'
+        f'<details><summary>{escape(title)}</summary><div class="trace-grid">{"".join(items)}</div></details>'
+        '</div>'
+    )
+
+
+def _format_fact_lookup(key: str, facts: dict[str, Any] | None) -> str:
+    if facts is None:
+      return str(key)
+    value = facts.get(key)
+    return _format_value(value, key)
+
+
+def _format_value(value: Any, key: str | None = None) -> str:
+    if value is None:
+        return "See section packet"
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    if isinstance(value, int):
+        if key and (key.endswith("_usd") or key.endswith("_revenue") or key.endswith("_investment")):
+            return format_currency(float(value))
+        return f"{value:,}"
+    if isinstance(value, float):
+        if key == "run_cost_to_adm_ratio":
+            return f"{value * 100:.1f}%"
+        if key and (key.endswith("_pct") or key == "roi_pct"):
+            return f"{value:.2f}%"
+        if key and key.endswith("_usd"):
+            return format_currency(value)
+        if value.is_integer():
+            return f"{int(value):,}"
+        return f"{value:,.2f}"
+    if isinstance(value, list):
+        preview = ", ".join(_format_value(item) for item in value[:5])
+        if len(value) > 5:
+            preview += ", …"
+        return preview
+    if isinstance(value, dict):
+        parts = [f"{sub_key}: {_format_value(sub_value, sub_key)}" for sub_key, sub_value in list(value.items())[:5]]
+        if len(value) > 5:
+            parts.append("…")
+        return "; ".join(parts)
+    return str(value)
+
+
+def _company_initials(name: str) -> str:
+    parts = [part[0] for part in name.split() if part and part[0].isalnum()]
+    return "".join(parts[:2]).upper() or "AD"
+
+
+def _section_number(section_id: str) -> int:
+    for index, section in enumerate(SECTIONS, start=1):
+        if section.identifier == section_id:
+            return index
+    return 0
+
+
+def _render_cover_visual(client: dict[str, Any], facts: dict[str, Any]) -> str:
+    initials = _company_initials(client["company"]["name"])
+    offshore_target = client["financial_assumptions"]["target_delivery_mix_pct"]["offshore"]
+    return (
+        '<div class="cover-visual">'
+        '<div class="cover-visual-top">'
+        '<div class="cover-badge">Benchmark-style report shell</div>'
+        f'<div class="cover-logo" aria-hidden="true">{_render_mark_svg(initials)}</div>'
+        '</div>'
+        f'<h3>{escape(client["company"]["name"])} operating transformation</h3>'
+        '<p>A report-grade visual shell that can later swap to a real client logo or program image, while staying self-contained for HTML export and print.</p>'
+        '<div class="cover-stat-ribbon">'
+        f'<div class="cover-stat"><div class="label">ADM Base</div><div class="value">{escape(format_currency(facts["annual_adm_spend_usd"]))}</div></div>'
+        f'<div class="cover-stat"><div class="label">Estate Age</div><div class="value">{facts["average_app_age_years"]:.1f} yrs</div></div>'
+        f'<div class="cover-stat"><div class="label">Delivery Mix</div><div class="value">{offshore_target:.0f}% off</div></div>'
+        '</div>'
+        '</div>'
+    )
+
+
+def _render_mark_svg(initials: str) -> str:
+    return (
+        '<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        '<rect x="4" y="4" width="40" height="40" rx="12" fill="rgba(255,255,255,0.18)"></rect>'
+        '<path d="M14 32V17h5l5 7 5-7h5v15h-4V23l-6 8-6-8v9h-4Z" fill="white"></path>'
+        f'<text x="24" y="43" text-anchor="middle" font-size="6" font-weight="900" fill="white">{escape(initials)}</text>'
+        '</svg>'
+    )

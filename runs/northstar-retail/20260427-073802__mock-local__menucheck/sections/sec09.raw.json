@@ -1,0 +1,66 @@
+{
+  "provider": "mock",
+  "model": "mock-model",
+  "repair_notes": [],
+  "content": {
+    "section_id": "sec09",
+    "title": "Execution Roadmap",
+    "phase": "Value Story",
+    "summary": "Year-by-year execution sequencing aligned to value realization.",
+    "narrative": [
+      "The roadmap uses the benchmark's year-based structure and links each wave to investment phasing, platform dependencies, and target-state readiness assumptions."
+    ],
+    "kpi_cards": [],
+    "tables": [],
+    "cards": [],
+    "chart": null,
+    "matrix": null,
+    "timeline": [
+      {
+        "year": "Year 1",
+        "phase": "Foundation",
+        "investment": "$31.35M",
+        "business_value": "$5.78M",
+        "milestone": "Stabilize identity, pricing, observability, and operating governance."
+      },
+      {
+        "year": "Year 2",
+        "phase": "Acceleration",
+        "investment": "$25.08M",
+        "business_value": "$17.78M",
+        "milestone": "Launch modernization factory waves and expand shared engineering platform services."
+      },
+      {
+        "year": "Year 3",
+        "phase": "Scale",
+        "investment": "$20.90M",
+        "business_value": "$32.79M",
+        "milestone": "Scale cloud migration, delivery-mix transition, and event-driven operating flows."
+      },
+      {
+        "year": "Year 4",
+        "phase": "Optimization",
+        "investment": "$16.72M",
+        "business_value": "$45.66M",
+        "milestone": "Consolidate legacy estates and industrialize ongoing optimization."
+      },
+      {
+        "year": "Year 5",
+        "phase": "Optimization",
+        "investment": "$10.45M",
+        "business_value": "$54.67M",
+        "milestone": "Lock in innovation-budget shift and mature the steady-state operating model."
+      }
+    ],
+    "delivery_cards": [],
+    "callouts": [],
+    "fact_refs": [
+      "investment_by_year_usd",
+      "yearly_business_value_usd"
+    ],
+    "evidence_refs": [],
+    "required_widgets": [
+      "roadmap-timeline"
+    ]
+  }
+}

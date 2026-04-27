@@ -62,13 +62,14 @@ def init_manifest(
     client_id: str,
     provider_kind: str,
     model: str,
+    profile_name: str | None,
     input_path: Path,
     scenario_mode: str,
 ) -> dict[str, Any]:
     manifest = {
         "client_id": client_id,
         "input_path": str(input_path),
-        "provider": {"kind": provider_kind, "model": model},
+        "provider": {"kind": provider_kind, "model": model, "profile_name": profile_name},
         "scenario_mode": scenario_mode,
         "created_at": utc_now_iso(),
         "sections": {},

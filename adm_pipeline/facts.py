@@ -218,8 +218,6 @@ def _slice_client_for_section(section_id: str, client: JsonObject) -> JsonObject
     }
     if section_id in {"sec01", "sec08", "sec09", "sec10", "sec12"}:
         shared["delivery_centers"] = client["delivery_centers"]
-    if section_id in {"sec02", "sec03", "sec06"}:
-        shared["apps"] = client["apps"]
     if section_id in {"sec02", "sec07", "sec10"}:
         shared["business_units"] = client["business_units"]
     if section_id in {"sec04", "sec11"}:
@@ -228,6 +226,30 @@ def _slice_client_for_section(section_id: str, client: JsonObject) -> JsonObject
         shared["data_estate"] = client["data_estate"]
     if section_id in {"sec05", "sec09"}:
         shared["current_state_metrics"] = client["narrative_context"]["current_state_metrics"]
+    if section_id == "sec03":
+        shared["apps"] = [
+            {
+                "id": app["id"],
+                "name": app["name"],
+                "business_unit": app["business_unit"],
+                "disposition": app["disposition"],
+                "annual_run_cost_usd": app["annual_run_cost_usd"],
+                "host_location_label": app["host_location_label"],
+                "dependency_count": len(app["dependency_metadata"]),
+            }
+            for app in client["apps"]
+        ]
+    if section_id == "sec06":
+        shared["apps"] = [
+            {
+                "name": app["name"],
+                "business_unit": app["business_unit"],
+                "disposition": app["disposition"],
+                "migration_blockers": app["migration_blockers"][:2],
+                "dependency_count": len(app["dependency_metadata"]),
+            }
+            for app in client["apps"]
+        ]
     return shared
 
 

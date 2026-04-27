@@ -67,7 +67,7 @@ def section_json_schema(section_id: str) -> JsonObject:
     }
 
 
-def validate_section_payload(section_id: str, payload: JsonObject) -> ValidationReport:
+def validate_section_payload(section_id: str, payload: JsonObject, section_packet: JsonObject | None = None) -> ValidationReport:
     report = ValidationReport()
     config = SECTION_CONFIG_BY_ID[section_id]
     if payload.get("section_id") != section_id:
@@ -83,6 +83,100 @@ def validate_section_payload(section_id: str, payload: JsonObject) -> Validation
     missing_widgets = sorted(set(config.required_widgets) - set(payload.get("required_widgets", [])))
     if missing_widgets:
         report.errors.append(f"{section_id} is missing required widgets: {', '.join(missing_widgets)}")
+    for key in ("narrative", "callouts", "fact_refs", "evidence_refs", "required_widgets"):
+        if not isinstance(payload.get(key), list) or not all(isinstance(item, str) for item in payload.get(key, [])):
+            report.errors.append(f"{section_id}.{key} must be an array of strings")
+    allowed_fact_keys = set(section_packet.get("facts", {}).keys()) if section_packet else set()
+    kpi_cards = payload.get("kpi_cards", [])
+    if not isinstance(kpi_cards, list):
+        report.errors.append(f"{section_id}.kpi_cards must be an array")
+    else:
+        for index, card in enumerate(kpi_cards):
+            if not isinstance(card, dict):
+                report.errors.append(f"{section_id}.kpi_cards[{index}] must be an object")
+                continue
+            for field in ("label", "value", "subtitle", "fact_key"):
+                if not isinstance(card.get(field), str) or not card.get(field):
+                    report.errors.append(f"{section_id}.kpi_cards[{index}].{field} must be a non-empty string")
+            if allowed_fact_keys and card.get("fact_key") not in allowed_fact_keys:
+                report.errors.append(f"{section_id}.kpi_cards[{index}].fact_key must reference section facts only")
+    tables = payload.get("tables", [])
+    if not isinstance(tables, list):
+        report.errors.append(f"{section_id}.tables must be an array")
+    else:
+        for index, table in enumerate(tables):
+            if not isinstance(table, dict):
+                report.errors.append(f"{section_id}.tables[{index}] must be an object")
+                continue
+            if not isinstance(table.get("title"), str) or not table.get("title"):
+                report.errors.append(f"{section_id}.tables[{index}].title must be a non-empty string")
+            columns = table.get("columns")
+            rows = table.get("rows")
+            if not isinstance(columns, list) or not columns or not all(isinstance(item, str) for item in columns):
+                report.errors.append(f"{section_id}.tables[{index}].columns must be a non-empty string array")
+            if not isinstance(rows, list):
+                report.errors.append(f"{section_id}.tables[{index}].rows must be an array")
+            else:
+                expected_columns = len(columns) if isinstance(columns, list) else None
+                for row_index, row in enumerate(rows):
+                    if not isinstance(row, list):
+                        report.errors.append(f"{section_id}.tables[{index}].rows[{row_index}] must be an array")
+                        continue
+                    if expected_columns is not None and len(row) != expected_columns:
+                        report.errors.append(
+                            f"{section_id}.tables[{index}].rows[{row_index}] must have {expected_columns} cells"
+                        )
+    cards = payload.get("cards", [])
+    if not isinstance(cards, list) or not all(isinstance(card, dict) for card in cards):
+        report.errors.append(f"{section_id}.cards must be an array of objects")
+    chart = payload.get("chart")
+    if chart is not None:
+        if not isinstance(chart, dict):
+            report.errors.append(f"{section_id}.chart must be an object or null")
+        else:
+            if not isinstance(chart.get("widget"), str) or not isinstance(chart.get("title"), str):
+                report.errors.append(f"{section_id}.chart must include widget and title")
+            if not isinstance(chart.get("series"), list):
+                report.errors.append(f"{section_id}.chart.series must be an array")
+    matrix = payload.get("matrix")
+    if matrix is not None:
+        if not isinstance(matrix, dict):
+            report.errors.append(f"{section_id}.matrix must be an object or null")
+        else:
+            if not isinstance(matrix.get("widget"), str):
+                report.errors.append(f"{section_id}.matrix.widget must be a string")
+            if not isinstance(matrix.get("columns"), list):
+                report.errors.append(f"{section_id}.matrix.columns must be an array")
+            if not isinstance(matrix.get("items"), dict):
+                report.errors.append(f"{section_id}.matrix.items must be an object")
+    timeline = payload.get("timeline", [])
+    if not isinstance(timeline, list):
+        report.errors.append(f"{section_id}.timeline must be an array")
+    elif section_id == "sec09":
+        for index, item in enumerate(timeline):
+            if not isinstance(item, dict):
+                report.errors.append(f"{section_id}.timeline[{index}] must be an object")
+                continue
+            for field in ("year", "phase", "investment", "business_value", "milestone"):
+                if not isinstance(item.get(field), str) or not item.get(field):
+                    report.errors.append(f"{section_id}.timeline[{index}].{field} must be a non-empty string")
+    delivery_cards = payload.get("delivery_cards", [])
+    if not isinstance(delivery_cards, list):
+        report.errors.append(f"{section_id}.delivery_cards must be an array")
+    elif section_id == "sec10":
+        for index, card in enumerate(delivery_cards):
+            if not isinstance(card, dict):
+                report.errors.append(f"{section_id}.delivery_cards[{index}] must be an object")
+                continue
+            for field in ("title", "subtitle", "primary_scope", "governance_owner_role"):
+                if not isinstance(card.get(field), str) or not card.get(field):
+                    report.errors.append(f"{section_id}.delivery_cards[{index}].{field} must be a non-empty string")
+            if not isinstance(card.get("wave_ownership"), list) or not all(isinstance(item, str) for item in card.get("wave_ownership", [])):
+                report.errors.append(f"{section_id}.delivery_cards[{index}].wave_ownership must be a string array")
+    if allowed_fact_keys:
+        for index, fact_ref in enumerate(payload.get("fact_refs", [])):
+            if fact_ref not in allowed_fact_keys:
+                report.errors.append(f"{section_id}.fact_refs[{index}] must reference section facts only")
     return report
 
 
@@ -168,7 +262,6 @@ def _section_executive_summary(packet: JsonObject) -> JsonObject:
 
 def _section_portfolio_analysis(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
-    apps = packet["client"]["apps"]
     facts = packet["facts"]
     bu_cards = []
     for name, count in facts["app_count_by_business_unit"].items():
@@ -229,7 +322,7 @@ def _section_app_inventory(packet: JsonObject) -> JsonObject:
                     app["disposition"],
                     format_currency(app["annual_run_cost_usd"]),
                     app["host_location_label"],
-                    str(len(app["dependency_metadata"])),
+                    str(app["dependency_count"]),
                 ]
                 for app in apps
             ],

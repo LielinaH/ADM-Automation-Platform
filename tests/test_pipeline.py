@@ -34,6 +34,7 @@ class PipelineTests(unittest.TestCase):
                 client_id=payload["client_id"],
                 provider_kind="mock",
                 model="mock-model",
+                profile_name="mock-local",
                 input_path=(ROOT / "inputs" / "clients" / "northstar-retail.json"),
                 scenario_mode="locked",
             )
