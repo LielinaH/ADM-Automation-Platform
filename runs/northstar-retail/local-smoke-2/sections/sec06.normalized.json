@@ -1,0 +1,60 @@
+{
+  "section_id": "sec06",
+  "title": "Modernization Roadmap / Factory",
+  "phase": "Future State",
+  "summary": "Six-column modernization matrix and factory sequencing foundation.",
+  "narrative": [
+    "Dispositions are grouped into the benchmark's six required lanes so roadmap planning, financial savings, and delivery ownership stay aligned."
+  ],
+  "kpi_cards": [],
+  "tables": [],
+  "cards": [],
+  "chart": null,
+  "matrix": {
+    "widget": "modernization-matrix",
+    "columns": [
+      "Refactor",
+      "Replatform",
+      "Rearchitect",
+      "Rehost",
+      "Retain",
+      "Retire"
+    ],
+    "items": {
+      "Refactor": [
+        "OrderCore",
+        "Loyalty360",
+        "CustomerID"
+      ],
+      "Replatform": [
+        "StoreOps Suite",
+        "MerchPlanner",
+        "CampaignMart"
+      ],
+      "Rearchitect": [
+        "SupplyMesh",
+        "PricingEngine"
+      ],
+      "Rehost": [
+        "InvoiceHub",
+        "ReturnsPortal"
+      ],
+      "Retain": [
+        "WarehouseMobile"
+      ],
+      "Retire": [
+        "POSLegacy"
+      ]
+    }
+  },
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [],
+  "fact_refs": [
+    "disposition_counts"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "modernization-matrix"
+  ]
+}

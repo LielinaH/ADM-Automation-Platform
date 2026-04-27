@@ -1,0 +1,86 @@
+{
+  "provider": "mock",
+  "model": "gpt-5.5",
+  "repair_notes": [],
+  "content": {
+    "section_id": "sec02",
+    "title": "Portfolio Analysis",
+    "phase": "Diagnose",
+    "summary": "Portfolio shape by business unit, run-cost concentration, and application age.",
+    "narrative": [
+      "The portfolio carries 28 declared dependency edges, averaging 2.33 dependencies per application.",
+      "Total application run cost is $76.40M, representing 80.4% of annual ADM spend."
+    ],
+    "kpi_cards": [],
+    "tables": [],
+    "cards": [
+      {
+        "title": "Digital Commerce",
+        "metric": "3 apps",
+        "detail": "$21.20M"
+      },
+      {
+        "title": "Store Operations",
+        "metric": "2 apps",
+        "detail": "$17.40M"
+      },
+      {
+        "title": "Supply Chain",
+        "metric": "2 apps",
+        "detail": "$12.50M"
+      },
+      {
+        "title": "Customer & Loyalty",
+        "metric": "3 apps",
+        "detail": "$15.20M"
+      },
+      {
+        "title": "Merchandising",
+        "metric": "2 apps",
+        "detail": "$10.10M"
+      }
+    ],
+    "chart": {
+      "widget": "portfolio-chart",
+      "title": "Portfolio Distribution by Business Unit",
+      "series": [
+        {
+          "label": "Digital Commerce",
+          "value": 3
+        },
+        {
+          "label": "Store Operations",
+          "value": 2
+        },
+        {
+          "label": "Supply Chain",
+          "value": 2
+        },
+        {
+          "label": "Customer & Loyalty",
+          "value": 3
+        },
+        {
+          "label": "Merchandising",
+          "value": 2
+        }
+      ]
+    },
+    "matrix": null,
+    "timeline": [],
+    "delivery_cards": [],
+    "callouts": [],
+    "fact_refs": [
+      "dependency_edges",
+      "average_dependencies_per_app",
+      "total_app_run_cost_usd",
+      "run_cost_to_adm_ratio",
+      "app_count_by_business_unit"
+    ],
+    "evidence_refs": [],
+    "required_widgets": [
+      "portfolio-chart",
+      "portfolio-cards"
+    ]
+  }
+}

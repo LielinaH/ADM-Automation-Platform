@@ -1,0 +1,35 @@
+{
+  "client_id": "northstar-retail",
+  "input_path": "C:\\Users\\Lielina\\Desktop\\Projects\\ADM Automation Platform\\inputs\\clients\\northstar-retail.json",
+  "provider": {
+    "kind": "mock",
+    "model": "gpt-5.5"
+  },
+  "scenario_mode": "locked",
+  "created_at": "2026-04-27T06:17:35Z",
+  "sections": {},
+  "step_status": {
+    "calculate": "pass"
+  },
+  "totals": {
+    "total_run_duration_seconds": null,
+    "estimated_cost_usd": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "artifacts": {
+    "facts": "runs\\northstar-retail\\local-smoke\\facts.json",
+    "global_critique": "runs\\northstar-retail\\local-smoke\\critique\\global_critique.json",
+    "repair_actions": "runs\\northstar-retail\\local-smoke\\critique\\repair_actions.json",
+    "final_html": "runs\\northstar-retail\\local-smoke\\final\\northstar-retail.html",
+    "final_qa": "runs\\northstar-retail\\local-smoke\\final\\final_qa.json"
+  },
+  "versions": {
+    "schema_version": "2.0",
+    "prompt_set_version": "northstar-adm-v1",
+    "benchmark_style_version": "cisco-html-v1",
+    "section_schema_version": "section-content-v1"
+  },
+  "updated_at": "2026-04-27T06:17:35Z"
+}

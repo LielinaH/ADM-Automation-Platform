@@ -1,0 +1,46 @@
+{
+  "provider": "mock",
+  "model": "gpt-5.5",
+  "repair_notes": [],
+  "content": {
+    "section_id": "sec12",
+    "title": "Partnership Overview",
+    "phase": "Close",
+    "summary": "Operating model, governance cadence, and partnership structure for sustained delivery.",
+    "narrative": [
+      "The partnership model closes the ADM by translating the delivery architecture and roadmap into explicit governance, staffing, and execution rhythms.",
+      "Northstar's execution assumptions imply a weekly design authority cadence and a monthly architecture review rhythm during active modernization waves."
+    ],
+    "kpi_cards": [],
+    "tables": [],
+    "cards": [
+      {
+        "widget": "partnership-overview",
+        "title": "Governance Cadence",
+        "detail": "Weekly design authority, monthly architecture review board"
+      },
+      {
+        "widget": "partnership-overview",
+        "title": "Delivery Mix Target",
+        "detail": "35% onshore / 10% nearshore / 55% offshore"
+      }
+    ],
+    "chart": null,
+    "matrix": null,
+    "timeline": [],
+    "delivery_cards": [],
+    "callouts": [
+      "Holiday code freeze applies from mid-November through early January for customer-facing platforms.",
+      "Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.",
+      "Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.",
+      "Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites."
+    ],
+    "fact_refs": [
+      "delivery_center_count"
+    ],
+    "evidence_refs": [],
+    "required_widgets": [
+      "partnership-overview"
+    ]
+  }
+}

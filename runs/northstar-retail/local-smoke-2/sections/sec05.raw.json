@@ -1,0 +1,54 @@
+{
+  "provider": "mock",
+  "model": "gpt-5.5",
+  "repair_notes": [],
+  "content": {
+    "section_id": "sec05",
+    "title": "AI Transformation Strategy",
+    "phase": "Future State",
+    "summary": "AI transformation priorities mapped to current operational bottlenecks.",
+    "narrative": [
+      "Northstar's AI agenda is anchored in execution bottlenecks that already exist in release flow, incident recovery, inventory latency, and customer identity quality.",
+      "The transformation sequence prioritizes shared enablement first so later modernization waves inherit stronger observability, support automation, and data foundations."
+    ],
+    "kpi_cards": [],
+    "tables": [],
+    "cards": [
+      {
+        "widget": "transformation-pillars",
+        "title": "Reduce legacy ADM run-cost and rebalance spend toward innovation",
+        "detail": "Customer-facing release cadence"
+      },
+      {
+        "widget": "transformation-pillars",
+        "title": "Create a real-time inventory and fulfillment decision layer",
+        "detail": "P1 incident MTTR"
+      },
+      {
+        "widget": "transformation-pillars",
+        "title": "Improve digital conversion, loyalty personalization, and release velocity",
+        "detail": "Inventory sync latency"
+      },
+      {
+        "widget": "transformation-pillars",
+        "title": "Industrialize support with AI-assisted operations and observability",
+        "detail": "Duplicate customer record rate"
+      }
+    ],
+    "chart": null,
+    "matrix": null,
+    "timeline": [],
+    "delivery_cards": [],
+    "callouts": [],
+    "fact_refs": [],
+    "evidence_refs": [
+      "Customer-facing release cadence",
+      "P1 incident MTTR",
+      "Inventory sync latency",
+      "Duplicate customer record rate"
+    ],
+    "required_widgets": [
+      "transformation-pillars"
+    ]
+  }
+}

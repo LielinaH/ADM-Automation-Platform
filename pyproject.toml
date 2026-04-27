@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adm-pipeline"
+version = "0.1.0"
+description = "Automated ADM document pipeline for structured client ingress to HTML output."
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [
+  { name = "OpenAI Codex" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+providers = [
+  "openai>=1.40.0",
+  "litellm>=1.70.0",
+]
+
+[project.scripts]
+adm = "adm_pipeline.cli:main"
+
+[tool.setuptools]
+packages = ["adm_pipeline", "adm_pipeline.providers"]

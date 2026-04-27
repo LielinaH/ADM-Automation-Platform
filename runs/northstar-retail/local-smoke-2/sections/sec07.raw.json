@@ -1,0 +1,82 @@
+{
+  "provider": "mock",
+  "model": "gpt-5.5",
+  "repair_notes": [],
+  "content": {
+    "section_id": "sec07",
+    "title": "Cloud & Data Strategy",
+    "phase": "Future State",
+    "summary": "Cloud hosting direction and data-governance posture required to support omnichannel modernization.",
+    "narrative": [
+      "The cloud strategy has to balance legacy on-prem DC concentration with selective cloud-native acceleration in the customer-facing estate.",
+      "The data strategy is constrained less by platform absence than by ownership fragmentation and stale batch interfaces."
+    ],
+    "kpi_cards": [],
+    "tables": [
+      {
+        "title": "Domain Ownership",
+        "columns": [
+          "Domain",
+          "Owner Role"
+        ],
+        "rows": [
+          [
+            "Customer and loyalty",
+            "VP Loyalty and Personalization"
+          ],
+          [
+            "Product and catalog",
+            "VP Merchandising Platforms"
+          ],
+          [
+            "Orders and returns",
+            "VP Order Management"
+          ],
+          [
+            "Pricing and promotions",
+            "VP Pricing Strategy"
+          ],
+          [
+            "Inventory and fulfillment",
+            "VP Supply Chain Technology"
+          ],
+          [
+            "Supplier and merchandising",
+            "VP Merchandising Operations"
+          ]
+        ]
+      }
+    ],
+    "cards": [
+      {
+        "widget": "cloud-data-cards",
+        "title": "Hosting Mix",
+        "detail": "OnPremDC: 7, CloudRegion: 4, VendorSaaSHybrid: 1"
+      },
+      {
+        "widget": "cloud-data-cards",
+        "title": "Governance Model",
+        "detail": "Central data office with federated domain stewardship, but ownership enforcement is inconsistent across commerce and supply-chain domains."
+      }
+    ],
+    "chart": null,
+    "matrix": null,
+    "timeline": [],
+    "delivery_cards": [],
+    "callouts": [],
+    "fact_refs": [
+      "hosting_environment_mix"
+    ],
+    "evidence_refs": [
+      "Customer and loyalty",
+      "Product and catalog",
+      "Orders and returns",
+      "Pricing and promotions",
+      "Inventory and fulfillment",
+      "Supplier and merchandising"
+    ],
+    "required_widgets": [
+      "cloud-data-cards"
+    ]
+  }
+}
