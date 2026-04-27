@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": " {\n  \"section_id\": \"sec05\",\n  \"title\": \"AI Transformation Strategy\",\n  \"phase\": \"Future State\",\n  \"summary\": \"AI transformation priorities mapped to current operational bottlenecks to drive cost reduction and innovation velocity.\",\n  \"narrative\": [\n    \"Northstar's AI agenda is anchored in execution bottlenecks across release flow, incident recovery, inventory latency, and customer identity quality. The strategy focuses on shifting the budget from legacy maintenance to innovation by industrializing support and automating the delivery pipeline.\",\n    \"The transformation sequence prioritizes shared enablement first, ensuring that subsequent modernization waves inherit robust observability, support automation, and data foundations. This approach targets a 20% innovation budget shift and a 28% reduction in legacy run-costs.\"\n  ],\n  \"kpi_cards\": [],\n  \"tables\": [],\n  \"cards\": [\n    {\n      \"widget\": \"transformation-pillars\",\n      \"title\": \"Reduce legacy ADM run-cost and rebalance spend toward innovation\",\n      \"detail\": \"Customer-facing release cadence\"\n    },\n    {\n      \"widget\": \"transformation-pillars\",\n      \"title\": \"Create a real-time inventory and fulfillment decision layer\",\n      \"detail\": \"P1 incident MTTR\"\n    },\n    {\n      \"widget\": \"transformation-pillars\",\n      \"title\": \"Improve digital conversion, loyalty personalization, and release velocity\",\n      \"detail\": \"Inventory sync latency\"\n    },\n    {\n      \"widget\": \"transformation-pillars\",\n      \"title\": \"Industrialize support with AI-assisted operations and observability\",\n      \"detail\": \"Duplicate customer record rate\"\n    }\n  ],\n  \"chart\": null,\n  \"matrix\": null,\n  \"timeline\": [],\n  \"delivery_cards\": [],\n  \"callouts\": [\n    \"Targeting a reduction in customer-facing release cadence from 30 days to 7 days.\",\n    \"Aiming to reduce P1 incident MTTR from 6.5 hours to 1.5 hours.\",\n    \"Targeting inventory sync latency reduction from 360 minutes to 15 minutes.\",\n    \"Targeting a reduction in duplicate customer record rate from 11% to 3%.\"\n  ],\n  \"fact_refs\": [],\n  \"evidence_refs\": [\n    \"Customer-facing release cadence\",\n    \"P1 incident MTTR\",\n    \"Inventory sync latency\",\n    \"Duplicate customer record rate\"\n  ],\n  \"required_widgets\": [\n    \"transformation-pillars\"\n  ]\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 3012,
+    "candidatesTokenCount": 572,
+    "totalTokenCount": 3584,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3012
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "JVnvabPrHq-jkdUPjZugyQ0"
+}

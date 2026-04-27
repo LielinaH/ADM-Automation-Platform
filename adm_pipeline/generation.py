@@ -10,7 +10,7 @@ import time
 from adm_pipeline.constants import BENCHMARK_STYLE_VERSION, PROMPT_SET_VERSION, SECTION_CONFIG_BY_ID, SECTION_SCHEMA_VERSION
 from adm_pipeline.providers import GeminiProvider, LMStudioProvider, MockProvider, OpenAIResponsesProvider, OpenRouterProvider, ProviderConfig, SectionProvider
 from adm_pipeline.run_state import load_manifest, save_manifest
-from adm_pipeline.sections import section_json_schema, validate_section_payload
+from adm_pipeline.sections import build_mock_section, normalize_section_payload, section_json_schema, validate_section_payload
 from adm_pipeline.types import JsonObject
 from adm_pipeline.utils import read_json, write_json
 
@@ -31,6 +31,8 @@ def resolve_provider(config: ProviderConfig) -> SectionProvider:
 def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
     section_id = section_packet["section_id"]
     config = SECTION_CONFIG_BY_ID[section_id]
+    allowed_fact_keys = list(section_packet.get("facts", {}).keys())
+    seed_section = build_mock_section(section_packet)
     schema_summary = {
         "section_id": section_id,
         "title": config.title,
@@ -54,6 +56,7 @@ def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
             "required_widgets",
         ],
         "required_widgets": list(SECTION_CONFIG_BY_ID[section_id].required_widgets),
+        "allowed_fact_keys_for_kpi_cards_and_fact_refs": allowed_fact_keys,
     }
     return (
         f"You are generating section {section_id} ({config.title}) for an ADM document.\n"
@@ -64,7 +67,12 @@ def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
         "Do not emit HTML. All figures must come from the provided facts and section input packet.\n"
         "Keep the tone analytical, benchmark-oriented, and executive-ready.\n"
         "Use short, information-dense paragraphs. Avoid placeholders and unsupported claims.\n\n"
+        "Critical rules:\n"
+        f"- For kpi_cards.fact_key and fact_refs, only use these exact keys: {json.dumps(allowed_fact_keys, separators=(',', ':'))}\n"
+        "- If you want to mention target metrics or assumptions that are not in that list, keep them in narrative or callouts instead of kpi_cards.fact_key or fact_refs.\n"
+        "- Preserve the required widgets for this section.\n\n"
         f"Output contract summary:\n{json.dumps(schema_summary, separators=(',', ':'))}\n\n"
+        f"Deterministic scaffold example:\n{json.dumps(seed_section, separators=(',', ':'))}\n\n"
         f"Section input packet:\n{json.dumps(section_packet, separators=(',', ':'))}"
     )
 
@@ -164,11 +172,12 @@ def _generate_one_section(
         started = time.perf_counter()
         try:
             result = provider.generate_section(packet, schema, prompt, repair_notes=repair_notes)
-            report = validate_section_payload(section_id, result.normalized, packet)
+            write_json(raw_path, result.raw_response)
+            normalized = normalize_section_payload(section_id, result.normalized, packet)
+            report = validate_section_payload(section_id, normalized, packet)
             if not report.ok:
                 raise RuntimeError("; ".join(report.errors))
-            write_json(raw_path, result.raw_response)
-            write_json(normalized_path, result.normalized)
+            write_json(normalized_path, normalized)
             duration = round(time.perf_counter() - started, 3)
             manifest.setdefault("sections", {})[section_id] = {
                 "title": SECTION_CONFIG_BY_ID[section_id].title,
@@ -181,7 +190,7 @@ def _generate_one_section(
                 "status": "repaired" if repair_notes else "generated",
                 "repair_notes": repair_notes or [],
             }
-            return result.normalized
+            return normalized
         except Exception as exc:  # noqa: BLE001
             last_error = str(exc)
             if attempt > provider_config.max_retries:

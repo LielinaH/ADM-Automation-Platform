@@ -23,6 +23,24 @@ def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def parse_json_response_text(text: str) -> Any:
+    decoder = json.JSONDecoder()
+    candidates = [text.strip()]
+    fenced = re.findall(r"```(?:json)?\s*(.*?)```", text, flags=re.DOTALL | re.IGNORECASE)
+    candidates = [candidate.strip() for candidate in fenced if candidate.strip()] + candidates
+    for candidate in candidates:
+        for marker in ("{", "["):
+            index = candidate.find(marker)
+            if index == -1:
+                continue
+            try:
+                value, _end = decoder.raw_decode(candidate[index:])
+                return value
+            except json.JSONDecodeError:
+                continue
+    raise json.JSONDecodeError("Unable to extract JSON payload", text, 0)
+
+
 def write_json(path: Path, payload: Any) -> None:
     ensure_dir(path.parent)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")

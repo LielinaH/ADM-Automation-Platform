@@ -180,6 +180,181 @@ def validate_section_payload(section_id: str, payload: JsonObject, section_packe
     return report
 
 
+def normalize_section_payload(section_id: str, payload: JsonObject, section_packet: JsonObject | None = None) -> JsonObject:
+    seed = build_mock_section(section_packet) if section_packet else _base_section({"section_id": section_id})
+    normalized = dict(seed)
+    normalized["summary"] = payload.get("summary") if isinstance(payload.get("summary"), str) and payload.get("summary").strip() else seed["summary"]
+    normalized["narrative"] = _string_list_or_seed(payload.get("narrative"), seed["narrative"])
+    normalized["callouts"] = _string_list_or_seed(payload.get("callouts"), seed["callouts"])
+    normalized["evidence_refs"] = _string_list_or_seed(payload.get("evidence_refs"), seed["evidence_refs"])
+    normalized["required_widgets"] = list(dict.fromkeys(seed["required_widgets"] + _string_list_or_seed(payload.get("required_widgets"), [])))
+
+    allowed_fact_keys = set(section_packet.get("facts", {}).keys()) if section_packet else set()
+    normalized["kpi_cards"] = _coerce_kpi_cards(payload.get("kpi_cards"), seed["kpi_cards"], allowed_fact_keys, section_packet.get("facts", {}) if section_packet else {})
+    normalized["fact_refs"] = _coerce_fact_refs(payload.get("fact_refs"), seed["fact_refs"], allowed_fact_keys)
+    normalized["tables"] = _coerce_tables(payload.get("tables"), seed["tables"])
+    normalized["cards"] = _coerce_cards(payload.get("cards"), seed["cards"])
+    normalized["chart"] = _coerce_chart(payload.get("chart"), seed["chart"])
+    normalized["matrix"] = _coerce_matrix(payload.get("matrix"), seed["matrix"])
+    normalized["timeline"] = _coerce_timeline(payload.get("timeline"), seed["timeline"])
+    normalized["delivery_cards"] = _coerce_delivery_cards(payload.get("delivery_cards"), seed["delivery_cards"])
+    return normalized
+
+
+def _string_list_or_seed(value: Any, seed: list[str]) -> list[str]:
+    if isinstance(value, list):
+        filtered = [item.strip() for item in value if isinstance(item, str) and item.strip()]
+        if filtered:
+            return filtered
+    return list(seed)
+
+
+def _coerce_collection(value: Any, seed: list[JsonObject], expected_type: type) -> list[JsonObject]:
+    if isinstance(value, list) and all(isinstance(item, expected_type) for item in value):
+        return value
+    return list(seed)
+
+
+def _coerce_cards(value: Any, seed: list[JsonObject]) -> list[JsonObject]:
+    if isinstance(value, list) and all(isinstance(item, dict) for item in value):
+        return value
+    return list(seed)
+
+
+def _coerce_object_or_null(value: Any, seed: JsonObject | None) -> JsonObject | None:
+    if value is None or isinstance(value, dict):
+        return value
+    return seed
+
+
+def _coerce_chart(value: Any, seed: JsonObject | None) -> JsonObject | None:
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        return seed
+    if not isinstance(value.get("widget"), str) or not value.get("widget"):
+        return seed
+    if not isinstance(value.get("title"), str) or not value.get("title"):
+        return seed
+    if not isinstance(value.get("series"), list):
+        return seed
+    return value
+
+
+def _coerce_matrix(value: Any, seed: JsonObject | None) -> JsonObject | None:
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        return seed
+    if not isinstance(value.get("widget"), str) or not value.get("widget"):
+        return seed
+    if not isinstance(value.get("columns"), list):
+        return seed
+    if not isinstance(value.get("items"), dict):
+        return seed
+    return value
+
+
+def _coerce_timeline(value: Any, seed: list[JsonObject]) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return list(seed)
+    for item in value:
+        if not isinstance(item, dict):
+            return list(seed)
+        required = ("year", "phase", "investment", "business_value", "milestone")
+        if any(not isinstance(item.get(field), str) or not item.get(field) for field in required):
+            return list(seed)
+    return value
+
+
+def _coerce_delivery_cards(value: Any, seed: list[JsonObject]) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return list(seed)
+    for item in value:
+        if not isinstance(item, dict):
+            return list(seed)
+        required = ("title", "subtitle", "primary_scope", "governance_owner_role")
+        if any(not isinstance(item.get(field), str) or not item.get(field) for field in required):
+            return list(seed)
+        if not isinstance(item.get("wave_ownership"), list) or not all(isinstance(entry, str) for entry in item.get("wave_ownership", [])):
+            return list(seed)
+    return value
+
+
+def _coerce_kpi_cards(value: Any, seed: list[JsonObject], allowed_fact_keys: set[str], fact_values: JsonObject) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return list(seed)
+    coerced: list[JsonObject] = []
+    for index, card in enumerate(value):
+        if not isinstance(card, dict):
+            continue
+        if not all(isinstance(card.get(field), str) and card.get(field).strip() for field in ("label", "value", "subtitle", "fact_key")):
+            continue
+        if allowed_fact_keys and card["fact_key"] not in allowed_fact_keys:
+            if index < len(seed):
+                coerced.append(seed[index])
+            continue
+        coerced.append(
+            {
+                "label": card["label"].strip(),
+                "value": _render_fact_for_kpi(card["fact_key"].strip(), fact_values.get(card["fact_key"].strip()), fallback=card["value"].strip()),
+                "subtitle": card["subtitle"].strip(),
+                "fact_key": card["fact_key"].strip(),
+            }
+        )
+    if not coerced:
+        return list(seed)
+    if len(coerced) < len(seed):
+        for fallback in seed[len(coerced):]:
+            coerced.append(fallback)
+    return coerced
+
+
+def _coerce_fact_refs(value: Any, seed: list[str], allowed_fact_keys: set[str]) -> list[str]:
+    if not isinstance(value, list):
+        return list(seed)
+    filtered = [item.strip() for item in value if isinstance(item, str) and item.strip() and (not allowed_fact_keys or item.strip() in allowed_fact_keys)]
+    return filtered or list(seed)
+
+
+def _coerce_tables(value: Any, seed: list[JsonObject]) -> list[JsonObject]:
+    if not isinstance(value, list):
+        return list(seed)
+    tables: list[JsonObject] = []
+    for table in value:
+        if not isinstance(table, dict):
+            continue
+        title = table.get("title")
+        columns = table.get("columns")
+        rows = table.get("rows")
+        if not isinstance(title, str) or not title.strip():
+            continue
+        if not isinstance(columns, list) or not columns or not all(isinstance(item, str) and item.strip() for item in columns):
+            continue
+        if not isinstance(rows, list):
+            continue
+        if any(not isinstance(row, list) or len(row) != len(columns) for row in rows):
+            continue
+        tables.append(table)
+    return tables or list(seed)
+
+
+def _render_fact_for_kpi(fact_key: str, value: Any, *, fallback: str) -> str:
+    if not isinstance(value, (int, float)):
+        return fallback
+    if fact_key.endswith("_pct") or fact_key == "roi_pct":
+        return format_pct(float(value))
+    if fact_key.endswith("_usd") or "_cost_" in fact_key or fact_key.startswith("tcv_") or fact_key.startswith("annual_adm_spend"):
+        return format_currency(float(value))
+    if fact_key in {"apps_in_scope", "business_units_in_scope", "delivery_center_count", "dependency_edges"}:
+        return str(int(value))
+    if fact_key == "average_app_age_years":
+        return f"{float(value):.1f} Years"
+    if fact_key == "average_dependencies_per_app":
+        return f"{float(value):.2f}"
+    return fallback
+
+
 def build_mock_section(packet: JsonObject) -> JsonObject:
     section_id = packet["section_id"]
     builders = {

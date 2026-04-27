@@ -1,0 +1,54 @@
+{
+  "section_id": "sec05",
+  "title": "AI Transformation Strategy",
+  "phase": "Future State",
+  "summary": "AI transformation priorities mapped to current operational bottlenecks to drive cost reduction and innovation velocity.",
+  "narrative": [
+    "Northstar's AI agenda is anchored in execution bottlenecks across release flow, incident recovery, inventory latency, and customer identity quality. The strategy focuses on shifting the budget from legacy maintenance to innovation by industrializing support and automating the delivery pipeline.",
+    "The transformation sequence prioritizes shared enablement first, ensuring that subsequent modernization waves inherit robust observability, support automation, and data foundations. This approach targets a 20% innovation budget shift and a 28% reduction in legacy run-costs."
+  ],
+  "kpi_cards": [],
+  "tables": [],
+  "cards": [
+    {
+      "widget": "transformation-pillars",
+      "title": "Reduce legacy ADM run-cost and rebalance spend toward innovation",
+      "detail": "Customer-facing release cadence"
+    },
+    {
+      "widget": "transformation-pillars",
+      "title": "Create a real-time inventory and fulfillment decision layer",
+      "detail": "P1 incident MTTR"
+    },
+    {
+      "widget": "transformation-pillars",
+      "title": "Improve digital conversion, loyalty personalization, and release velocity",
+      "detail": "Inventory sync latency"
+    },
+    {
+      "widget": "transformation-pillars",
+      "title": "Industrialize support with AI-assisted operations and observability",
+      "detail": "Duplicate customer record rate"
+    }
+  ],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "Targeting a reduction in customer-facing release cadence from 30 days to 7 days.",
+    "Aiming to reduce P1 incident MTTR from 6.5 hours to 1.5 hours.",
+    "Targeting inventory sync latency reduction from 360 minutes to 15 minutes.",
+    "Targeting a reduction in duplicate customer record rate from 11% to 3%."
+  ],
+  "fact_refs": [],
+  "evidence_refs": [
+    "Customer-facing release cadence",
+    "P1 incident MTTR",
+    "Inventory sync latency",
+    "Duplicate customer record rate"
+  ],
+  "required_widgets": [
+    "transformation-pillars"
+  ]
+}

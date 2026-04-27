@@ -1,0 +1,231 @@
+{
+  "client_id": "northstar-retail",
+  "input_path": "C:\\Users\\Lielina\\Desktop\\Projects\\ADM Automation Platform\\inputs\\clients\\northstar-retail.json",
+  "provider": {
+    "kind": "gemini",
+    "model": "gemma-4-31b-it",
+    "profile_name": "gemini-main"
+  },
+  "scenario_mode": "locked",
+  "created_at": "2026-04-27T12:33:25Z",
+  "sections": {
+    "sec01": {
+      "title": "Executive Summary",
+      "status": "cached"
+    },
+    "sec02": {
+      "title": "Portfolio Analysis",
+      "duration_seconds": 27.566,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3841,
+        "output_tokens": 937,
+        "total_tokens": 4778,
+        "cost_estimate_usd": null
+      },
+      "response_id": "yVjvafW9HZ7dxs0Pnum64AM",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec03": {
+      "title": "App Inventory",
+      "duration_seconds": 40.925,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3927,
+        "output_tokens": 1411,
+        "total_tokens": 5338,
+        "cost_estimate_usd": null
+      },
+      "response_id": "8ljvad3gGdv6xN8P7qjagQ0",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec04": {
+      "title": "Competitive Benchmarking",
+      "duration_seconds": 33.941,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3643,
+        "output_tokens": 1182,
+        "total_tokens": 4825,
+        "cost_estimate_usd": null
+      },
+      "response_id": "FFnvace9FsigvdIPrbDLuAo",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec05": {
+      "title": "AI Transformation Strategy",
+      "duration_seconds": 17.091,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3012,
+        "output_tokens": 572,
+        "total_tokens": 3584,
+        "cost_estimate_usd": null
+      },
+      "response_id": "JVnvabPrHq-jkdUPjZugyQ0",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec06": {
+      "title": "Modernization Roadmap / Factory",
+      "duration_seconds": 17.702,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3520,
+        "output_tokens": 596,
+        "total_tokens": 4116,
+        "cost_estimate_usd": null
+      },
+      "response_id": "N1nvab-5C6KpkdUPiomf8A0",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec07": {
+      "title": "Cloud & Data Strategy",
+      "duration_seconds": 20.515,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 4179,
+        "output_tokens": 699,
+        "total_tokens": 4878,
+        "cost_estimate_usd": null
+      },
+      "response_id": "S1nvaY6OKtSZkdUP0evJoQw",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec08": {
+      "title": "Financials",
+      "duration_seconds": 24.296,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3786,
+        "output_tokens": 833,
+        "total_tokens": 4619,
+        "cost_estimate_usd": null
+      },
+      "response_id": "Y1nvadDrO9GnkdUP6MC0oA0",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec09": {
+      "title": "Execution Roadmap",
+      "duration_seconds": 15.587,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3726,
+        "output_tokens": 520,
+        "total_tokens": 4246,
+        "cost_estimate_usd": null
+      },
+      "response_id": "c1nvaZeIJPiskdUPh8TO-Q0",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec10": {
+      "title": "Delivery Center Architecture",
+      "duration_seconds": 22.591,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3906,
+        "output_tokens": 786,
+        "total_tokens": 4692,
+        "cost_estimate_usd": null
+      },
+      "response_id": "ilnvacG4DNDk7M8P7MuJ8AE",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec11": {
+      "title": "Benchmarking Summary",
+      "duration_seconds": 12.389,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3551,
+        "output_tokens": 409,
+        "total_tokens": 3960,
+        "cost_estimate_usd": null
+      },
+      "response_id": "llnvabr-Ja-jkdUP192ioQ8",
+      "status": "generated",
+      "repair_notes": []
+    },
+    "sec12": {
+      "title": "Partnership Overview",
+      "duration_seconds": 12.353,
+      "retry_count": 0,
+      "provider": "gemini",
+      "model": "gemma-4-31b-it",
+      "usage": {
+        "input_tokens": 3638,
+        "output_tokens": 400,
+        "total_tokens": 4038,
+        "cost_estimate_usd": null
+      },
+      "response_id": "olnvaYKfOcKdnsEP9eupwA8",
+      "status": "generated",
+      "repair_notes": []
+    }
+  },
+  "step_status": {
+    "calculate": "pass",
+    "smoke": "pass",
+    "critique": "pass",
+    "render": "pass",
+    "qa_html": "pass"
+  },
+  "totals": {
+    "total_run_duration_seconds": 244.956,
+    "estimated_cost_usd": null,
+    "input_tokens": 40729,
+    "output_tokens": 8345,
+    "total_tokens": 49074
+  },
+  "artifacts": {
+    "facts": "runs\\northstar-retail\\20260427-115000__gemini-main__full-gemma431\\facts.json",
+    "global_critique": "runs\\northstar-retail\\20260427-115000__gemini-main__full-gemma431\\critique\\global_critique.json",
+    "repair_actions": "runs\\northstar-retail\\20260427-115000__gemini-main__full-gemma431\\critique\\repair_actions.json",
+    "final_html": "runs\\northstar-retail\\20260427-115000__gemini-main__full-gemma431\\final\\northstar-retail.html",
+    "final_qa": "runs\\northstar-retail\\20260427-115000__gemini-main__full-gemma431\\final\\final_qa.json"
+  },
+  "versions": {
+    "schema_version": "2.0",
+    "prompt_set_version": "northstar-adm-v1",
+    "benchmark_style_version": "cisco-html-v1",
+    "section_schema_version": "section-content-v1"
+  },
+  "updated_at": "2026-04-27T12:50:56Z",
+  "smoke_tests": {
+    "gemini:gemma-4-31b-it:sec01": {
+      "status": "pass",
+      "section_id": "sec01",
+      "provider_kind": "gemini",
+      "model": "gemma-4-31b-it",
+      "error": null,
+      "updated_at": "2026-04-27T12:33:36Z"
+    }
+  }
+}

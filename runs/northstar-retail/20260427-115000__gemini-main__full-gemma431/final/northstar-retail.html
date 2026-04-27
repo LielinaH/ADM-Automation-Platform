@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Northstar Retail Group ADM</title>
+  <style>
+    :root {
+      --nav-bg: #0b1621;
+      --nav-panel: #0f1e2d;
+      --nav-text: #e5edf5;
+      --nav-muted: #8da4bb;
+      --page-bg: #edf2f7;
+      --surface: #ffffff;
+      --surface-alt: #f6fafc;
+      --surface-ink: #14283a;
+      --muted: #5f7283;
+      --border: #dbe4eb;
+      --line: #edf2f6;
+      --cyan: #00bceb;
+      --cyan-deep: #00779b;
+      --teal: #0f8f74;
+      --mint: #4dc7ae;
+      --ink: #0f2234;
+      --shadow-xl: 0 36px 80px rgba(12, 34, 52, 0.12);
+      --shadow-lg: 0 18px 42px rgba(12, 34, 52, 0.08);
+      --radius-xl: 28px;
+      --radius-2xl: 42px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Aptos", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.10), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(15,143,116,0.08), transparent 28%),
+        linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+    }
+    a { color: inherit; }
+    .shell {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at top left, rgba(0,188,235,0.18), transparent 24%),
+        linear-gradient(180deg, var(--nav-panel) 0%, var(--nav-bg) 100%);
+      color: var(--nav-text);
+      border-right: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-block {
+      padding: 28px 28px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(2,8,14,0.24);
+    }
+    .brand-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .brand-mark {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--cyan) 0%, #62d4f4 100%);
+      color: white;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 32px rgba(0,188,235,0.28);
+      flex: none;
+    }
+    .brand-mark svg {
+      width: 30px;
+      height: 30px;
+    }
+    .brand-title {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+    }
+    .brand-subtitle {
+      margin: 6px 0 0;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.42em;
+      color: rgba(229,237,245,0.62);
+      font-weight: 800;
+    }
+    .brand-meta {
+      margin-top: 18px;
+      display: grid;
+      gap: 8px;
+      color: var(--nav-muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .brand-metrics {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .brand-kpi {
+      padding: 12px 12px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .brand-kpi .label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(229,237,245,0.55);
+      margin-bottom: 6px;
+    }
+    .brand-kpi .value {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: white;
+    }
+    .nav-scroll {
+      padding: 24px 0 12px;
+      flex: 1;
+    }
+    .nav-group {
+      margin-bottom: 22px;
+    }
+    .nav-group-title {
+      padding: 0 28px;
+      margin-bottom: 10px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.34em;
+      color: rgba(229,237,245,0.46);
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 28px;
+      border-left: 4px solid transparent;
+      text-decoration: none;
+      color: var(--nav-muted);
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+    }
+    .nav-link:hover {
+      background: rgba(255,255,255,0.045);
+      color: white;
+    }
+    .nav-link.active {
+      background: linear-gradient(90deg, rgba(0,188,235,0.24), rgba(0,188,235,0.05));
+      color: white;
+      border-left-color: var(--cyan);
+    }
+    .nav-index {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 900;
+      background: rgba(255,255,255,0.08);
+      color: rgba(229,237,245,0.9);
+      flex: none;
+    }
+    .nav-link.active .nav-index {
+      background: var(--cyan);
+      color: #08212f;
+    }
+    .sidebar-footer {
+      padding: 20px 28px 28px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: grid;
+      gap: 12px;
+    }
+    .print-button {
+      appearance: none;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, var(--cyan) 0%, #54d8f6 100%);
+      color: #092132;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      box-shadow: 0 16px 38px rgba(0,188,235,0.22);
+    }
+    .footer-caption {
+      color: rgba(229,237,245,0.58);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .workspace {
+      min-width: 0;
+      padding: 26px 28px 34px;
+      display: grid;
+      gap: 18px;
+    }
+    .masthead {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+      gap: 20px;
+      padding: 26px 28px;
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.16), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(15,143,116,0.11), transparent 24%),
+        linear-gradient(135deg, #fdfefe 0%, #f2f8fb 100%);
+      border: 1px solid rgba(219,228,235,0.94);
+      box-shadow: var(--shadow-lg);
+    }
+    .masthead::after {
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: -70px;
+      width: 230px;
+      height: 230px;
+      border-radius: 44px;
+      transform: rotate(-14deg);
+      background: linear-gradient(135deg, rgba(0,188,235,0.08), rgba(15,143,116,0.05));
+      pointer-events: none;
+    }
+    .masthead-copy,
+    .masthead-stats {
+      position: relative;
+      z-index: 1;
+    }
+    .masthead-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(0,188,235,0.10);
+      color: var(--cyan-deep);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .masthead-label::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 0 5px rgba(0,188,235,0.12);
+    }
+    .masthead-title {
+      margin: 18px 0 10px;
+      font-size: 56px;
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+      text-transform: uppercase;
+      font-style: italic;
+      color: var(--surface-ink);
+      max-width: 760px;
+    }
+    .masthead-copy p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.68;
+      font-weight: 600;
+    }
+    .masthead-meta {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .masthead-meta span {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(219,228,235,0.94);
+      color: #4e6578;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 22px rgba(12, 34, 52, 0.05);
+    }
+    .masthead-stats {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+    .masthead-stat {
+      padding: 18px 18px 20px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.90);
+      border: 1px solid rgba(219,228,235,0.94);
+      box-shadow: 0 12px 30px rgba(12, 34, 52, 0.06);
+    }
+    .masthead-stat .label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #73889b;
+      margin-bottom: 10px;
+    }
+    .masthead-stat .value {
+      font-size: 32px;
+      line-height: 1.0;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      color: var(--surface-ink);
+    }
+    .masthead-stat .detail {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      font-weight: 600;
+    }
+    .workspace-frame {
+      background: linear-gradient(180deg, rgba(255,255,255,0.56), rgba(255,255,255,0.28));
+      border: 1px solid rgba(219,228,235,0.92);
+      border-radius: 46px;
+      box-shadow: var(--shadow-xl);
+      min-height: calc(100vh - 72px);
+      position: relative;
+      padding: 24px;
+    }
+    .screen {
+      display: block;
+      padding: 54px 58px 58px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(219,228,235,0.92);
+      border-radius: 38px;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.10), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(15,143,116,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(245,249,252,0.96));
+    }
+    .screen.active {
+      border-color: rgba(0,188,235,0.30);
+      box-shadow: 0 22px 56px rgba(12, 34, 52, 0.12);
+    }
+    .screen::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      right: 32px;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      border: 1px dashed rgba(0,119,155,0.12);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+    .screen::after {
+      content: "";
+      position: absolute;
+      top: 56px;
+      right: 58px;
+      width: 160px;
+      height: 160px;
+      border-radius: 36px;
+      background: linear-gradient(135deg, rgba(0,188,235,0.08), rgba(15,143,116,0.05));
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }
+    .screen-head {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 34px;
+      padding-bottom: 26px;
+      border-bottom: 2px solid rgba(15,34,52,0.06);
+    }
+    .screen-meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+    .screen-index {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--surface-ink) 0%, #1e3d55 100%);
+      color: white;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      box-shadow: 0 16px 34px rgba(20, 40, 58, 0.22);
+    }
+    .screen-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(0,188,235,0.08);
+      color: var(--cyan-deep);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    .screen-tag .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 0 5px rgba(0,188,235,0.12);
+    }
+    .screen-title {
+      margin: 18px 0 10px;
+      font-size: 54px;
+      line-height: 0.96;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+      text-transform: uppercase;
+      color: var(--surface-ink);
+      max-width: 820px;
+      font-style: italic;
+    }
+    .screen-summary {
+      margin: 0;
+      max-width: 920px;
+      font-size: 19px;
+      line-height: 1.65;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .content-stack {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 26px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.9fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .statement-card,
+    .section-block,
+    .data-card,
+    .trace-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      box-shadow: var(--shadow-lg);
+    }
+    .statement-card {
+      padding: 30px;
+      display: grid;
+      gap: 22px;
+    }
+    .statement-card.cover-aside {
+      background:
+        radial-gradient(circle at top right, rgba(0,188,235,0.10), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f6fafc 100%);
+    }
+    .statement-card h3,
+    .section-block h3,
+    .data-card h3,
+    .trace-card h3 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+      color: var(--surface-ink);
+    }
+    .section-block,
+    .data-card,
+    .trace-card {
+      padding: 26px;
+    }
+    .narrative {
+      display: grid;
+      gap: 14px;
+    }
+    .narrative p {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.72;
+      color: #274153;
+    }
+    .summary-callouts {
+      display: grid;
+      gap: 12px;
+    }
+    .summary-callout {
+      display: flex;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(0,188,235,0.06), rgba(0,188,235,0.02));
+      border: 1px solid rgba(0,188,235,0.12);
+      color: #1f4459;
+      font-weight: 600;
+      line-height: 1.55;
+    }
+    .summary-callout .bullet {
+      margin-top: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+      flex: none;
+    }
+    .kpi-band {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .kpi-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f5fafc 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px 18px 20px;
+      min-height: 132px;
+    }
+    .kpi-card .label {
+      font-size: 11px;
+      line-height: 1.4;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6b8093;
+      margin-bottom: 10px;
+    }
+    .kpi-card .value {
+      font-size: 34px;
+      line-height: 1.0;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+      color: var(--surface-ink);
+      margin-bottom: 8px;
+    }
+    .kpi-card .subtitle {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .insight-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
+      display: grid;
+      gap: 10px;
+    }
+    .benchmark-card {
+      position: relative;
+      overflow: hidden;
+      padding-top: 24px;
+    }
+    .benchmark-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--cyan), var(--mint));
+    }
+    .benchmark-chip {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(0,188,235,0.08);
+      color: var(--cyan-deep);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    .insight-card .title {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--surface-ink);
+    }
+    .insight-card .metric {
+      font-size: 30px;
+      line-height: 1.0;
+      letter-spacing: -0.05em;
+      font-weight: 950;
+      color: var(--cyan-deep);
+    }
+    .insight-card .detail {
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.6;
+    }
+    .table-card {
+      overflow: hidden;
+      padding: 0;
+    }
+    .table-title {
+      padding: 24px 26px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .table-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .table-scroll {
+      overflow-x: auto;
+      border-top: 1px solid var(--line);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: 14px;
+    }
+    thead {
+      background: linear-gradient(180deg, #f7fafc 0%, #eef4f8 100%);
+    }
+    th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #6b8093;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      color: #254052;
+      line-height: 1.55;
+    }
+    tbody tr:nth-child(even) {
+      background: rgba(246,250,252,0.68);
+    }
+    .viz-shell {
+      padding: 26px;
+    }
+    .viz-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .viz-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      max-width: 540px;
+    }
+    .svg-shell {
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbfd 100%);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 18px;
+    }
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .matrix-column {
+      background: linear-gradient(180deg, #ffffff 0%, #f5f9fb 100%);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+    }
+    .matrix-column::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--cyan), var(--mint));
+      opacity: 0.85;
+    }
+    .matrix-column h4 {
+      margin: 6px 0 12px;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-weight: 900;
+      color: var(--surface-ink);
+    }
+    .matrix-column ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 9px;
+      color: #2b4659;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .timeline-flow {
+      position: relative;
+      margin-left: 18px;
+      padding-left: 48px;
+      display: grid;
+      gap: 28px;
+      border-left: 8px solid #eef4f8;
+    }
+    .timeline-item {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbfd 100%);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 24px 24px 22px;
+      box-shadow: var(--shadow-lg);
+    }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -61px;
+      top: 26px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--cyan);
+      border: 6px solid white;
+      box-shadow: 0 10px 22px rgba(0,188,235,0.24);
+    }
+    .timeline-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .timeline-year {
+      font-size: 34px;
+      line-height: 1.0;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      color: var(--surface-ink);
+    }
+    .timeline-phase {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #edf6fb;
+      color: var(--cyan-deep);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .timeline-meta {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6b8093;
+    }
+    .timeline-body {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #314d60;
+      font-weight: 600;
+      max-width: 860px;
+    }
+    .delivery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .delivery-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: var(--shadow-lg);
+      display: grid;
+      gap: 12px;
+    }
+    .delivery-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .delivery-place {
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--surface-ink);
+    }
+    .delivery-type {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    .delivery-share {
+      font-size: 34px;
+      line-height: 1.0;
+      font-weight: 950;
+      color: var(--teal);
+      letter-spacing: -0.05em;
+      white-space: nowrap;
+    }
+    .delivery-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      color: #305062;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .delivery-strip {
+      display: flex;
+      height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #edf3f7;
+      border: 1px solid var(--border);
+    }
+    .delivery-strip span {
+      height: 100%;
+    }
+    .trace-card details {
+      display: grid;
+      gap: 16px;
+    }
+    .trace-card summary {
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--surface-ink);
+      list-style: none;
+    }
+    .trace-card summary::-webkit-details-marker {
+      display: none;
+    }
+    .trace-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .trace-item {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      min-height: 92px;
+    }
+    .trace-item .key {
+      font-size: 10px;
+      line-height: 1.5;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #6b8093;
+      margin-bottom: 8px;
+    }
+    .trace-item .value {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #294559;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .cover-visual {
+      position: relative;
+      overflow: hidden;
+      border-radius: 26px;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(circle at top left, rgba(0,188,235,0.16), transparent 24%),
+        linear-gradient(135deg, #113049 0%, #0f2234 54%, #0d1824 100%);
+      min-height: 230px;
+      padding: 22px;
+      color: white;
+      box-shadow: 0 18px 46px rgba(11, 22, 33, 0.24);
+    }
+    .cover-visual::after {
+      content: "";
+      position: absolute;
+      right: -44px;
+      top: -56px;
+      width: 180px;
+      height: 180px;
+      border-radius: 36px;
+      transform: rotate(-18deg);
+      background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .cover-visual-top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .cover-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .cover-visual h3 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      color: white;
+    }
+    .cover-visual p {
+      margin: 0;
+      max-width: 420px;
+      color: rgba(229,237,245,0.82);
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 600;
+    }
+    .cover-stat-ribbon {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .cover-stat {
+      padding: 12px 12px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .cover-stat .label {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(229,237,245,0.62);
+      margin-bottom: 6px;
+    }
+    .cover-stat .value {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: white;
+    }
+    .cover-kpis {
+      display: grid;
+      gap: 16px;
+    }
+    .cover-mini {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .cover-mini .mini {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+    }
+    .cover-mini .mini .label {
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #708496;
+      margin-bottom: 6px;
+    }
+    .cover-mini .mini .value {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--surface-ink);
+    }
+    .footer-note {
+      margin-top: 4px;
+      text-align: center;
+      color: #728799;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .hide-screen {
+      display: none;
+    }
+    @media (max-width: 1320px) {
+      .masthead { grid-template-columns: 1fr; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .matrix-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 1120px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; }
+      .workspace { padding: 18px; }
+      .workspace-frame { min-height: auto; }
+      .masthead-title { font-size: 42px; }
+      .screen { padding: 28px 22px 30px; }
+      .screen-title { font-size: 40px; }
+      .matrix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 780px) {
+      .brand-metrics,
+      .cover-mini,
+      .cover-stat-ribbon {
+        grid-template-columns: 1fr;
+      }
+      .screen-title {
+        font-size: 32px;
+      }
+      .matrix-grid {
+        grid-template-columns: 1fr;
+      }
+      .timeline-flow {
+        margin-left: 0;
+        padding-left: 28px;
+      }
+      .timeline-item::before {
+        left: -41px;
+      }
+    }
+    @media print {
+      body { background: white; }
+      .shell { display: block; }
+      .sidebar { display: none; }
+      .workspace { padding: 0; }
+      .workspace-frame {
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+      }
+      .masthead {
+        page-break-after: avoid;
+        box-shadow: none;
+      }
+      .screen {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        padding: 22px 0 30px;
+        background: white;
+        border: none;
+        box-shadow: none;
+        margin-bottom: 12px;
+      }
+      .screen::before,
+      .screen::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar"><div class="brand-block"><div class="brand-row"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="40" height="40" rx="12" fill="rgba(255,255,255,0.18)"></rect><path d="M14 32V17h5l5 7 5-7h5v15h-4V23l-6 8-6-8v9h-4Z" fill="white"></path><text x="24" y="43" text-anchor="middle" font-size="6" font-weight="900" fill="white">NR</text></svg></div><div><h1 class="brand-title">Northstar Retail Group</h1><p class="brand-subtitle">Transformation Master Plan</p></div></div><div class="brand-meta"><div>Retail · Omnichannel general merchandise and grocery</div><div>Chicago, Illinois, USA</div></div><div class="brand-metrics"><div class="brand-kpi"><div class="label">Annual ADM</div><div class="value">$95.00M</div></div><div class="brand-kpi"><div class="label">Target ROI</div><div class="value">49.94%</div></div><div class="brand-kpi"><div class="label">Apps</div><div class="value">12</div></div><div class="brand-kpi"><div class="label">Value</div><div class="value">$156.69M</div></div></div></div><div class="nav-scroll"><div class="nav-group"><div class="nav-group-title">Strategy &amp; Insight</div><a class="nav-link active" href="#sec01"><span class="nav-index">01</span><span>Executive Summary</span></a><a class="nav-link" href="#sec02"><span class="nav-index">02</span><span>Portfolio Analysis</span></a><a class="nav-link" href="#sec03"><span class="nav-index">03</span><span>App Inventory</span></a><a class="nav-link" href="#sec04"><span class="nav-index">04</span><span>Competitive Benchmarking</span></a></div><div class="nav-group"><div class="nav-group-title">The Solution</div><a class="nav-link" href="#sec05"><span class="nav-index">05</span><span>AI Transformation Strategy</span></a><a class="nav-link" href="#sec06"><span class="nav-index">06</span><span>Modernization Roadmap / Factory</span></a><a class="nav-link" href="#sec07"><span class="nav-index">07</span><span>Cloud &amp; Data Strategy</span></a></div><div class="nav-group"><div class="nav-group-title">Execution &amp; Value</div><a class="nav-link" href="#sec08"><span class="nav-index">08</span><span>Financials</span></a><a class="nav-link" href="#sec09"><span class="nav-index">09</span><span>Execution Roadmap</span></a><a class="nav-link" href="#sec10"><span class="nav-index">10</span><span>Delivery Center Architecture</span></a><a class="nav-link" href="#sec11"><span class="nav-index">11</span><span>Benchmarking Summary</span></a><a class="nav-link" href="#sec12"><span class="nav-index">12</span><span>Partnership Overview</span></a></div></div><div class="sidebar-footer"><button class="print-button" type="button" data-action="print-report" onclick="window.print()">Export / Print</button><div class="footer-caption">Choose a section from the left rail. Print mode expands every screen for publication output.</div></div></aside>
+    <main class="workspace">
+      <div class="workspace-frame">
+        <section class="masthead" aria-label="Report cover summary"><div class="masthead-copy"><div class="masthead-label">Account Development Master</div><h1 class="masthead-title">Northstar Retail Group transformation blueprint</h1><p>This publication-ready ADM translates structured client inputs into an executive narrative, transformation roadmap, financial case, and delivery blueprint aligned to the Cisco benchmark style while preserving code-traceable calculations.</p><div class="masthead-meta"><span>Retail</span><span>Omnichannel general merchandise and grocery</span><span>Chicago, Illinois, USA</span><span>12 apps in scope</span></div></div><div class="masthead-stats"><div class="masthead-stat"><div class="label">Five-Year Contract Value</div><div class="value">$475.00M</div><div class="detail">Computed from the locked ADM spend baseline across the full program horizon.</div></div><div class="masthead-stat"><div class="label">Transformation Investment</div><div class="value">$104.50M</div><div class="detail">Code-derived investment curve applied across the five-year transformation horizon.</div></div><div class="masthead-stat"><div class="label">Modeled Business Value</div><div class="value">$156.69M</div><div class="detail">Workforce, legacy, productivity, and resilience value streams combined into one benchmark-ready value story.</div></div></div></section>
+        <section id="sec01" class="screen active" data-section-id="sec01"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">01</div><div class="screen-tag"><span class="dot"></span>Diagnose</div></div><h2 class="screen-title">Executive Summary</h2><p class="screen-summary">Northstar Retail Group can shift a $95.00M annual ADM estate from legacy sustainment toward faster digital execution and better operating leverage.</p></div><div class="content-stack"><div class="hero-grid"><div class="statement-card" data-widget="hero-callout" data-filled="true"><h3>Transformation Thesis</h3><div class="narrative"><p>The Northstar estate spans 12 business applications across 5 business units, with an average age of 11.0 years.</p><p>With a five-year transformation investment of $104.50M, the modeled business value reaches $156.69M and a target ROI of 49.94%.</p></div><div class="summary-callouts"><div class="summary-callout"><span class="bullet"></span><span>Legacy cost reduction target: 28%</span></div><div class="summary-callout"><span class="bullet"></span><span>Cloud migration target: 65%</span></div><div class="summary-callout"><span class="bullet"></span><span>Innovation budget shift target: 20%</span></div><div class="summary-callout"><span class="bullet"></span><span>Release-frequency improvement target: 45%</span></div></div></div><div class="statement-card cover-aside"><div class="kpi-band" data-widget="kpi-grid" data-filled="true"><div class="kpi-card"><div class="label">Total Program Investment</div><div class="value">$104.50M</div><div class="subtitle">5-Year transformation spend</div></div><div class="kpi-card"><div class="label">Cumulative Business Value</div><div class="value">$156.69M</div><div class="subtitle">All modeled value streams</div></div><div class="kpi-card"><div class="label">Target ROI</div><div class="value">49.94%</div><div class="subtitle">Net value / investment</div></div></div><div class="cover-visual"><div class="cover-visual-top"><div class="cover-badge">Benchmark-style report shell</div><div class="cover-logo" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="40" height="40" rx="12" fill="rgba(255,255,255,0.18)"></rect><path d="M14 32V17h5l5 7 5-7h5v15h-4V23l-6 8-6-8v9h-4Z" fill="white"></path><text x="24" y="43" text-anchor="middle" font-size="6" font-weight="900" fill="white">NR</text></svg></div></div><h3>Northstar Retail Group operating transformation</h3><p>A report-grade visual shell that can later swap to a real client logo or program image, while staying self-contained for HTML export and print.</p><div class="cover-stat-ribbon"><div class="cover-stat"><div class="label">ADM Base</div><div class="value">$95.00M</div></div><div class="cover-stat"><div class="label">Estate Age</div><div class="value">11.0 yrs</div></div><div class="cover-stat"><div class="label">Delivery Mix</div><div class="value">55% off</div></div></div></div><div class="cover-mini"><div class="mini"><div class="label">Enterprise Revenue</div><div class="value">$12.80B</div></div><div class="mini"><div class="label">Employees</div><div class="value">42,000</div></div><div class="mini"><div class="label">App Estate</div><div class="value">12 apps</div></div><div class="mini"><div class="label">Delivery Centers</div><div class="value">3</div></div></div></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">transformation_investment_total_usd</div><div class="value">$104.50M</div></div><div class="trace-item"><div class="key">cumulative_business_value_usd</div><div class="value">$156.69M</div></div><div class="trace-item"><div class="key">roi_pct</div><div class="value">49.94%</div></div><div class="trace-item"><div class="key">apps_in_scope</div><div class="value">12</div></div></div></details></div></div></section>
+<section id="sec02" class="screen" data-section-id="sec02"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">02</div><div class="screen-tag"><span class="dot"></span>Diagnose</div></div><h2 class="screen-title">Portfolio Analysis</h2><p class="screen-summary">Portfolio shape by business unit, run-cost concentration, and application age.</p></div><div class="content-stack"><div class="section-block"><h3>Portfolio Narrative</h3><div class="narrative"><p>The application portfolio consists of 12 apps across 5 business units, with a high concentration of legacy assets averaging 11 years in age.</p><p>Total application run cost is $76.40M, representing 80.4% of the annual ADM spend of $95.00M.</p><p>The estate carries 28 dependency edges, averaging 2.33 dependencies per application, indicating a moderately coupled architecture that contributes to slow release cycles.</p></div></div><div class="insight-grid" data-widget="portfolio-cards" data-filled="true"><div class="insight-card"><div class="title">Digital Commerce</div><div class="metric">3 apps</div><div class="detail">$21.20M</div></div><div class="insight-card"><div class="title">Store Operations</div><div class="metric">2 apps</div><div class="detail">$17.40M</div></div><div class="insight-card"><div class="title">Customer &amp; Loyalty</div><div class="metric">3 apps</div><div class="detail">$15.20M</div></div><div class="insight-card"><div class="title">Supply Chain</div><div class="metric">2 apps</div><div class="detail">$12.50M</div></div><div class="insight-card"><div class="title">Merchandising</div><div class="metric">2 apps</div><div class="detail">$10.10M</div></div></div><div class="data-card viz-shell" data-widget="portfolio-chart" data-filled="true"><div class="viz-head"><div><h3>Portfolio Distribution by Business Unit</h3></div><p>Cost and application count concentration across the estate.</p></div><div class="svg-shell"><svg viewBox="0 0 900 340" width="100%" height="340" role="img"><line x1="64" y1="266" x2="840" y2="266" stroke="#edf2f6" stroke-width="1"></line><line x1="64" y1="210" x2="840" y2="210" stroke="#edf2f6" stroke-width="1"></line><line x1="64" y1="154" x2="840" y2="154" stroke="#edf2f6" stroke-width="1"></line><line x1="64" y1="98" x2="840" y2="98" stroke="#edf2f6" stroke-width="1"></line><line x1="64" y1="42" x2="840" y2="42" stroke="#edf2f6" stroke-width="1"></line><line x1="64" y1="266" x2="840" y2="266" stroke="#d8e2ea" stroke-width="2"></line><rect x="82" y="96.0" width="90" height="170.0" rx="18" fill="#00bceb"></rect><rect x="214" y="152.7" width="90" height="113.3" rx="18" fill="#00bceb"></rect><rect x="346" y="152.7" width="90" height="113.3" rx="18" fill="#00bceb"></rect><rect x="478" y="96.0" width="90" height="170.0" rx="18" fill="#00bceb"></rect><rect x="610" y="152.7" width="90" height="113.3" rx="18" fill="#00bceb"></rect><text x="127.0" y="294" text-anchor="middle" font-size="12" font-weight="800" fill="#6b8093">Digital Commerce</text><text x="127.0" y="86.0" text-anchor="middle" font-size="13" font-weight="900" fill="#12263a">3</text><text x="259.0" y="294" text-anchor="middle" font-size="12" font-weight="800" fill="#6b8093">Store Operations</text><text x="259.0" y="142.7" text-anchor="middle" font-size="13" font-weight="900" fill="#12263a">2</text><text x="391.0" y="294" text-anchor="middle" font-size="12" font-weight="800" fill="#6b8093">Supply Chain</text><text x="391.0" y="142.7" text-anchor="middle" font-size="13" font-weight="900" fill="#12263a">2</text><text x="523.0" y="294" text-anchor="middle" font-size="12" font-weight="800" fill="#6b8093">Customer &amp; Loyalty</text><text x="523.0" y="86.0" text-anchor="middle" font-size="13" font-weight="900" fill="#12263a">3</text><text x="655.0" y="294" text-anchor="middle" font-size="12" font-weight="800" fill="#6b8093">Merchandising</text><text x="655.0" y="142.7" text-anchor="middle" font-size="13" font-weight="900" fill="#12263a">2</text></svg></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">apps_in_scope</div><div class="value">12</div></div><div class="trace-item"><div class="key">average_app_age_years</div><div class="value">11</div></div><div class="trace-item"><div class="key">average_dependencies_per_app</div><div class="value">2.33</div></div><div class="trace-item"><div class="key">total_app_run_cost_usd</div><div class="value">$76.40M</div></div><div class="trace-item"><div class="key">run_cost_to_adm_ratio</div><div class="value">80.4%</div></div><div class="trace-item"><div class="key">annual_adm_spend_usd</div><div class="value">$95.00M</div></div></div></details></div></div></section>
+<section id="sec03" class="screen" data-section-id="sec03"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">03</div><div class="screen-tag"><span class="dot"></span>Diagnose</div></div><h2 class="screen-title">App Inventory</h2><p class="screen-summary">Comprehensive inventory of the 12 in-scope applications across five business units, detailing run costs, hosting environments, and modernization dispositions.</p></div><div class="content-stack"><div class="section-block"><h3>Inventory Framing</h3><div class="narrative"><p>The application estate is characterized by a fragmented distribution across Digital Commerce, Store Operations, Supply Chain, Customer &amp; Loyalty, and Merchandising. A significant portion of the run cost is concentrated in legacy systems, with the total application run cost reaching $76.4M, representing approximately 80% of the total ADM spend.</p><p>Modernization signals indicate a heavy lean toward Refactor and Replatform strategies for core commerce and loyalty systems to address slow release cycles and inconsistent customer experiences. Strategic Rearchitecture is targeted at high-impact areas like SupplyMesh and PricingEngine to resolve inventory sync latency and pricing agility issues.</p><p>Hosting is currently split between on-premises data centers and cloud regions, with a goal to shift toward a more cloud-native footprint to improve scalability and observability.</p></div></div><div class="data-card table-card" data-widget="app-table" data-filled="true"><div class="table-title"><div><h3>Application Inventory</h3><p>12 rows</p></div></div><div class="table-scroll"><table><thead><tr><th>ID</th><th>Application</th><th>Business Unit</th><th>Disposition</th><th>Run Cost</th><th>Hosting</th><th>Dependencies</th></tr></thead><tbody><tr><td>APP-001</td><td>OrderCore</td><td>Digital Commerce</td><td>Refactor</td><td>$12.00M</td><td>Chicago DC</td><td>3</td></tr><tr><td>APP-002</td><td>StoreOps Suite</td><td>Store Operations</td><td>Replatform</td><td>$9.50M</td><td>Dallas DC</td><td>2</td></tr><tr><td>APP-003</td><td>SupplyMesh</td><td>Supply Chain</td><td>Rearchitect</td><td>$8.70M</td><td>Memphis DC</td><td>3</td></tr><tr><td>APP-004</td><td>Loyalty360</td><td>Customer &amp; Loyalty</td><td>Refactor</td><td>$6.40M</td><td>AWS us-east-1</td><td>3</td></tr><tr><td>APP-005</td><td>MerchPlanner</td><td>Merchandising</td><td>Replatform</td><td>$5.20M</td><td>Chicago DC</td><td>3</td></tr><tr><td>APP-006</td><td>InvoiceHub</td><td>Merchandising</td><td>Rehost</td><td>$4.90M</td><td>Chicago DC</td><td>1</td></tr><tr><td>APP-007</td><td>PricingEngine</td><td>Digital Commerce</td><td>Rearchitect</td><td>$5.60M</td><td>AWS us-east-1</td><td>3</td></tr><tr><td>APP-008</td><td>WarehouseMobile</td><td>Supply Chain</td><td>Retain</td><td>$3.80M</td><td>AWS us-east-2</td><td>1</td></tr><tr><td>APP-009</td><td>CustomerID</td><td>Customer &amp; Loyalty</td><td>Refactor</td><td>$4.50M</td><td>AWS us-east-1</td><td>3</td></tr><tr><td>APP-010</td><td>POSLegacy</td><td>Store Operations</td><td>Retire</td><td>$7.90M</td><td>Dallas DC</td><td>2</td></tr><tr><td>APP-011</td><td>CampaignMart</td><td>Customer &amp; Loyalty</td><td>Replatform</td><td>$4.30M</td><td>Vendor SaaS / Chicago integration hub</td><td>2</td></tr><tr><td>APP-012</td><td>ReturnsPortal</td><td>Digital Commerce</td><td>Rehost</td><td>$3.60M</td><td>Chicago DC</td><td>2</td></tr></tbody></table></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">apps_in_scope</div><div class="value">12</div></div><div class="trace-item"><div class="key">total_app_run_cost_usd</div><div class="value">$76.40M</div></div><div class="trace-item"><div class="key">average_dependencies_per_app</div><div class="value">2.33</div></div><div class="trace-item"><div class="key">business_units_in_scope</div><div class="value">5</div></div></div></details></div></div></section>
+<section id="sec04" class="screen" data-section-id="sec04"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">04</div><div class="screen-tag"><span class="dot"></span>Diagnose</div></div><h2 class="screen-title">Competitive Benchmarking</h2><p class="screen-summary">Comparative analysis of Northstar Retail Group against key omnichannel and digital-native competitors to identify operational and technological gaps.</p></div><div class="content-stack"><div class="section-block"><h3>Benchmark Positioning</h3><div class="narrative"><p>Northstar&#x27;s current application estate is characterized by fragmented systems and slow release cycles, creating a competitive disadvantage against leaders in omnichannel fulfillment and digital experimentation.</p><p>Benchmarking against Walmart, Target, and Amazon reveals critical gaps in fulfillment automation, loyalty-driven service integration, and release velocity.</p><p>Closing these gaps requires a shift from legacy-heavy maintenance to a modernized, cloud-native operating model that supports real-time inventory and high-frequency deployment.</p></div></div><div class="insight-grid" data-widget="competitor-cards" data-filled="true"><div class="insight-card benchmark-card"><div class="benchmark-chip">Big-box omnichannel retail</div><div class="title">Walmart</div><div><strong>Public strengths</strong><ul><li>Mass-scale omnichannel fulfillment</li><li>Tech-powered retail operating model</li></ul></div><div><strong>Northstar gap</strong><ul><li>Lower fulfillment automation maturity</li><li>Less integrated store-to-digital orchestration</li></ul></div><div><strong>Signals</strong><ul><li>Same-day fulfillment scale</li><li>Marketplace and omnichannel operating model</li><li>AI-enabled inventory and workforce tooling</li></ul></div></div><div class="insight-card benchmark-card"><div class="benchmark-chip">Omnichannel general merchandise</div><div class="title">Target</div><div><strong>Public strengths</strong><ul><li>Large first-party digital business</li><li>Loyalty-led same-day services</li></ul></div><div><strong>Northstar gap</strong><ul><li>Weaker loyalty monetization</li><li>Lower offer personalization consistency</li></ul></div><div><strong>Signals</strong><ul><li>Large first-party digital business</li><li>Loyalty-led same-day services</li><li>Store-led digital fulfillment model</li></ul></div></div><div class="insight-card benchmark-card"><div class="benchmark-chip">Digital-native retail and marketplace</div><div class="title">Amazon</div><div><strong>Public strengths</strong><ul><li>Marketplace scale</li><li>High-velocity product experimentation</li></ul></div><div><strong>Northstar gap</strong><ul><li>Slower release cadence</li><li>Less advanced marketplace tooling</li></ul></div><div><strong>Signals</strong><ul><li>Marketplace scale</li><li>High-velocity experimentation</li><li>Cloud-native digital operating model</li></ul></div></div></div><div class="data-card table-card"><div class="table-title"><div><h3>Competitor Evidence Metrics</h3><p>6 rows</p></div></div><div class="table-scroll"><table><thead><tr><th>Competitor</th><th>Metric</th><th>Value</th><th>Year</th><th>Evidence Type</th><th>Confidence</th></tr></thead><tbody><tr><td>Walmart</td><td>same_day_fulfillment_coverage</td><td>broad national coverage</td><td>2025</td><td>annual_report</td><td>Medium</td></tr><tr><td>Walmart</td><td>store_enabled_digital_fulfillment</td><td>large store-led fulfillment network</td><td>2025</td><td>investor_material</td><td>Medium</td></tr><tr><td>Target</td><td>loyalty_service_attach</td><td>large loyalty-led same-day services base</td><td>2025</td><td>annual_report</td><td>Medium</td></tr><tr><td>Target</td><td>store_fulfillment_mix</td><td>high store-led digital fulfillment penetration</td><td>2025</td><td>investor_material</td><td>Medium</td></tr><tr><td>Amazon</td><td>marketplace_scale_signal</td><td>leadership-scale third-party marketplace</td><td>2025</td><td>annual_report</td><td>Medium</td></tr><tr><td>Amazon</td><td>release_velocity_signal</td><td>continuous experimentation across retail journeys</td><td>2025</td><td>earnings_call</td><td>Medium</td></tr></tbody></table></div></div><div class="trace-card"><details><summary>Evidence Markers</summary><div class="trace-grid"><div class="trace-item"><div class="key">Walmart:same_day_fulfillment_coverage</div><div class="value">Walmart:same_day_fulfillment_coverage</div></div><div class="trace-item"><div class="key">Walmart:store_enabled_digital_fulfillment</div><div class="value">Walmart:store_enabled_digital_fulfillment</div></div><div class="trace-item"><div class="key">Target:loyalty_service_attach</div><div class="value">Target:loyalty_service_attach</div></div><div class="trace-item"><div class="key">Target:store_fulfillment_mix</div><div class="value">Target:store_fulfillment_mix</div></div><div class="trace-item"><div class="key">Amazon:marketplace_scale_signal</div><div class="value">Amazon:marketplace_scale_signal</div></div><div class="trace-item"><div class="key">Amazon:release_velocity_signal</div><div class="value">Amazon:release_velocity_signal</div></div></div></details></div></div></section>
+<section id="sec05" class="screen" data-section-id="sec05"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">05</div><div class="screen-tag"><span class="dot"></span>Future State</div></div><h2 class="screen-title">AI Transformation Strategy</h2><p class="screen-summary">AI transformation priorities mapped to current operational bottlenecks to drive cost reduction and innovation velocity.</p></div><div class="content-stack"><div class="section-block"><h3>Strategic Narrative</h3><div class="narrative"><p>Northstar&#x27;s AI agenda is anchored in execution bottlenecks across release flow, incident recovery, inventory latency, and customer identity quality. The strategy focuses on shifting the budget from legacy maintenance to innovation by industrializing support and automating the delivery pipeline.</p><p>The transformation sequence prioritizes shared enablement first, ensuring that subsequent modernization waves inherit robust observability, support automation, and data foundations. This approach targets a 20% innovation budget shift and a 28% reduction in legacy run-costs.</p></div></div><div class="insight-grid" data-widget="transformation-pillars" data-filled="true"><div class="insight-card"><div class="title">Reduce legacy ADM run-cost and rebalance spend toward innovation</div><div class="detail">Customer-facing release cadence</div></div><div class="insight-card"><div class="title">Create a real-time inventory and fulfillment decision layer</div><div class="detail">P1 incident MTTR</div></div><div class="insight-card"><div class="title">Improve digital conversion, loyalty personalization, and release velocity</div><div class="detail">Inventory sync latency</div></div><div class="insight-card"><div class="title">Industrialize support with AI-assisted operations and observability</div><div class="detail">Duplicate customer record rate</div></div></div><div class="trace-card"><details><summary>Evidence Markers</summary><div class="trace-grid"><div class="trace-item"><div class="key">Customer-facing release cadence</div><div class="value">Customer-facing release cadence</div></div><div class="trace-item"><div class="key">P1 incident MTTR</div><div class="value">P1 incident MTTR</div></div><div class="trace-item"><div class="key">Inventory sync latency</div><div class="value">Inventory sync latency</div></div><div class="trace-item"><div class="key">Duplicate customer record rate</div><div class="value">Duplicate customer record rate</div></div></div></details></div></div></section>
+<section id="sec06" class="screen" data-section-id="sec06"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">06</div><div class="screen-tag"><span class="dot"></span>Future State</div></div><h2 class="screen-title">Modernization Roadmap / Factory</h2><p class="screen-summary">Strategic alignment of application dispositions to a six-lane modernization factory, enabling targeted run-cost reduction and architectural evolution.</p></div><div class="content-stack"><div class="section-block"><h3>Factory Narrative</h3><div class="narrative"><p>The modernization roadmap is structured around a factory model that categorizes applications into six distinct disposition lanes. This approach ensures that investment is proportional to the strategic value and technical debt of each asset, aligning delivery ownership with the target operating model.</p><p>Wave 1 prioritizes the establishment of observability foundations and the modernization of customer identity, pricing, and returns workflows to resolve immediate pain points in digital conversion and loyalty personalization.</p><p>Execution is governed by a strict holiday code freeze from mid-November to early January for all customer-facing platforms, ensuring stability during peak retail traffic. Sequencing is further optimized to manage platform engineering capacity across commerce, loyalty, and supply-chain programs to avoid parallel peak demand.</p></div></div><div class="data-card" data-widget="modernization-matrix" data-filled="true"><h3>Modernization Matrix</h3><div class="matrix-grid"><div class="matrix-column"><h4>Refactor</h4><ul><li>OrderCore</li><li>Loyalty360</li><li>CustomerID</li></ul></div><div class="matrix-column"><h4>Replatform</h4><ul><li>StoreOps Suite</li><li>MerchPlanner</li><li>CampaignMart</li></ul></div><div class="matrix-column"><h4>Rearchitect</h4><ul><li>SupplyMesh</li><li>PricingEngine</li></ul></div><div class="matrix-column"><h4>Rehost</h4><ul><li>InvoiceHub</li><li>ReturnsPortal</li></ul></div><div class="matrix-column"><h4>Retain</h4><ul><li>WarehouseMobile</li></ul></div><div class="matrix-column"><h4>Retire</h4><ul><li>POSLegacy</li></ul></div></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">apps_in_scope</div><div class="value">12</div></div><div class="trace-item"><div class="key">average_app_age_years</div><div class="value">11</div></div><div class="trace-item"><div class="key">average_dependencies_per_app</div><div class="value">2.33</div></div><div class="trace-item"><div class="key">disposition_counts</div><div class="value">Retire: 1; Retain: 1; Rehost: 2; Replatform: 3; Refactor: 3; …</div></div></div></details></div></div></section>
+<section id="sec07" class="screen" data-section-id="sec07"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">07</div><div class="screen-tag"><span class="dot"></span>Future State</div></div><h2 class="screen-title">Cloud &amp; Data Strategy</h2><p class="screen-summary">The future state cloud and data strategy focuses on migrating 65% of the estate to the cloud and resolving critical data fragmentation to enable real-time omnichannel operations.</p></div><div class="content-stack"><div class="section-block"><h3>Cloud &amp; Data Narrative</h3><div class="narrative"><p>The cloud strategy prioritizes a shift from on-premises data center concentration to a hybrid-cloud model, targeting a 65% migration rate to reduce legacy run-costs and increase release velocity.</p><p>Data strategy focuses on transitioning from batch-oriented interfaces to real-time eventing, specifically targeting the reduction of inventory sync latency from 360 minutes to 15 minutes.</p><p>Governance will evolve toward a shared data product ownership model to eliminate duplicate customer records and inconsistent SKU hierarchies across the commerce and supply-chain domains.</p></div></div><div class="insight-grid" data-widget="cloud-data-cards" data-filled="true"><div class="insight-card"><div class="title">Hosting Mix</div><div class="detail">OnPremDC: 7, CloudRegion: 4, VendorSaaSHybrid: 1</div></div><div class="insight-card"><div class="title">Governance Model</div><div class="detail">Central data office with federated domain stewardship, but ownership enforcement is inconsistent across commerce and supply-chain domains.</div></div></div><div class="data-card table-card"><div class="table-title"><div><h3>Domain Ownership</h3><p>6 rows</p></div></div><div class="table-scroll"><table><thead><tr><th>Domain</th><th>Owner Role</th></tr></thead><tbody><tr><td>Customer and loyalty</td><td>VP Loyalty and Personalization</td></tr><tr><td>Product and catalog</td><td>VP Merchandising Platforms</td></tr><tr><td>Orders and returns</td><td>VP Order Management</td></tr><tr><td>Pricing and promotions</td><td>VP Pricing Strategy</td></tr><tr><td>Inventory and fulfillment</td><td>VP Supply Chain Technology</td></tr><tr><td>Supplier and merchandising</td><td>VP Merchandising Operations</td></tr></tbody></table></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">hosting_environment_mix</div><div class="value">OnPremDC: 7; CloudRegion: 4; VendorSaaSHybrid: 1</div></div></div></details></div></div></section>
+<section id="sec08" class="screen" data-section-id="sec08"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">08</div><div class="screen-tag"><span class="dot"></span>Value Story</div></div><h2 class="screen-title">Financials</h2><p class="screen-summary">Financial profile for the five-year ADM transformation for Northstar Retail Group, focusing on investment and net value creation.</p></div><div class="content-stack"><div class="section-block"><h3>Financial Narrative</h3><div class="narrative"><p>The financial model for Northstar Retail Group&#x27;s transformation is designed to rebalance spend from legacy run-costs to innovation. The five-year Total Contract Value (TCV) is $475.00M, with a targeted transformation investment of $104.50M.</p><p>Value creation is driven by four primary streams: workforce savings through delivery mix optimization, legacy cost reduction via application dispositioning, productivity gains from AI-assisted operations, and resilience value from reduced outage risks.</p><p>The transformation is projected to deliver a net value created of $52.19M, representing a target ROI of 49.94% over the five-year horizon.</p></div></div><div class="kpi-band" data-widget="financial-kpis" data-filled="true"><div class="kpi-card"><div class="label">5-Year TCV</div><div class="value">$475.00M</div><div class="subtitle">Total contract value over 5 years</div></div><div class="kpi-card"><div class="label">Transformation Investment</div><div class="value">$104.50M</div><div class="subtitle">Total modernization investment</div></div><div class="kpi-card"><div class="label">Net Value Created</div><div class="value">$52.19M</div><div class="subtitle">Business value less investment</div></div><div class="kpi-card"><div class="label">Target ROI</div><div class="value">49.94%</div><div class="subtitle">Net value / investment</div></div></div><div class="data-card table-card"><div class="table-title"><div><h3>Value Stream Mix</h3><p>4 rows</p></div></div><div class="table-scroll"><table><thead><tr><th>Value Stream</th><th>5-Year Value</th></tr></thead><tbody><tr><td>Workforce savings</td><td>$50.45M</td></tr><tr><td>Legacy cost reduction</td><td>$75.30M</td></tr><tr><td>Productivity value</td><td>$19.73M</td></tr><tr><td>Resilience value</td><td>$11.21M</td></tr></tbody></table></div></div><div class="data-card viz-shell" data-widget="financial-chart" data-filled="true"><div class="viz-head"><div><h3>5-Year Investment vs Value</h3></div><p>The financial section uses only code-computed values from the facts engine.</p></div><div class="svg-shell"><svg viewBox="0 0 920 380" width="100%" height="380" role="img"><g><rect x="22" y="18" width="18" height="10" rx="3" fill="#d7edf7"></rect><text x="48" y="27" font-size="12" font-weight="900" fill="#6b8093">Investment</text><line x1="160" y1="23" x2="184" y2="23" stroke="#0f8f74" stroke-width="5"></line><text x="192" y="27" font-size="12" font-weight="900" fill="#6b8093">Business Value</text></g><line x1="74" y1="286" x2="864" y2="286" stroke="#edf2f6" stroke-width="1"></line><line x1="74" y1="236" x2="864" y2="236" stroke="#edf2f6" stroke-width="1"></line><line x1="74" y1="186" x2="864" y2="186" stroke="#edf2f6" stroke-width="1"></line><line x1="74" y1="136" x2="864" y2="136" stroke="#edf2f6" stroke-width="1"></line><line x1="74" y1="86" x2="864" y2="86" stroke="#edf2f6" stroke-width="1"></line><line x1="74" y1="36" x2="864" y2="36" stroke="#edf2f6" stroke-width="1"></line><line x1="74" y1="286" x2="864" y2="286" stroke="#d8e2ea" stroke-width="2"></line><rect x="92" y="173.6" width="56" height="112.4" rx="14" fill="#d7edf7"></rect><rect x="234" y="196.1" width="56" height="89.9" rx="14" fill="#d7edf7"></rect><rect x="376" y="211.1" width="56" height="74.9" rx="14" fill="#d7edf7"></rect><rect x="518" y="226.1" width="56" height="59.9" rx="14" fill="#d7edf7"></rect><rect x="660" y="248.5" width="56" height="37.5" rx="14" fill="#d7edf7"></rect><polyline fill="none" stroke="#0f8f74" stroke-width="5" points="182,265.3 324,222.3 466,168.5 608,122.3 750,90.0"></polyline><circle cx="182" cy="265.3" r="6" fill="#0f8f74" stroke="white" stroke-width="3"></circle><circle cx="324" cy="222.3" r="6" fill="#0f8f74" stroke="white" stroke-width="3"></circle><circle cx="466" cy="168.5" r="6" fill="#0f8f74" stroke="white" stroke-width="3"></circle><circle cx="608" cy="122.3" r="6" fill="#0f8f74" stroke="white" stroke-width="3"></circle><circle cx="750" cy="90.0" r="6" fill="#0f8f74" stroke="white" stroke-width="3"></circle><text x="120" y="314" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">Year 1</text><text x="262" y="314" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">Year 2</text><text x="404" y="314" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">Year 3</text><text x="546" y="314" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">Year 4</text><text x="688" y="314" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">Year 5</text></svg></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">tcv_5y_usd</div><div class="value">$475.00M</div></div><div class="trace-item"><div class="key">transformation_investment_total_usd</div><div class="value">$104.50M</div></div><div class="trace-item"><div class="key">net_value_created_usd</div><div class="value">$52.19M</div></div><div class="trace-item"><div class="key">roi_pct</div><div class="value">49.94%</div></div><div class="trace-item"><div class="key">investment_by_year_usd</div><div class="value">31,350,000, 25,080,000, 20,900,000, 16,720,000, 10,450,000</div></div><div class="trace-item"><div class="key">yearly_business_value_usd</div><div class="value">5,780,760, 17,781,900, 32,787,660, 45,661,140, 54,675,000</div></div><div class="trace-item"><div class="key">workforce_savings_rate_arbitrage_cumulative_usd</div><div class="value">$50.45M</div></div><div class="trace-item"><div class="key">legacy_cost_reduction_cumulative_usd</div><div class="value">$75.30M</div></div><div class="trace-item"><div class="key">productivity_value_cumulative_usd</div><div class="value">$19.73M</div></div><div class="trace-item"><div class="key">resilience_value_cumulative_usd</div><div class="value">$11.21M</div></div></div></details></div></div></section>
+<section id="sec09" class="screen" data-section-id="sec09"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">09</div><div class="screen-tag"><span class="dot"></span>Value Story</div></div><h2 class="screen-title">Execution Roadmap</h2><p class="screen-summary">Year-by-year execution sequencing aligned to value realization and modernization waves.</p></div><div class="content-stack"><div class="section-block"><h3>Roadmap Narrative</h3><div class="narrative"><p>The execution roadmap is structured to balance immediate operational stabilization with long-term architectural transformation. The sequence prioritizes the establishment of foundational platform services and observability before scaling modernization waves across the retail estate.</p><p>Investment is front-loaded to accelerate the transition to a target delivery mix of 55% offshore by Year 3, leveraging delivery centers in Bengaluru and Hyderabad for engineering scale and Guadalajara for nearshore product operations.</p><p>Execution is governed by a strict holiday code freeze from mid-November to early January to protect customer-facing platforms during peak retail seasons, ensuring that modernization activities do not compromise seasonal revenue.</p></div></div><div class="data-card" data-widget="roadmap-timeline" data-filled="true"><h3>Execution Sequence</h3><div class="timeline-flow"><div class="timeline-item"><div class="timeline-top"><div class="timeline-year">Year 1</div><div class="timeline-phase">Foundation</div><div class="timeline-meta">Investment $31.35M · Business Value $5.78M</div></div><div class="timeline-body">Stabilize identity, pricing, and observability foundations; initiate Wave 1 transition.</div></div><div class="timeline-item"><div class="timeline-top"><div class="timeline-year">Year 2</div><div class="timeline-phase">Acceleration</div><div class="timeline-meta">Investment $25.08M · Business Value $17.78M</div></div><div class="timeline-body">Launch modernization factory waves and expand shared engineering platform services.</div></div><div class="timeline-item"><div class="timeline-top"><div class="timeline-year">Year 3</div><div class="timeline-phase">Scale</div><div class="timeline-meta">Investment $20.90M · Business Value $32.79M</div></div><div class="timeline-body">Achieve target 55% offshore delivery mix and scale cloud migration.</div></div><div class="timeline-item"><div class="timeline-top"><div class="timeline-year">Year 4</div><div class="timeline-phase">Optimization</div><div class="timeline-meta">Investment $16.72M · Business Value $45.66M</div></div><div class="timeline-body">Consolidate legacy estates and industrialize ongoing optimization.</div></div><div class="timeline-item"><div class="timeline-top"><div class="timeline-year">Year 5</div><div class="timeline-phase">Optimization</div><div class="timeline-meta">Investment $10.45M · Business Value $54.68M</div></div><div class="timeline-body">Mature the steady-state operating model and lock in innovation-budget shift.</div></div></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">investment_by_year_usd</div><div class="value">31,350,000, 25,080,000, 20,900,000, 16,720,000, 10,450,000</div></div><div class="trace-item"><div class="key">yearly_business_value_usd</div><div class="value">5,780,760, 17,781,900, 32,787,660, 45,661,140, 54,675,000</div></div></div></details></div></div></section>
+<section id="sec10" class="screen" data-section-id="sec10"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">10</div><div class="screen-tag"><span class="dot"></span>Value Story</div></div><h2 class="screen-title">Delivery Center Architecture</h2><p class="screen-summary">The delivery architecture optimizes for engineering scale and operational proximity, shifting the staffing mix toward offshore hubs to drive cost efficiency while maintaining nearshore alignment for business-critical operations.</p></div><div class="content-stack"><div class="section-block"><h3>Delivery Narrative</h3><div class="narrative"><p>The target delivery model transitions from a predominantly onshore footprint (70%) to a balanced global architecture, targeting a 55% offshore mix by Year 3. This shift enables the industrialization of modernization engineering and platform services while preserving high-touch product ownership and architecture governance onshore.</p><p>Strategic placement of delivery centers ensures that high-velocity engineering and SRE functions are centralized in India, while business-facing operations and L2 support are anchored in Mexico to maintain critical timezone overlap with North American business units.</p><p>This distributed architecture is designed to support the phased modernization waves, ensuring that platform engineering capacity is shared across commerce, loyalty, and supply-chain programs to avoid parallel peak demand during critical release cycles.</p></div></div><div class="section-block"><h3>Delivery Footprint Allocation</h3><div class="delivery-strip"><span style="width:45.0%;background:#00bceb;" title="Bengaluru, India 45%"></span><span style="width:20.0%;background:#0f8f74;" title="Hyderabad, India 20%"></span><span style="width:35.0%;background:#073b5a;" title="Guadalajara, Mexico 35%"></span></div><div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;"><div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:#00bceb;display:inline-block;"></span><span style="font-size:12px;font-weight:800;color:#5f7283;">Bengaluru, India · 45%</span></div><div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:#0f8f74;display:inline-block;"></span><span style="font-size:12px;font-weight:800;color:#5f7283;">Hyderabad, India · 20%</span></div><div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:#073b5a;display:inline-block;"></span><span style="font-size:12px;font-weight:800;color:#5f7283;">Guadalajara, Mexico · 35%</span></div></div></div><div class="delivery-grid" data-widget="delivery-layout" data-filled="true"><div class="delivery-card"><div class="delivery-top"><div><div class="delivery-place">Bengaluru, India</div><div class="delivery-type">Offshore</div></div><div class="delivery-share">45%</div></div><div>Engineering build and platform operations</div><div><strong>Governance:</strong> Transformation Director</div><div><strong>Wave ownership</strong><ul><li>Wave 2 modernization</li><li>platform engineering</li><li>core engineering build</li></ul></div></div><div class="delivery-card"><div class="delivery-top"><div><div class="delivery-place">Hyderabad, India</div><div class="delivery-type">Offshore</div></div><div class="delivery-share">20%</div></div><div>Data engineering, QA automation, and analytics enablement</div><div><strong>Governance:</strong> Data and Quality Lead</div><div><strong>Wave ownership</strong><ul><li>Data foundation wave</li><li>QA automation enablement</li></ul></div></div><div class="delivery-card"><div class="delivery-top"><div><div class="delivery-place">Guadalajara, Mexico</div><div class="delivery-type">Nearshore</div></div><div class="delivery-share">35%</div></div><div>Business-facing operations, support coordination, and nearshore product support</div><div><strong>Governance:</strong> Service Delivery Director</div><div><strong>Wave ownership</strong><ul><li>Wave 1 transition</li><li>business-facing product operations</li><li>L2 service stabilization</li></ul></div></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">delivery_center_count</div><div class="value">3</div></div><div class="trace-item"><div class="key">delivery_center_staffing_mix_pct</div><div class="value">IN-BLR: 45; IN-HYD: 20; MX-GDL: 35</div></div></div></details></div></div></section>
+<section id="sec11" class="screen" data-section-id="sec11"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">11</div><div class="screen-tag"><span class="dot"></span>Close</div></div><h2 class="screen-title">Benchmarking Summary</h2><p class="screen-summary">Synthesis of Northstar Retail Group&#x27;s competitive position and modeled post-transformation improvement against retail industry peers.</p></div><div class="content-stack"><div class="section-block"><h3>Executive Synthesis</h3><div class="narrative"><p>The current application estate is characterized by high legacy dependency and fragmented orchestration, creating a performance gap compared to digital-native and omnichannel leaders like Amazon and Walmart. The transformation focuses on reducing the technical debt of aging POS and merchandising platforms to enable a more agile, cloud-native operating model.</p><p>The financial thesis is driven by a 28% reduction in legacy run-costs and a 20% shift in budget toward innovation, allowing Northstar to close the gap in fulfillment automation and release velocity. By industrializing support with AI-assisted operations, the organization aims to move from a 30-day release cadence to a 7-day target, aligning closer to the high-velocity experimentation seen in the market.</p></div></div><div class="insight-grid" data-widget="benchmark-summary" data-filled="true"><div class="insight-card"><div class="title">Legacy Reduction</div><div class="metric">28%</div><div class="detail">Modeled estate simplification target</div></div><div class="insight-card"><div class="title">Innovation Shift</div><div class="metric">20%</div><div class="detail">Budget rebalance toward strategic work</div></div><div class="insight-card"><div class="title">ROI</div><div class="metric">49.94%</div><div class="detail">Modeled return against transformation investment</div></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">roi_pct</div><div class="value">49.94%</div></div><div class="trace-item"><div class="key">cumulative_business_value_usd</div><div class="value">$156.69M</div></div></div></details></div></div></section>
+<section id="sec12" class="screen" data-section-id="sec12"><div class="screen-head"><div class="screen-meta-strip"><div class="screen-index">12</div><div class="screen-tag"><span class="dot"></span>Close</div></div><h2 class="screen-title">Partnership Overview</h2><p class="screen-summary">Operating model, governance cadence, and partnership structure for sustained delivery.</p></div><div class="content-stack"><div class="section-block"><h3>Operating Model Narrative</h3><div class="narrative"><p>The partnership model translates the delivery architecture and modernization roadmap into explicit governance, staffing, and execution rhythms to ensure sustained value realization.</p><p>Execution is anchored by a tiered governance structure, including a weekly Transformation Design Authority and a monthly Architecture Review Board, ensuring alignment between modernization waves and operational stability.</p><p>The delivery model leverages a global footprint across three strategic centers to balance cost-efficiency with business-facing agility, transitioning toward a target delivery mix of 35% onshore, 10% nearshore, and 55% offshore by year 3.</p></div></div><div class="insight-grid" data-widget="partnership-overview" data-filled="true"><div class="insight-card"><div class="title">Governance Cadence</div><div class="detail">Weekly design authority, monthly architecture review board</div></div><div class="insight-card"><div class="title">Delivery Mix Target</div><div class="detail">35% onshore / 10% nearshore / 55% offshore</div></div></div><div class="section-block"><h3>Execution Assumptions</h3><div class="summary-callouts"><div class="summary-callout"><span class="bullet"></span><span>Holiday code freeze applies from mid-November through early January for customer-facing platforms.</span></div><div class="summary-callout"><span class="bullet"></span><span>Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.</span></div><div class="summary-callout"><span class="bullet"></span><span>Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.</span></div><div class="summary-callout"><span class="bullet"></span><span>Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites.</span></div><div class="summary-callout"><span class="bullet"></span><span>Platform engineering capacity is shared across commerce, loyalty, and supply-chain programs, so sequencing must avoid parallel peak demand.</span></div></div></div><div class="trace-card"><details><summary>Data Basis</summary><div class="trace-grid"><div class="trace-item"><div class="key">delivery_center_count</div><div class="value">3</div></div></div></details></div></div></section>
+      </div>
+      <div class="footer-note">Structured ingress · code-computed financials · benchmark-aligned HTML artifact</div>
+    </main>
+  </div>
+  <script>
+    (function() {
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+      var links = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
+      function activate(id) {
+        var resolved = id || (sections[0] && sections[0].id);
+        links.forEach(function(link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + resolved);
+        });
+        sections.forEach(function(section) {
+          section.classList.toggle('active', section.id === resolved);
+        });
+      }
+      links.forEach(function(link) {
+        link.addEventListener('click', function() {
+          var targetId = this.getAttribute('href').slice(1);
+          activate(targetId);
+        });
+      });
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              activate(entry.target.id);
+            }
+          });
+        }, {
+          rootMargin: '-22% 0px -54% 0px',
+          threshold: [0.2, 0.45, 0.7]
+        });
+        sections.forEach(function(section) {
+          observer.observe(section);
+        });
+      }
+      window.addEventListener('hashchange', function() {
+        activate(window.location.hash.slice(1));
+      });
+      activate(window.location.hash.slice(1));
+    })();
+  </script>
+</body>
+</html>

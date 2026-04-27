@@ -26,6 +26,29 @@ from adm_pipeline.validation import validate_client_payload
 
 
 LOCAL_ENV_PATH = Path(".adm.env")
+SMOKE_SECTION_ID = "sec01"
+
+GEMINI_MODEL_PRIORITY = {
+    "gemma-4-31b-it": (0, "preferred: highest free-tier headroom"),
+    "gemma-4-26b-a4b-it": (1, "preferred: strong free-tier headroom"),
+    "gemma-3-27b-it": (2, "good headroom"),
+    "gemma-3-12b-it": (3, "good headroom"),
+    "gemma-3-4b-it": (4, "good headroom"),
+    "gemma-3-1b-it": (5, "good headroom"),
+    "gemma-3n-e4b-it": (6, "good headroom"),
+    "gemma-3n-e2b-it": (7, "good headroom"),
+    "gemini-2.5-flash-lite": (8, "usable but lower headroom than Gemma"),
+    "gemini-flash-lite-latest": (9, "usable but can spike"),
+    "gemini-2.0-flash-lite-001": (10, "usable but older"),
+    "gemini-2.0-flash-lite": (11, "usable but older"),
+    "gemini-2.5-flash": (50, "risky: low request budget"),
+    "gemini-2.5-pro": (60, "avoid unless paid quota exists"),
+    "gemini-pro-latest": (61, "avoid unless paid quota exists"),
+    "gemini-3.1-pro-preview": (62, "avoid unless paid quota exists"),
+    "gemini-3-pro-preview": (63, "avoid unless paid quota exists"),
+    "gemini-3.1-flash-lite-preview": (64, "preview: can be unstable or overloaded"),
+    "gemini-3-flash-preview": (65, "preview: can be unstable or overloaded"),
+}
 
 
 @dataclass
@@ -125,6 +148,15 @@ def build_parser() -> argparse.ArgumentParser:
     add_provider_args(generate_parser)
     generate_parser.set_defaults(func=cmd_generate)
 
+    smoke_parser = subparsers.add_parser("smoke", help="Run a single-section smoke test for the selected provider")
+    smoke_parser.add_argument("input_path", type=Path)
+    smoke_parser.add_argument("--run-dir", type=Path, default=None)
+    smoke_parser.add_argument("--label", default=None)
+    smoke_parser.add_argument("--force", action="store_true")
+    smoke_parser.add_argument("--section-id", default=SMOKE_SECTION_ID)
+    add_provider_args(smoke_parser)
+    smoke_parser.set_defaults(func=cmd_smoke)
+
     critique_parser = subparsers.add_parser("critique", help="Critique generated sections and optionally repair them")
     critique_parser.add_argument("--run-dir", type=Path, required=True)
     critique_parser.add_argument("--repair", action="store_true")
@@ -146,6 +178,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--run-dir", type=Path, default=None)
     run_parser.add_argument("--label", default=None)
     run_parser.add_argument("--force", action="store_true")
+    run_parser.add_argument("--skip-smoke", action="store_true")
     add_provider_args(run_parser)
     run_parser.set_defaults(func=cmd_run)
     return parser
@@ -186,7 +219,7 @@ def _run_interactive_dashboard(state: DashboardState) -> int:
         print("  1. Provider setup / API key / test")
         print("  2. Ingress file selection / validation")
         print("  3. Prepare folder structure")
-        print("  4. Run pipeline")
+        print("  4. Run pipeline (real providers auto-smoke sec01 first)")
         print("  5. Runs cleanup / latest outputs")
         print("  6. Doctor diagnostics")
         print("  0. Exit")
@@ -265,7 +298,7 @@ def _dashboard_provider_menu(state: DashboardState) -> None:
         print("  k. Enter or update API key for selected provider")
         print("  t. Test selected provider")
         print("  m. Set model override")
-        print("  l. List and select LM Studio model")
+        print("  l. List and select available models (rate-aware)")
         print("  p. Set temperature override")
         print("  x. Set max output tokens override")
         print("  u. Set base URL override")
@@ -290,7 +323,7 @@ def _dashboard_provider_menu(state: DashboardState) -> None:
         elif choice == "m":
             _prompt_model_override(state, profiles, selected)
         elif choice == "l":
-            _prompt_lmstudio_model_override(state, profiles, selected)
+            _prompt_available_model_override(state, profiles, selected)
         elif choice == "p":
             _prompt_float_override(state, selected, "temperature")
         elif choice == "x":
@@ -374,7 +407,8 @@ def _dashboard_run_pipeline(state: DashboardState) -> None:
         return
     provider_config = _resolve_selected_provider(state)
     label = input("Run label (optional, blank for none): ").strip() or None
-    args = argparse.Namespace(
+    run_mode = input("Run mode: [F]ull pipeline or [S]moke sec01 only? [F]: ").strip().lower() or "f"
+    common_args = argparse.Namespace(
         input_path=state.input_path,
         run_dir=None,
         label=label,
@@ -390,8 +424,13 @@ def _dashboard_run_pipeline(state: DashboardState) -> None:
         timeout_seconds=provider_config.timeout_seconds,
         max_retries=provider_config.max_retries,
         max_output_tokens=provider_config.max_output_tokens,
+        skip_smoke=False,
+        section_id=SMOKE_SECTION_ID,
     )
-    cmd_run(args)
+    if run_mode == "s":
+        cmd_smoke(common_args)
+    else:
+        cmd_run(common_args)
     _pause()
 
 
@@ -457,7 +496,7 @@ def _prompt_provider_key(state: DashboardState, profiles: dict, selected: str | 
         print("Selected provider does not use an API key.")
         _pause()
         return
-    value = getpass(f"Enter {env_name} (stored for this dashboard session only): ").strip()
+    value = getpass(f"Enter {env_name} (saved to {LOCAL_ENV_PATH} and loaded next launch): ").strip()
     if not value:
         print("No key entered.")
         _pause()
@@ -501,24 +540,36 @@ def _prompt_model_override(state: DashboardState, profiles: dict, selected: str 
     _pause()
 
 
-def _prompt_lmstudio_model_override(state: DashboardState, profiles: dict, selected: str | None) -> None:
+def _prompt_available_model_override(state: DashboardState, profiles: dict, selected: str | None) -> None:
     if not selected or selected not in profiles:
         print("No provider selected.")
         _pause()
         return
     profile = profiles[selected]
-    if profile.get("provider_kind") != "lmstudio_openai_compat":
-        print("Selected provider is not LM Studio.")
+    provider_kind = profile.get("provider_kind")
+    models: list[str] = []
+    if provider_kind == "lmstudio_openai_compat":
+        models = _list_lmstudio_models(profile.get("base_url") or "http://127.0.0.1:1234/v1")
+    elif provider_kind == "gemini":
+        config = _resolve_selected_provider(state)
+        models = _list_gemini_models(config)
+    elif provider_kind == "openrouter":
+        config = _resolve_selected_provider(state)
+        free_only = input("Show free-capable models only? [Y/n]: ").strip().lower() not in {"n", "no"}
+        models = _list_openrouter_models(config, free_only=free_only)
+    else:
+        print("Selected provider does not support remote model listing.")
         _pause()
         return
-    models = _list_lmstudio_models(profile.get("base_url") or "http://127.0.0.1:1234/v1")
     if not models:
-        print("No LM Studio models discovered.")
+        print("No models discovered for the selected provider.")
         _pause()
         return
-    print("LM Studio models:")
+    print("Available models:")
     for index, model in enumerate(models, start=1):
-        print(f"  {index}. {model}")
+        note = _model_selection_note(provider_kind, model)
+        suffix = f" [{note}]" if note else ""
+        print(f"  {index}. {model}{suffix}")
     raw = input("Choose model number: ").strip()
     if not raw:
         _pause()
@@ -532,7 +583,7 @@ def _prompt_lmstudio_model_override(state: DashboardState, profiles: dict, selec
     if 0 <= index < len(models):
         chosen = models[index]
         _set_provider_override(state, selected, "model", chosen)
-        print(f"LM Studio model override set: {chosen}")
+        print(f"Model override set: {chosen}")
     else:
         print("Invalid selection.")
     _pause()
@@ -795,6 +846,28 @@ def cmd_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_smoke(args: argparse.Namespace) -> int:
+    payload, report = _load_and_validate(args.input_path)
+    if report.errors:
+        _print_validation_errors(report)
+        return 1
+    provider_config = _provider_config_from_args(args)
+    run_dir = args.run_dir or _default_run_dir(args.input_path, provider_config=provider_config, label=args.label or "smoke")
+    _prepare_run(run_dir, args.input_path, payload, provider_config)
+    facts = _ensure_calculated(run_dir, payload)
+    section_inputs = _load_or_build_section_inputs(run_dir, payload, facts)
+    section_id = args.section_id
+    if section_id not in section_inputs:
+        print(f"Unknown section id: {section_id}", file=sys.stderr)
+        return 1
+    result = _run_provider_smoke(run_dir, section_inputs, provider_config, section_id=section_id, force=args.force)
+    print(f"Smoke test status: {result['status']}")
+    print(f"Run directory: {run_dir}")
+    if result.get("error"):
+        print(f"- {result['error']}")
+    return 0 if result["status"] == "pass" else 1
+
+
 def cmd_critique(args: argparse.Namespace) -> int:
     run_dir = args.run_dir
     manifest = load_manifest(run_dir)
@@ -837,6 +910,13 @@ def cmd_run(args: argparse.Namespace) -> int:
     _prepare_run(run_dir, args.input_path, payload, provider_config)
     facts = _ensure_calculated(run_dir, payload)
     section_inputs = _load_or_build_section_inputs(run_dir, payload, facts)
+    if _requires_live_smoke(provider_config) and not args.skip_smoke:
+        smoke = _run_provider_smoke(run_dir, section_inputs, provider_config, section_id=SMOKE_SECTION_ID, force=args.force)
+        print(f"Smoke test ({SMOKE_SECTION_ID}): {smoke['status']}")
+        if smoke["status"] != "pass":
+            if smoke.get("error"):
+                print(f"- {smoke['error']}")
+            return 1
     generate_sections(run_dir, section_inputs, provider_config, force=args.force)
     critique = critique_sections(run_dir, facts, load_generated_sections(run_dir))
     if critique.get("repair_candidates"):
@@ -849,6 +929,53 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"Critique: {critique['status']}")
     print(f"HTML QA: {qa_report['status']}")
     return 0 if critique["status"] != "fail" and qa_report["status"] == "pass" else 1
+
+
+def _requires_live_smoke(provider_config: ProviderConfig) -> bool:
+    return provider_config.provider_kind != "mock"
+
+
+def _run_provider_smoke(
+    run_dir: Path,
+    section_inputs: dict[str, dict],
+    provider_config: ProviderConfig,
+    *,
+    section_id: str,
+    force: bool,
+) -> dict[str, object]:
+    manifest = load_manifest(run_dir)
+    smoke_key = f"{provider_config.provider_kind}:{provider_config.model}:{section_id}"
+    smoke_state = manifest.setdefault("smoke_tests", {})
+    cached = smoke_state.get(smoke_key)
+    if cached and cached.get("status") == "pass" and not force:
+        return cached
+    try:
+        generate_sections(run_dir, {section_id: section_inputs[section_id]}, provider_config, force=force)
+    except Exception as exc:  # noqa: BLE001
+        result = {
+            "status": "fail",
+            "section_id": section_id,
+            "provider_kind": provider_config.provider_kind,
+            "model": provider_config.model,
+            "error": str(exc),
+            "updated_at": utc_now_iso(),
+        }
+        smoke_state[smoke_key] = result
+        manifest.setdefault("step_status", {})["smoke"] = "fail"
+        save_manifest(run_dir, manifest)
+        return result
+    result = {
+        "status": "pass",
+        "section_id": section_id,
+        "provider_kind": provider_config.provider_kind,
+        "model": provider_config.model,
+        "error": None,
+        "updated_at": utc_now_iso(),
+    }
+    smoke_state[smoke_key] = result
+    manifest.setdefault("step_status", {})["smoke"] = "pass"
+    save_manifest(run_dir, manifest)
+    return result
 
 
 def _provider_config_from_args(args: argparse.Namespace) -> ProviderConfig:
@@ -980,6 +1107,117 @@ def _list_lmstudio_models(base_url: str = "http://127.0.0.1:1234/v1") -> list[st
         return []
     model_ids = [item.get("id") for item in payload.get("data", []) if isinstance(item, dict)]
     return [model_id for model_id in model_ids if model_id]
+
+
+def _list_gemini_models(config: ProviderConfig) -> list[str]:
+    env_name = config.api_key_env or "GEMINI_API_KEY"
+    api_key = os.environ.get(env_name)
+    if not api_key:
+        print(f"{env_name} is not set.")
+        return []
+    base_url = (config.base_url or "https://generativelanguage.googleapis.com/v1beta").rstrip("/")
+    url = f"{base_url}/models?pageSize=1000"
+    req = request.Request(url, headers={"x-goog-api-key": api_key}, method="GET")
+    try:
+        with request.urlopen(req, timeout=min(config.timeout_seconds, 30)) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        print(f"Gemini model list failed: {exc}")
+        return []
+    model_names = []
+    for item in payload.get("models", []):
+        if not isinstance(item, dict):
+            continue
+        if "generateContent" not in item.get("supportedGenerationMethods", []):
+            continue
+        name = item.get("name", "")
+        if name.startswith("models/"):
+            name = name.split("/", 1)[1]
+        if name:
+            model_names.append(name)
+    return _sort_available_models("gemini", model_names)
+
+
+def _list_openrouter_models(config: ProviderConfig, *, free_only: bool) -> list[str]:
+    env_name = config.api_key_env or "OPENROUTER_API_KEY"
+    api_key = os.environ.get(env_name)
+    if not api_key:
+        print(f"{env_name} is not set.")
+        return []
+    url = (config.base_url or "https://openrouter.ai/api/v1").rstrip("/") + "/models"
+    req = request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="GET",
+    )
+    try:
+        with request.urlopen(req, timeout=min(config.timeout_seconds, 30)) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        print(f"OpenRouter model list failed: {exc}")
+        return []
+    models = []
+    for item in payload.get("data", []):
+        if not isinstance(item, dict):
+            continue
+        model_id = item.get("id")
+        if not model_id:
+            continue
+        if free_only and not _is_openrouter_free_model(item):
+            continue
+        models.append(model_id)
+    if free_only and "openrouter/free" not in models:
+        models.insert(0, "openrouter/free")
+    return _sort_available_models("openrouter", sorted(set(models)))
+
+
+def _is_openrouter_free_model(item: dict) -> bool:
+    model_id = item.get("id", "")
+    if isinstance(model_id, str) and model_id.endswith(":free"):
+        return True
+    pricing = item.get("pricing", {})
+    if not isinstance(pricing, dict):
+        return False
+    free_fields = ("prompt", "completion", "request")
+    return all(str(pricing.get(field, "")).strip() == "0" for field in free_fields)
+
+
+def _sort_available_models(provider_kind: str, models: list[str]) -> list[str]:
+    unique = list(dict.fromkeys(models))
+    if provider_kind == "gemini":
+        return sorted(unique, key=_gemini_model_sort_key)
+    if provider_kind == "openrouter":
+        return sorted(unique, key=_openrouter_model_sort_key)
+    return sorted(unique)
+
+
+def _gemini_model_sort_key(model: str) -> tuple[int, str]:
+    rank, _note = GEMINI_MODEL_PRIORITY.get(model, (30, ""))
+    return rank, model
+
+
+def _openrouter_model_sort_key(model: str) -> tuple[int, str]:
+    if model == "openrouter/free":
+        return (0, model)
+    if model.endswith(":free"):
+        return (1, model)
+    if "gemma" in model.lower():
+        return (2, model)
+    return (20, model)
+
+
+def _model_selection_note(provider_kind: str, model: str) -> str:
+    if provider_kind == "gemini":
+        return GEMINI_MODEL_PRIORITY.get(model, (0, ""))[1]
+    if provider_kind == "openrouter":
+        if model == "openrouter/free":
+            return "router picks current free model"
+        if model.endswith(":free"):
+            return "free model"
+    return ""
 
 
 def _test_provider_config(config: ProviderConfig, *, live: bool) -> tuple[bool, str]:

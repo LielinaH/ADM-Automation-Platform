@@ -7,6 +7,7 @@ from urllib import error, request
 
 from adm_pipeline.providers.base import ProviderConfig
 from adm_pipeline.types import ProviderUsage, SectionResult
+from adm_pipeline.utils import parse_json_response_text
 
 
 class LMStudioProvider:
@@ -51,7 +52,7 @@ class LMStudioProvider:
         except error.URLError as exc:
             raise RuntimeError(f"LM Studio request failed: {exc.reason}") from exc
         text_output = response_payload["choices"][0]["message"]["content"]
-        normalized = json.loads(text_output)
+        normalized = parse_json_response_text(text_output)
         usage_payload = response_payload.get("usage", {})
         usage = ProviderUsage(
             input_tokens=usage_payload.get("prompt_tokens"),

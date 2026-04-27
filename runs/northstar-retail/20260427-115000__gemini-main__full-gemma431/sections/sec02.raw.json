@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"section_id\":\"sec02\",\"title\":\"Portfolio Analysis\",\"phase\":\"Diagnose\",\"summary\":\"Portfolio shape by business unit, run-cost concentration, and application age.\",\"narrative\":[\"The application portfolio consists of 12 apps across 5 business units, with a high concentration of legacy assets averaging 11 years in age.\",\"Total application run cost is $76.40M, representing 80.4% of the annual ADM spend of $95.00M.\",\"The estate carries 28 dependency edges, averaging 2.33 dependencies per application, indicating a moderately coupled architecture that contributes to slow release cycles.\"],\"kpi_cards\":[{\"label\":\"Total Apps in Scope\",\"value\":\"12\",\"subtitle\":\"Total applications analyzed\",\"fact_key\":\"apps_in_scope\"},{\"label\":\"Avg App Age\",\"value\":\"11\",\"subtitle\":\"Average years since deployment\",\"fact_key\":\"average_app_age_years\"},{\"label\":\"Dependency Density\",\"value\":\"2\",\"subtitle\":\"Avg dependencies per app\",\"fact_key\":\"average_dependencies_per_app\"},{\"label\":\"Total Run Cost\",\"value\":\"$76.4M\",\"subtitle\":\"Annual application run cost\",\"fact_key\":\"total_app_run_cost_usd\"}],\"tables\":[],\"cards\":[{\"title\":\"Digital Commerce\",\"metric\":\"3 apps\",\"detail\":\"$21.20M\"},{\"title\":\"Store Operations\",\"metric\":\"2 apps\",\"detail\":\"$17.40M\"},{\"title\":\"Customer & Loyalty\",\"metric\":\"3 apps\",\"detail\":\"$15.20M\"},{\"title\":\"Supply Chain\",\"metric\":\"2 apps\",\"detail\":\"$12.50M\"},{\"title\":\"Merchandising\",\"metric\":\"2 apps\",\"detail\":\"$10.10M\"}],\"chart\":{\n  },\"matrix\":null,\"timeline\":[],\"delivery_cards\":[],\"callouts\":[\"The high run-cost to ADM ratio (80.4%) indicates a significant 'run' burden, limiting the capacity for innovation spend shift.\"],\"fact_refs\":[\"apps_in_scope\",\"average_app_age_years\",\"average_dependencies_per_app\",\"total_app_run_cost_usd\",\"run_cost_to_adm_ratio\",\"annual_adm_spend_usd\"],\"evidence_refs\":[],\"required_widgets\":[\"portfolio-chart\",\"portfolio-cards\"]}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 3922,
+    "candidatesTokenCount": 500,
+    "totalTokenCount": 4422,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3922
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "slnvafOUCvDkkdUP_K-hiQ8"
+}

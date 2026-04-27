@@ -1,0 +1,47 @@
+{
+  "client_id": "northstar-retail",
+  "input_path": "C:\\Users\\Lielina\\Desktop\\Projects\\ADM Automation Platform\\inputs\\clients\\northstar-retail.json",
+  "provider": {
+    "kind": "gemini",
+    "model": "gemma-4-31b-it",
+    "profile_name": "gemini-main"
+  },
+  "scenario_mode": "locked",
+  "created_at": "2026-04-27T12:13:37Z",
+  "sections": {},
+  "step_status": {
+    "calculate": "pass",
+    "smoke": "pass"
+  },
+  "totals": {
+    "total_run_duration_seconds": null,
+    "estimated_cost_usd": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "artifacts": {
+    "facts": "runs\\northstar-retail\\20260427-113500__gemini-main__smoke-gemma431\\facts.json",
+    "global_critique": "runs\\northstar-retail\\20260427-113500__gemini-main__smoke-gemma431\\critique\\global_critique.json",
+    "repair_actions": "runs\\northstar-retail\\20260427-113500__gemini-main__smoke-gemma431\\critique\\repair_actions.json",
+    "final_html": "runs\\northstar-retail\\20260427-113500__gemini-main__smoke-gemma431\\final\\northstar-retail.html",
+    "final_qa": "runs\\northstar-retail\\20260427-113500__gemini-main__smoke-gemma431\\final\\final_qa.json"
+  },
+  "versions": {
+    "schema_version": "2.0",
+    "prompt_set_version": "northstar-adm-v1",
+    "benchmark_style_version": "cisco-html-v1",
+    "section_schema_version": "section-content-v1"
+  },
+  "updated_at": "2026-04-27T12:32:03Z",
+  "smoke_tests": {
+    "gemini:gemma-4-31b-it:sec01": {
+      "status": "pass",
+      "section_id": "sec01",
+      "provider_kind": "gemini",
+      "model": "gemma-4-31b-it",
+      "error": null,
+      "updated_at": "2026-04-27T12:32:03Z"
+    }
+  }
+}

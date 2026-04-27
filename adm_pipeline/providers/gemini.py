@@ -8,6 +8,7 @@ from urllib import error, request
 
 from adm_pipeline.providers.base import ProviderConfig
 from adm_pipeline.types import ProviderUsage, SectionResult
+from adm_pipeline.utils import parse_json_response_text
 
 
 class GeminiProvider:
@@ -58,7 +59,7 @@ class GeminiProvider:
         except error.URLError as exc:
             raise RuntimeError(f"Gemini request failed: {exc.reason}") from exc
         text_output = response_payload["candidates"][0]["content"]["parts"][0]["text"]
-        normalized = json.loads(text_output)
+        normalized = parse_json_response_text(text_output)
         usage_payload = response_payload.get("usageMetadata", {})
         usage = ProviderUsage(
             input_tokens=usage_payload.get("promptTokenCount"),

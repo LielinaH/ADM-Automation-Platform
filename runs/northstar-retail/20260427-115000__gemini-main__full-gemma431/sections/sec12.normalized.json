@@ -1,0 +1,50 @@
+{
+  "section_id": "sec12",
+  "title": "Partnership Overview",
+  "phase": "Close",
+  "summary": "Operating model, governance cadence, and partnership structure for sustained delivery.",
+  "narrative": [
+    "The partnership model translates the delivery architecture and modernization roadmap into explicit governance, staffing, and execution rhythms to ensure sustained value realization.",
+    "Execution is anchored by a tiered governance structure, including a weekly Transformation Design Authority and a monthly Architecture Review Board, ensuring alignment between modernization waves and operational stability.",
+    "The delivery model leverages a global footprint across three strategic centers to balance cost-efficiency with business-facing agility, transitioning toward a target delivery mix of 35% onshore, 10% nearshore, and 55% offshore by year 3."
+  ],
+  "kpi_cards": [
+    {
+      "label": "Delivery Centers",
+      "value": "3",
+      "subtitle": "Global Delivery Footprint",
+      "fact_key": "delivery_center_count"
+    }
+  ],
+  "tables": [],
+  "cards": [
+    {
+      "widget": "partnership-overview",
+      "title": "Governance Cadence",
+      "detail": "Weekly design authority, monthly architecture review board"
+    },
+    {
+      "widget": "partnership-overview",
+      "title": "Delivery Mix Target",
+      "detail": "35% onshore / 10% nearshore / 55% offshore"
+    }
+  ],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "Holiday code freeze applies from mid-November through early January for customer-facing platforms.",
+    "Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.",
+    "Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.",
+    "Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites.",
+    "Platform engineering capacity is shared across commerce, loyalty, and supply-chain programs, so sequencing must avoid parallel peak demand."
+  ],
+  "fact_refs": [
+    "delivery_center_count"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "partnership-overview"
+  ]
+}

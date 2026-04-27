@@ -192,7 +192,15 @@ def _expected_rendered_fact(fact_key: str, value: Any) -> str | None:
         return None
     if fact_key.endswith("_pct") or fact_key == "roi_pct":
         return format_pct(float(value))
-    return format_currency(float(value))
+    if fact_key.endswith("_usd") or "_cost_" in fact_key or fact_key.startswith("tcv_") or fact_key.startswith("annual_adm_spend"):
+        return format_currency(float(value))
+    if fact_key in {"apps_in_scope", "business_units_in_scope", "delivery_center_count", "dependency_edges"}:
+        return str(int(value))
+    if fact_key in {"average_app_age_years"}:
+        return f"{float(value):.1f} Years"
+    if fact_key in {"average_dependencies_per_app"}:
+        return f"{float(value):.2f}"
+    return None
 
 
 def _walk_strings(value: Any) -> list[str]:

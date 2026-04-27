@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"section_id\": \"sec08\",\n  \"title\": \"Financials\",\n  \"phase\": \"Value Story\",\n  \"summary\": \"Financial profile for the five-year ADM transformation for Northstar Retail Group, focusing on investment and net value creation.\",\n  \"narrative\": [\n    \"The financial model for Northstar Retail Group's transformation is designed to rebalance spend from legacy run-costs to innovation. The five-year Total Contract Value (TCV) is $475.00M, with a targeted transformation investment of $104.50M.\",\n    \"Value creation is driven by four primary streams: workforce savings through delivery mix optimization, legacy cost reduction via application dispositioning, productivity gains from AI-assisted operations, and resilience value from reduced outage risks.\",\n    \"The transformation is projected to deliver a net value created of $52.19M, representing a target ROI of 49.94% over the five-year horizon.\"\n  ],\n  \"kpi_cards\": [\n    {\n      \"label\": \"5-Year TCV\",\n      \"value\": \"$475.00M\",\n      \"subtitle\": \"Total contract value over 5 years\",\n      \"fact_key\": \"tcv_5y_usd\"\n    },\n    {\n      \"label\": \"Transformation Investment\",\n      \"value\": \"$104.50M\",\n      \"subtitle\": \"Total modernization investment\",\n      \"fact_key\": \"transformation_investment_total_usd\"\n    },\n    {\n      \"label\": \"Net Value Created\",\n      \"value\": \"$52.19M\",\n      \"subtitle\": \"Business value less investment\",\n      \"fact_key\": \"net_value_created_usd\"\n    },\n    {\n      \"label\": \"Target ROI\",\n      \"value\": \"49.94%\",\n      \"subtitle\": \"Net value / investment\",\n      \"fact_key\": \"roi_pct\"\n    }\n  ],\n  \"tables\": [\n    {\n      \"title\": \"Value Stream Mix\",\n      \"columns\": [\n        \"Value Stream\",\n        \"5-Year Value\"\n      ],\n      \"rows\": [\n        \"Workforce savings\",\n        \"$50.45M\",\n        \"Legacy cost reduction\",\n        \"$75.30M\",\n        \"productivity value\",\n        \"$19.73M\",\n        \"Resilience value\",\n        \"$11.21M\"\n      ]\n    }\n  ],\n  \"cards\": [],\n  \"chart\": {\n    },\n    \"matrix\": null,\n    \"timeline\": [],\n    \"delivery_cards\": [],\n    \"callouts\": [\n      \"Investment is front-loaded to accelerate the modernization of customer identity and pricing foundations in Wave 1.\",\n      \"Target delivery mix shift to 55% offshore is a primary driver of workforce savings.\"\n    ],\n    \"fact_refs\": [\n      \"tcv_5y_usd\",\n      \"transformation_investment_total_usd\",\n      \"net_value_created_usd\",\n      \"roi_pct\",\n      \"investment_by_year_usd\",\n      \"yearly_business_value_usd\",\n      \"workforce_savings_rate_arbitrage_cumulative_usd\",\n      \"legacy_cost_reduction_cumulative_usd\",\n      \"productivity_value_cumulative_usd\",\n      \"resilience_value_cumulative_usd\"\n    ],\n    \"evidence_refs\": [],\n    \"required_widgets\": [\n      \"financial-kpis\",\n      \"financial-chart\"\n    ]\n  }\n```"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 3786,
+    "candidatesTokenCount": 833,
+    "totalTokenCount": 4619,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3786
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "Y1nvadDrO9GnkdUP6MC0oA0"
+}
