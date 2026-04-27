@@ -38,6 +38,7 @@ This pipeline treats the ADM as a deterministic reporting system, not just a pro
 - [`inputs/clients/northstar-retail.json`](inputs/clients/northstar-retail.json): sample structured client ingress
 - [`archive/ADM_Engineer_Assessment.pdf`](archive/ADM_Engineer_Assessment.pdf): assessment brief
 - [`archive/Cisco_ADM.html`](archive/Cisco_ADM.html): benchmark reference
+- [`END_TO_END_GUIDE.md`](END_TO_END_GUIDE.md): complete system guide
 - [`config/providers.json`](config/providers.json): named provider profiles
 - [`adm_pipeline/`](adm_pipeline): pipeline implementation
 - [`tests/`](tests): automated verification
@@ -55,6 +56,50 @@ The execution flow is:
 7. Run final HTML QA
 
 The language model does not generate HTML directly. It generates structured section content only. Financials, validation, critique, and rendering are code-driven.
+
+## Methodology
+
+This implementation is intentionally not a single-prompt report generator.
+
+The core methodology is:
+
+- use a frozen structured ingress contract as the source of truth
+- compute financials and portfolio facts in code before any model call
+- generate the ADM section-by-section instead of asking one model call to write the full document
+- validate and normalize section output before it is allowed into the final report
+- critique the full report for consistency and completeness before rendering
+- render the final artifact deterministically in HTML rather than trusting model-authored markup
+
+This approach was chosen for three reasons:
+
+1. Reliability  
+   The assessment requires numerical rigor and stable structure. Code-computed facts are more reliable than asking the model to derive or preserve all financial logic on its own.
+
+2. Recoverability  
+   Section-level generation makes retries, repair, and inspection practical. A failed section can be regenerated without re-running the whole report.
+
+3. Auditability  
+   Each run preserves the ingress, computed facts, section requests, raw model responses, normalized section payloads, critique output, and final HTML artifact.
+
+## LLM Responsibility Boundary
+
+The LLM is used for:
+
+- executive and analytical narrative
+- section summaries
+- benchmark interpretation
+- callouts, cards, and structured section content
+
+The LLM is not used for:
+
+- ingress validation
+- financial math
+- ROI computation
+- deterministic chart values
+- HTML layout generation
+- final artifact QA
+
+That split is deliberate. The model handles interpretation and language; the code handles correctness, structure, and artifact production.
 
 ## Install
 
@@ -174,6 +219,7 @@ The repository includes:
 
 - The sample ingress is `northstar-retail.json`.
 - The benchmark reference is `archive/Cisco_ADM.html`.
+- The complete working guide is [`END_TO_END_GUIDE.md`](END_TO_END_GUIDE.md).
 - The repository keeps one representative generated run for review at `runs/northstar-retail/20260427-144500__gemini-main__final-check/`.
 - Other generated runs remain git-ignored to avoid committing the full run cache and transient provider artifacts.
 
