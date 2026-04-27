@@ -37,6 +37,7 @@ def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
         "section_id": section_id,
         "title": config.title,
         "phase": config.phase,
+        "benchmark_brief": config.benchmark_brief,
         "required_top_level_fields": [
             "section_id",
             "title",
@@ -57,6 +58,15 @@ def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
         ],
         "required_widgets": list(SECTION_CONFIG_BY_ID[section_id].required_widgets),
         "allowed_fact_keys_for_kpi_cards_and_fact_refs": allowed_fact_keys,
+        "minimum_depth_targets": {
+            "narrative_paragraphs": config.min_narrative_paragraphs,
+            "kpi_cards": config.min_kpi_cards,
+            "tables": config.min_tables,
+            "cards": config.min_cards,
+            "callouts": config.min_callouts,
+            "timeline_items": config.min_timeline_items,
+            "delivery_cards": config.min_delivery_cards,
+        },
     }
     return (
         f"You are generating section {section_id} ({config.title}) for an ADM document.\n"
@@ -70,7 +80,14 @@ def build_prompt(section_packet: JsonObject, schema: JsonObject) -> str:
         "Critical rules:\n"
         f"- For kpi_cards.fact_key and fact_refs, only use these exact keys: {json.dumps(allowed_fact_keys, separators=(',', ':'))}\n"
         "- If you want to mention target metrics or assumptions that are not in that list, keep them in narrative or callouts instead of kpi_cards.fact_key or fact_refs.\n"
-        "- Preserve the required widgets for this section.\n\n"
+        "- The summary must read like a board-ready lead sentence, not a generic description.\n"
+        "- Callouts must stand alone as sharp executive observations or implications, not sentence fragments.\n"
+        "- Narrative, cards, tables, and callouts should complement each other rather than restating the same line in different shapes.\n"
+        "- When a section includes benchmark, roadmap, financial, or delivery evidence, interpret the implication explicitly instead of merely listing the fact.\n"
+        "- Preserve the required widgets for this section.\n"
+        f"- Meet or exceed these minimum depth targets: {json.dumps(schema_summary['minimum_depth_targets'], separators=(',', ':'))}\n"
+        f"- Section benchmark brief: {config.benchmark_brief}\n"
+        "- Narrative should be denser than a quick summary. Prefer 2-4 sentences per paragraph with explicit interpretation.\n\n"
         f"Output contract summary:\n{json.dumps(schema_summary, separators=(',', ':'))}\n\n"
         f"Deterministic scaffold example:\n{json.dumps(seed_section, separators=(',', ':'))}\n\n"
         f"Section input packet:\n{json.dumps(section_packet, separators=(',', ':'))}"

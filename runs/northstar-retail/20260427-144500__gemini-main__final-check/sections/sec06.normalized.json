@@ -1,0 +1,86 @@
+{
+  "section_id": "sec06",
+  "title": "Modernization Roadmap / Factory",
+  "phase": "Future State",
+  "summary": "A six-lane modernization factory model designed to convert application dispositions into sequenced execution waves and structural run-cost savings.",
+  "narrative": [
+    "The modernization factory organizes the application estate into six distinct disposition lanes, transforming a fragmented portfolio into a repeatable delivery pipeline. By categorizing apps into Retire, Retain, Rehost, Replatform, Refactor, and Rearchitect, Northstar Retail Group can align technical effort with specific financial savings targets and risk profiles.",
+    "Execution is sequenced to prioritize foundational stability and high-value cost takeout. Wave 1 focuses on customer identity and observability foundations, ensuring that the most entangled domains\u2014such as OrderCore and SupplyMesh\u2014are modernized only after the underlying data patterns and platform controls are stabilized.",
+    "The factory model shifts the focus from individual application migrations to throughput-based delivery. This approach allows the organization to scale engineering capacity offshore while maintaining onshore architecture and product ownership, ensuring that modernization velocity does not compromise operational stability during peak retail seasons.",
+    "Financial capture is directly tied to the disposition lane; for instance, Rearchitected applications target a 40% run-cost reduction, while Retired assets provide 100% savings. This explicit mapping ensures that the roadmap is not just a technical migration but a financial instrument for reducing legacy ADM spend."
+  ],
+  "kpi_cards": [
+    {
+      "label": "Rearchitect Candidates",
+      "value": "2",
+      "subtitle": "High-complexity, high-savings targets",
+      "fact_key": "disposition_counts"
+    },
+    {
+      "label": "Refactor Candidates",
+      "value": "3",
+      "subtitle": "Code-level modernization targets",
+      "fact_key": "disposition_counts"
+    },
+    {
+      "label": "Replatform Candidates",
+      "value": "3",
+      "subtitle": "Platform-shift efficiency targets",
+      "fact_key": "disposition_counts"
+    }
+  ],
+  "tables": [],
+  "cards": [],
+  "chart": null,
+  "matrix": {
+    "widget": "modernization-matrix",
+    "columns": [
+      "Refactor",
+      "Replatform",
+      "Rearchitect",
+      "Rehost",
+      "Retain",
+      "Retire"
+    ],
+    "items": {
+      "Refactor": [
+        "OrderCore",
+        "Loyalty360",
+        "CustomerID"
+      ],
+      "Replatform": [
+        "StoreOps Suite",
+        "MerchPlanner",
+        "CampaignMart"
+      ],
+      "Rearchitect": [
+        "SupplyMesh",
+        "PricingEngine"
+      ],
+      "Rehost": [
+        "InvoiceHub",
+        "ReturnsPortal"
+      ],
+      "Retain": [
+        "WarehouseMobile"
+      ],
+      "Retire": [
+        "POSLegacy"
+      ]
+    }
+  },
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "The six-lane disposition framework serves as the operating grammar for the modernization factory, ensuring alignment between architecture and finance.",
+    "Sequencing must strictly adhere to the holiday code freeze (mid-November to early January) to protect customer-facing revenue streams.",
+    "The highest structural savings are concentrated in the Rearchitect and Retire lanes, which require the most rigorous architectural governance."
+  ],
+  "fact_refs": [
+    "disposition_counts"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "modernization-matrix"
+  ]
+}

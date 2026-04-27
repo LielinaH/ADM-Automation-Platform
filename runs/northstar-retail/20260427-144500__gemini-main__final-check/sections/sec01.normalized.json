@@ -1,0 +1,61 @@
+{
+  "section_id": "sec01",
+  "title": "Executive Summary",
+  "phase": "Diagnose",
+  "summary": "Northstar Retail Group can shift a $95.00M annual ADM estate from legacy sustainment toward faster digital execution and better operating leverage.",
+  "narrative": [
+    "The Northstar Retail Group estate spans 12 business applications across 5 business units, with an average age of 11.0 years. This aging infrastructure creates significant drag, manifesting as 360-minute inventory sync latencies and a 30-day release cadence that hinders omnichannel responsiveness.",
+    "The current-state burden is anchored in a $95.00M annual ADM model that carries fragmented platforms across stores, commerce, loyalty, merchandising, and supply chain. This fragmentation results in an 11% duplicate customer record rate, undermining the strategic priority of personalized loyalty and consistent customer identity.",
+    "With a five-year transformation investment of $104.50M, the modeled business value reaches $156.69M and a target ROI of 49.94%. This value is driven by a shift in delivery mix toward 55% offshore and the aggressive modernization of legacy platforms through a mix of refactoring and rearchitecting.",
+    "The executive challenge is not just cost takeout; Northstar Retail Group must reduce run-cost drag while improving release velocity and inventory responsiveness without disrupting peak retail periods. Success requires navigating a strict holiday code freeze while industrializing support through AI-assisted operations and observability."
+  ],
+  "kpi_cards": [
+    {
+      "label": "Annual ADM Spend",
+      "value": "$95.00M",
+      "subtitle": "Current annual run baseline",
+      "fact_key": "annual_adm_spend_usd"
+    },
+    {
+      "label": "Total Program Investment",
+      "value": "$104.50M",
+      "subtitle": "5-Year transformation spend",
+      "fact_key": "transformation_investment_total_usd"
+    },
+    {
+      "label": "Cumulative Business Value",
+      "value": "$156.69M",
+      "subtitle": "All modeled value streams",
+      "fact_key": "cumulative_business_value_usd"
+    },
+    {
+      "label": "Target ROI",
+      "value": "49.94%",
+      "subtitle": "Net value / investment",
+      "fact_key": "roi_pct"
+    }
+  ],
+  "tables": [],
+  "cards": [],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "Legacy cost reduction target: 28%",
+    "Cloud migration target: 65%",
+    "Innovation budget shift target: 20%",
+    "Release-frequency improvement target: 45%"
+  ],
+  "fact_refs": [
+    "annual_adm_spend_usd",
+    "transformation_investment_total_usd",
+    "cumulative_business_value_usd",
+    "roi_pct"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "kpi-grid",
+    "hero-callout"
+  ]
+}

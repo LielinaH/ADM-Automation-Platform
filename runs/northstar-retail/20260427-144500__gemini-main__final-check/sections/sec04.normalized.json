@@ -1,0 +1,152 @@
+{
+  "section_id": "sec04",
+  "title": "Competitive Benchmarking",
+  "phase": "Diagnose",
+  "summary": "Comparative analysis of Northstar Retail Group's operational capabilities against industry leaders to identify structural gaps in fulfillment and release velocity.",
+  "narrative": [
+    "Northstar Retail Group's current application estate is structurally disadvantaged compared to the high-velocity operating models of Walmart, Target, and Amazon. The fragmented nature of the current estate, characterized by aging POS and order platforms, creates a friction point that prevents the agility required to compete in modern omnichannel retail.",
+    "A critical gap exists in fulfillment orchestration. While competitors like Walmart and Target have industrialized store-led digital fulfillment, Northstar's inventory sync latency of 360 minutes creates a significant lag in real-time decisioning, directly impacting customer conversion and operational efficiency.",
+    "Release velocity is another primary area of competitive deficit. Amazon's model of continuous experimentation contrasts sharply with Northstar's 30-day release cadence. This disparity limits the ability to rapidly iterate on customer-facing features, loyalty personalization, and offer consistency across channels.",
+    "Closing these gaps requires a shift from legacy maintenance to a modernized, cloud-native digital operating model. By reducing legacy run-costs and rebalancing spend toward innovation, Northstar can transition from a reactive support posture to a proactive, experimentation-driven approach to retail technology."
+  ],
+  "kpi_cards": [],
+  "tables": [
+    {
+      "title": "Competitor Evidence Metrics",
+      "columns": [
+        "Competitor",
+        "Metric",
+        "Value",
+        "Year",
+        "Evidence Type",
+        "Confidence"
+      ],
+      "rows": [
+        [
+          "Walmart",
+          "same_day_fulfillment_coverage",
+          "broad national coverage",
+          "2025",
+          "annual_report",
+          "Medium"
+        ],
+        [
+          "Walmart",
+          "store_enabled_digital_fulfillment",
+          "large store-led fulfillment network",
+          "2025",
+          "investor_material",
+          "Medium"
+        ],
+        [
+          "Target",
+          "loyalty_service_attach",
+          "large loyalty-led same-day services base",
+          "2025",
+          "annual_report",
+          "Medium"
+        ],
+        [
+          "Target",
+          "store_fulfillment_mix",
+          "high store-led digital fulfillment penetration",
+          "2025",
+          "investor_material",
+          "Medium"
+        ],
+        [
+          "Amazon",
+          "marketplace_scale_signal",
+          "leadership-scale third-party marketplace",
+          "2025",
+          "annual_report",
+          "Medium"
+        ],
+        [
+          "Amazon",
+          "release_velocity_signal",
+          "continuous experimentation across retail journeys",
+          "2025",
+          "earnings_call",
+          "Medium"
+        ]
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "widget": "competitor-cards",
+      "title": "Walmart",
+      "segment": "Big-box omnichannel retail",
+      "strengths": [
+        "Mass-scale omnichannel fulfillment",
+        "Tech-powered retail operating model"
+      ],
+      "gaps": [
+        "Lower fulfillment automation maturity",
+        "Less integrated store-to-digital orchestration"
+      ],
+      "signals": [
+        "Same-day fulfillment scale",
+        "Marketplace and omnichannel operating model",
+        "AI-enabled inventory and workforce tooling"
+      ]
+    },
+    {
+      "widget": "competitor-cards",
+      "title": "Target",
+      "segment": "Omnichannel general merchandise",
+      "strengths": [
+        "Large first-party digital business",
+        "Loyalty-led same-day services"
+      ],
+      "gaps": [
+        "Weaker loyalty monetization",
+        "Lower offer personalization consistency"
+      ],
+      "signals": [
+        "Large first-party digital business",
+        "Loyalty-led same-day services",
+        "Store-led digital fulfillment model"
+      ]
+    },
+    {
+      "widget": "competitor-cards",
+      "title": "Amazon",
+      "segment": "Digital-native retail and marketplace",
+      "strengths": [
+        "Marketplace scale",
+        "High-velocity product experimentation"
+      ],
+      "gaps": [
+        "Slower release cadence",
+        "Less advanced marketplace tooling"
+      ],
+      "signals": [
+        "Marketplace scale",
+        "High-velocity experimentation",
+        "Cloud-native digital operating model"
+      ]
+    }
+  ],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "Competitor signals indicate stronger operating cadence and fulfillment responsiveness than Northstar Retail Group's current baseline.",
+    "Benchmarking should be used to prioritize gap-closing investments, not to chase parity on every public metric."
+  ],
+  "fact_refs": [],
+  "evidence_refs": [
+    "Walmart:same_day_fulfillment_coverage",
+    "Walmart:store_enabled_digital_fulfillment",
+    "Target:loyalty_service_attach",
+    "Target:store_fulfillment_mix",
+    "Amazon:marketplace_scale_signal",
+    "Amazon:release_velocity_signal"
+  ],
+  "required_widgets": [
+    "competitor-cards"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "section_id": "sec10",
+  "title": "Delivery Center Architecture",
+  "phase": "Value Story",
+  "summary": "Northstar Retail Group's delivery model transitions from a predominantly onshore-led structure to a strategic global distribution of engineering scale and business-facing operations.",
+  "narrative": [
+    "The delivery architecture is designed as a deliberate operating model to balance high-velocity engineering throughput with the critical need for North American business alignment. By shifting the target delivery mix to 55% offshore by year 3, the program optimizes for labor arbitrage while maintaining onshore leadership for architecture and product ownership.",
+    "Engineering scale is concentrated in India, where Bengaluru and Hyderabad serve as the primary hubs for modernization, platform engineering, and data automation. This concentration allows for the industrialization of the 'build' phase of the modernization waves, ensuring that complex re-architecting of legacy POS and supply chain systems can scale without linear cost increases.",
+    "To mitigate the risks of timezone gaps and communication latency, a nearshore hub in Guadalajara, Mexico, is positioned as the primary interface for business-facing operations and L2 service stabilization. This ensures that critical store operations and digital commerce support remains synchronized with North American operating hours, preserving service stability during the transition from legacy to modernized platforms."
+  ],
+  "kpi_cards": [
+    {
+      "label": "Delivery Centers",
+      "value": "3",
+      "subtitle": "Primary delivery locations",
+      "fact_key": "delivery_center_count"
+    }
+  ],
+  "tables": [],
+  "cards": [],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [
+    {
+      "widget": "delivery-layout",
+      "title": "Bengaluru, India",
+      "subtitle": "Offshore",
+      "fte_share_pct": 45,
+      "primary_scope": "Engineering build and platform operations",
+      "governance_owner_role": "Transformation Director",
+      "wave_ownership": [
+        "Wave 2 modernization",
+        "platform engineering",
+        "core engineering build"
+      ]
+    },
+    {
+      "widget": "delivery-layout",
+      "title": "Hyderabad, India",
+      "subtitle": "Offshore",
+      "fte_share_pct": 20,
+      "primary_scope": "Data engineering, QA automation, and analytics enablement",
+      "governance_owner_role": "Data and Quality Lead",
+      "wave_ownership": [
+        "Data foundation wave",
+        "QA automation enablement"
+      ]
+    },
+    {
+      "widget": "delivery-layout",
+      "title": "Guadalajara, Mexico",
+      "subtitle": "Nearshore",
+      "fte_share_pct": 35,
+      "primary_scope": "Business-facing operations, support coordination, and nearshore product support",
+      "governance_owner_role": "Service Delivery Director",
+      "wave_ownership": [
+        "Wave 1 transition",
+        "business-facing product operations",
+        "L2 service stabilization"
+      ]
+    }
+  ],
+  "callouts": [
+    "Engineering scale is concentrated offshore by design to industrialize modernization throughput.",
+    "Nearshore capacity in Mexico absorbs business-facing coordination to maintain operational rhythm across North American timezones."
+  ],
+  "fact_refs": [
+    "delivery_center_staffing_mix_pct"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "delivery-layout"
+  ]
+}

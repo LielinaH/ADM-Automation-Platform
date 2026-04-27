@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"section_id\":\"sec12\",\"title\":\"Partnership Overview\",\"phase\":\"Close\",\"summary\":\"A structured operating model and governance framework designed to transition Northstar Retail Group from legacy maintenance to a high-velocity modernization engine.\",\"narrative\":[\"The partnership model translates the technical roadmap into an execution rhythm, ensuring that modernization waves are governed by a strict design authority to prevent architectural drift. By aligning delivery centers in Bengaluru, Hyderabad, and Guadalajara, the model optimizes for both 24/7 engineering velocity and North American business alignment.\",\"Governance is anchored by a weekly Transformation Design Authority and a monthly Architecture Review Board, providing the necessary oversight for complex dependencies across customer identity, pricing, and supply-chain rewrites. This cadence ensures that platform engineering capacity is managed as a shared resource, preventing parallel peak demand from stalling critical path items.\",\"The execution model is designed for a phased shift in labor distribution, moving from a high-onshore presence to a target 55% offshore mix by year 3. This transition is not merely a cost-saving measure but a strategic rebalancing that allows onshore leadership to focus on product ownership and architecture while the engineering factory scales in India.\"],\"kpi_cards\":[{\"label\":\"Delivery Centers\",\"value\":\"3\",\"subtitle\":\"Global operating footprint\",\"fact_key\":\"delivery_center_count\"}],\"tables\":[],\"cards\":[{\"widget\":\"partnership-overview\",\"title\":\"Governance Cadence\",\"detail\":\"Weekly Transformation Design Authority and monthly Architecture Review Board meetings to manage modernization waves.\"},{\"widget\":\"partnership-overview\",\"title\":\"Target Delivery Mix\",\"detail\":\"Strategic shift to 35% onshore, 10% nearshore, and 55% offshore by Year 3.\"}],\"chart\":null,\"matrix\":null,\"timeline\":[],\"delivery_cards\":[],\"callouts\":[\"Holiday code freeze applies from mid-November through early January for customer-facing platforms to ensure stability during peak retail season.\",\"Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.\",\"Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.\",\"Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites.\"],\"fact_refs\":[\"delivery_center_count\"],\"evidence_refs\":[],\"required_widgets\":[\"partnership-overview\"]}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 3947,
+    "candidatesTokenCount": 488,
+    "totalTokenCount": 4435,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3947
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "m3fvadzpMcu5vdIPody1uQo"
+}

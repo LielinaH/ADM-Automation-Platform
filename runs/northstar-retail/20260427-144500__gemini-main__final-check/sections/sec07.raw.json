@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": " {\n  \"section_id\": \"sec07\",\n  \"title\": \"Cloud & Data Strategy\",\n  \"phase\": \"Future State\",\n  \"summary\": \"A transition from fragmented, batch-oriented data silos to a domain-driven cloud architecture is required to enable real-time omnichannel fulfillment and personalized customer experiences.\",\n  \"narrative\": [\n    \"The current hosting posture is heavily weighted toward on-premises data centers, which creates significant friction for the digital commerce and loyalty domains. To meet the target of 65% cloud migration, the strategy must shift from simple infrastructure rehosting to a cloud-native approach for customer-facing services, reducing the dependency on legacy DC concentration.\",\n    \"Data strategy is currently hampered by fragmented ownership and a reliance on batch-oriented interfaces, evidenced by inventory sync latencies of 360 minutes. The future state requires a transition to real-time eventing via Kafka to eliminate stale availability signals and support same-day fulfillment targets.\",\n    \"Governance must evolve from a central data office with inconsistent enforcement to a strict data-product ownership model. By assigning clear accountability to VPs across domains like 'Inventory and Fulfillment' and 'Customer and Loyalty', the organization can resolve the 11% duplicate customer record rate and inconsistent SKU hierarchies.\",\n    \"The architectural narrative focuses on decoupling the core merchandising and supply chain engines from the engagement layer. This allows the digital commerce estate to accelerate release velocity toward the 7-day target without being throttled by the slower release cycles of the legacy on-premises core.\"\n  ],\n  \"kpi_cards\": [\n    {\n      \"label\": \"Cloud-Ready Apps\",\n      \"value\": \"12\",\n      \"subtitle\": \"Total applications in scope for cloud/data strategy\",\n      \"fact_key\": \"apps_in_scope\"\n    }\n  ],\n  \"tables\": [\n    {\n      \"title\": \"Data Domain Ownership Model\",\n      \"columns\": [\n        \"Domain\",\n        \"Owner Role\"\n      ],\n      \"rows\": [\n        \"[\\\"Customer and loyalty\\\", \\\"VP Loyalty and Personalization\\\"]\",\n        \"[\\\"Product and catalog\\\", \\\"VP Merchandising Platforms\\\"]\",\n        \"[\\\"Orders and returns\\\", \\\"VP Order Management\\\"]\",\n        \"[\\\"Pricing and promotions\\\", \\\"VP Pricing Strategy\\\"]\",\n        \"[\\\"Inventory and fulfillment\\\", \\\"VP Supply Chain Technology\\\"]\",\n        \"[\\\"Supplier and merchandising\\\", \\\"VP Merchandising Operations\\\"]\"\n      ]\n    }\n  ],\n  \"cards\": [\n    {\n      \"widget\": \"cloud-data-cards\",\n      \"title\": \"Current Hosting Mix\",\n      \"detail\": \"OnPremDC: 7, CloudRegion: 4, VendorSaaSHybrid: 1\"\n    },\n    {\n      \"widget\": \"cloud-data-cards\",\n      \"title\": \"Governance Posture\",\n      \"detail\": \"Central data office with federated stewardship; enforcement is currently inconsistent across commerce and supply-chain domains.\"\n    }\n  ],\n  \"chart\": null,\n  \"matrix\": null,\n  \"timeline\": [],\n  \"delivery_cards\": [],\n  \"callouts\": [\n    \"Cloud migration alone will not resolve the 360-minute inventory latency; a fundamental shift to event-driven architecture is mandatory.\",\n    \"The 11% duplicate customer record rate is a governance failure, not a platform limitation, requiring strict domain-led identity resolution.\"\n  ],\n  \"fact_refs\": [\n    \"hosting_environment_mix\",\n    \"apps_in_scope\"\n  ],\n  \"evidence_refs\": [\n    \"Customer and loyalty\",\n    \"Product and catalog\",\n    \"Orders and returns\",\n    \"Pricing and promotions\",\n    \"Inventory and fulfillment\",\n    \"Supplier and merchandising\"\n  ],\n  \"required_widgets\": [\n    \"cloud-data-cards\"\n  ]\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 4554,
+    "candidatesTokenCount": 869,
+    "totalTokenCount": 5423,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 4554
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "NnfvaZy9FeO_xN8PqamO0A0"
+}

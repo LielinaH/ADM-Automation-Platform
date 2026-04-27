@@ -1,0 +1,66 @@
+{
+  "section_id": "sec09",
+  "title": "Execution Roadmap",
+  "phase": "Value Story",
+  "summary": "A five-year phased execution sequence designed to transition Northstar Retail Group from legacy stability to an innovation-led operating model.",
+  "narrative": [
+    "The roadmap is structured to prioritize foundational stability and observability before scaling modernization. Year 1 focuses on stabilizing customer identity, pricing, and returns\u2014critical dependencies for the subsequent order and supply-chain rewrites. This sequencing ensures that the high-risk modernization waves in Years 2 and 3 are built upon a resilient, observable foundation.",
+    "Value realization follows a non-linear ramp, where initial investments in platform engineering and delivery-mix shifts are required to unlock higher-order business value. The transition to a 55% offshore delivery mix by Year 3 is a primary lever for reducing run-cost and creating the capacity needed for continuous modernization.",
+    "Execution is governed by strict operational constraints, including the mid-November to early January holiday code freeze for customer-facing platforms. The roadmap explicitly accounts for these windows to avoid peak-demand collisions across shared platform teams, ensuring that delivery velocity is maintained without compromising retail peak-season stability."
+  ],
+  "kpi_cards": [],
+  "tables": [],
+  "cards": [],
+  "chart": null,
+  "matrix": null,
+  "timeline": [
+    {
+      "year": "Year 1",
+      "phase": "Foundation",
+      "investment": "$31.35M",
+      "business_value": "$5.78M",
+      "milestone": "Stabilize identity, pricing, observability, and operating governance."
+    },
+    {
+      "year": "Year 2",
+      "phase": "Acceleration",
+      "investment": "$25.08M",
+      "business_value": "$17.78M",
+      "milestone": "Launch modernization factory waves and expand shared engineering platform services."
+    },
+    {
+      "year": "Year 3",
+      "phase": "Scale",
+      "investment": "$20.90M",
+      "business_value": "$32.79M",
+      "milestone": "Scale cloud migration, delivery-mix transition, and event-driven operating flows."
+    },
+    {
+      "year": "Year 4",
+      "phase": "Optimization",
+      "investment": "$16.72M",
+      "business_value": "$45.66M",
+      "milestone": "Consolidate legacy estates and industrialize ongoing optimization."
+    },
+    {
+      "year": "Year 5",
+      "phase": "Optimization",
+      "investment": "$10.45M",
+      "business_value": "$54.67M",
+      "milestone": "Lock in innovation-budget shift and mature the steady-state operating model."
+    }
+  ],
+  "delivery_cards": [],
+  "callouts": [
+    "Wave sequencing is constrained by the annual holiday code freeze, requiring precise alignment of release windows.",
+    "Value realization accelerates only after foundational identity and observability work is complete, creating a dependency-aware roadmap."
+  ],
+  "fact_refs": [
+    "investment_by_year_usd",
+    "yearly_business_value_usd"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "roadmap-timeline"
+  ]
+}

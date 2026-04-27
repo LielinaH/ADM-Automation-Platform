@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 import unittest
 
-from adm_pipeline.cli import _requires_live_smoke, _run_provider_smoke, _sort_available_models
+from adm_pipeline.cli import _auto_prune_client_runs, _requires_live_smoke, _run_provider_smoke, _sort_available_models
 from adm_pipeline.facts import build_section_inputs, compute_facts
 from adm_pipeline.providers import ProviderConfig
 from adm_pipeline.run_state import init_manifest, init_run_layout, load_manifest
@@ -68,6 +68,24 @@ class CliHelperTests(unittest.TestCase):
         finally:
             shutil.rmtree(run_dir, ignore_errors=True)
 
+    def test_auto_prune_client_runs_keeps_only_newest_two(self) -> None:
+        temp_root = ROOT / ".tmp-tests"
+        client_root = temp_root / "northstar-retail"
+        if client_root.exists():
+            shutil.rmtree(client_root, ignore_errors=True)
+        client_root.mkdir(parents=True)
+        try:
+            for name in ("run-a", "run-b", "run-c"):
+                run_dir = client_root / name
+                run_dir.mkdir()
+                (run_dir / "marker.txt").write_text(name, encoding="utf-8")
+            _auto_prune_client_runs(client_root / "run-c", "northstar-retail", keep=2)
+            remaining = sorted(path.name for path in client_root.iterdir() if path.is_dir())
+            self.assertEqual(len(remaining), 2)
+            self.assertEqual(remaining, ["run-b", "run-c"])
+        finally:
+            shutil.rmtree(client_root, ignore_errors=True)
+
     def test_normalize_section_payload_repairs_invalid_fact_refs(self) -> None:
         payload = read_json(ROOT / "inputs" / "clients" / "northstar-retail.json")
         facts = compute_facts(payload)
@@ -95,7 +113,7 @@ class CliHelperTests(unittest.TestCase):
         normalized = normalize_section_payload("sec01", broken, section_packet)
         report = validate_section_payload("sec01", normalized, section_packet)
         self.assertTrue(report.ok, report.errors)
-        self.assertEqual(normalized["kpi_cards"][0]["fact_key"], "transformation_investment_total_usd")
+        self.assertEqual(normalized["kpi_cards"][0]["fact_key"], "annual_adm_spend_usd")
         self.assertIn("roi_pct", normalized["fact_refs"])
 
     def test_normalize_section_payload_repairs_incomplete_chart(self) -> None:

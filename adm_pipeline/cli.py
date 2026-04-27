@@ -27,6 +27,7 @@ from adm_pipeline.validation import validate_client_payload
 
 LOCAL_ENV_PATH = Path(".adm.env")
 SMOKE_SECTION_ID = "sec01"
+AUTO_PRUNE_KEEP = 2
 
 GEMINI_MODEL_PRIORITY = {
     "gemma-4-31b-it": (0, "preferred: highest free-tier headroom"),
@@ -815,17 +816,20 @@ def cmd_calculate(args: argparse.Namespace) -> int:
     if report.errors:
         _print_validation_errors(report)
         return 1
-    _prepare_run(run_dir, args.input_path, payload, provider_config)
-    facts = compute_facts(payload)
-    section_inputs = build_section_inputs(payload, facts)
-    write_json(run_dir / "facts.json", facts)
-    for section_id, packet in section_inputs.items():
-        write_json(run_dir / "section_inputs" / f"{section_id}.json", packet)
-    manifest = load_manifest(run_dir)
-    manifest.setdefault("step_status", {})["calculate"] = "pass"
-    save_manifest(run_dir, manifest)
-    print(f"Calculated facts and section inputs in {run_dir}")
-    return 0
+    try:
+        _prepare_run(run_dir, args.input_path, payload, provider_config)
+        facts = compute_facts(payload)
+        section_inputs = build_section_inputs(payload, facts)
+        write_json(run_dir / "facts.json", facts)
+        for section_id, packet in section_inputs.items():
+            write_json(run_dir / "section_inputs" / f"{section_id}.json", packet)
+        manifest = load_manifest(run_dir)
+        manifest.setdefault("step_status", {})["calculate"] = "pass"
+        save_manifest(run_dir, manifest)
+        print(f"Calculated facts and section inputs in {run_dir}")
+        return 0
+    finally:
+        _auto_prune_client_runs(run_dir, payload["client_id"])
 
 
 def cmd_generate(args: argparse.Namespace) -> int:
@@ -853,19 +857,22 @@ def cmd_smoke(args: argparse.Namespace) -> int:
         return 1
     provider_config = _provider_config_from_args(args)
     run_dir = args.run_dir or _default_run_dir(args.input_path, provider_config=provider_config, label=args.label or "smoke")
-    _prepare_run(run_dir, args.input_path, payload, provider_config)
-    facts = _ensure_calculated(run_dir, payload)
-    section_inputs = _load_or_build_section_inputs(run_dir, payload, facts)
-    section_id = args.section_id
-    if section_id not in section_inputs:
-        print(f"Unknown section id: {section_id}", file=sys.stderr)
-        return 1
-    result = _run_provider_smoke(run_dir, section_inputs, provider_config, section_id=section_id, force=args.force)
-    print(f"Smoke test status: {result['status']}")
-    print(f"Run directory: {run_dir}")
-    if result.get("error"):
-        print(f"- {result['error']}")
-    return 0 if result["status"] == "pass" else 1
+    try:
+        _prepare_run(run_dir, args.input_path, payload, provider_config)
+        facts = _ensure_calculated(run_dir, payload)
+        section_inputs = _load_or_build_section_inputs(run_dir, payload, facts)
+        section_id = args.section_id
+        if section_id not in section_inputs:
+            print(f"Unknown section id: {section_id}", file=sys.stderr)
+            return 1
+        result = _run_provider_smoke(run_dir, section_inputs, provider_config, section_id=section_id, force=args.force)
+        print(f"Smoke test status: {result['status']}")
+        print(f"Run directory: {run_dir}")
+        if result.get("error"):
+            print(f"- {result['error']}")
+        return 0 if result["status"] == "pass" else 1
+    finally:
+        _auto_prune_client_runs(run_dir, payload["client_id"])
 
 
 def cmd_critique(args: argparse.Namespace) -> int:
@@ -907,32 +914,45 @@ def cmd_run(args: argparse.Namespace) -> int:
         return 1
     provider_config = _provider_config_from_args(args)
     run_dir = args.run_dir or _default_run_dir(args.input_path, provider_config=provider_config, label=args.label)
-    _prepare_run(run_dir, args.input_path, payload, provider_config)
-    facts = _ensure_calculated(run_dir, payload)
-    section_inputs = _load_or_build_section_inputs(run_dir, payload, facts)
-    if _requires_live_smoke(provider_config) and not args.skip_smoke:
-        smoke = _run_provider_smoke(run_dir, section_inputs, provider_config, section_id=SMOKE_SECTION_ID, force=args.force)
-        print(f"Smoke test ({SMOKE_SECTION_ID}): {smoke['status']}")
-        if smoke["status"] != "pass":
-            if smoke.get("error"):
-                print(f"- {smoke['error']}")
-            return 1
-    generate_sections(run_dir, section_inputs, provider_config, force=args.force)
-    critique = critique_sections(run_dir, facts, load_generated_sections(run_dir))
-    if critique.get("repair_candidates"):
-        run_repair_if_needed(run_dir, section_inputs, provider_config, critique)
+    try:
+        _prepare_run(run_dir, args.input_path, payload, provider_config)
+        facts = _ensure_calculated(run_dir, payload)
+        section_inputs = _load_or_build_section_inputs(run_dir, payload, facts)
+        if _requires_live_smoke(provider_config) and not args.skip_smoke:
+            smoke = _run_provider_smoke(run_dir, section_inputs, provider_config, section_id=SMOKE_SECTION_ID, force=args.force)
+            print(f"Smoke test ({SMOKE_SECTION_ID}): {smoke['status']}")
+            if smoke["status"] != "pass":
+                if smoke.get("error"):
+                    print(f"- {smoke['error']}")
+                return 1
+        generate_sections(run_dir, section_inputs, provider_config, force=args.force)
         critique = critique_sections(run_dir, facts, load_generated_sections(run_dir))
-    output = render_report(run_dir)
-    qa_report = qa_rendered_html(run_dir, html_path=output)
-    print(f"Run directory: {run_dir}")
-    print(f"Rendered HTML: {output}")
-    print(f"Critique: {critique['status']}")
-    print(f"HTML QA: {qa_report['status']}")
-    return 0 if critique["status"] != "fail" and qa_report["status"] == "pass" else 1
+        if critique.get("repair_candidates"):
+            run_repair_if_needed(run_dir, section_inputs, provider_config, critique)
+            critique = critique_sections(run_dir, facts, load_generated_sections(run_dir))
+        output = render_report(run_dir)
+        qa_report = qa_rendered_html(run_dir, html_path=output)
+        print(f"Run directory: {run_dir}")
+        print(f"Rendered HTML: {output}")
+        print(f"Critique: {critique['status']}")
+        print(f"HTML QA: {qa_report['status']}")
+        return 0 if critique["status"] != "fail" and qa_report["status"] == "pass" else 1
+    finally:
+        _auto_prune_client_runs(run_dir, payload["client_id"])
 
 
 def _requires_live_smoke(provider_config: ProviderConfig) -> bool:
     return provider_config.provider_kind != "mock"
+
+
+def _auto_prune_client_runs(run_dir: Path, client_id: str, *, keep: int = AUTO_PRUNE_KEEP) -> None:
+    client_root = run_dir.parent
+    if client_root.name != slugify(client_id):
+        return
+    report = prune_runs(client_root, keep=keep, dry_run=False)
+    deleted = report.get("deleted", [])
+    if deleted:
+        print(f"Auto-pruned {len(deleted)} older run(s) in {client_root}")
 
 
 def _run_provider_smoke(

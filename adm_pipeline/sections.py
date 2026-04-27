@@ -182,6 +182,7 @@ def validate_section_payload(section_id: str, payload: JsonObject, section_packe
 
 def normalize_section_payload(section_id: str, payload: JsonObject, section_packet: JsonObject | None = None) -> JsonObject:
     seed = build_mock_section(section_packet) if section_packet else _base_section({"section_id": section_id})
+    config = SECTION_CONFIG_BY_ID[section_id]
     normalized = dict(seed)
     normalized["summary"] = payload.get("summary") if isinstance(payload.get("summary"), str) and payload.get("summary").strip() else seed["summary"]
     normalized["narrative"] = _string_list_or_seed(payload.get("narrative"), seed["narrative"])
@@ -198,6 +199,13 @@ def normalize_section_payload(section_id: str, payload: JsonObject, section_pack
     normalized["matrix"] = _coerce_matrix(payload.get("matrix"), seed["matrix"])
     normalized["timeline"] = _coerce_timeline(payload.get("timeline"), seed["timeline"])
     normalized["delivery_cards"] = _coerce_delivery_cards(payload.get("delivery_cards"), seed["delivery_cards"])
+    normalized["narrative"] = _pad_string_items(normalized["narrative"], seed["narrative"], config.min_narrative_paragraphs)
+    normalized["callouts"] = _pad_string_items(normalized["callouts"], seed["callouts"], config.min_callouts)
+    normalized["kpi_cards"] = _pad_object_items(normalized["kpi_cards"], seed["kpi_cards"], config.min_kpi_cards)
+    normalized["tables"] = _pad_object_items(normalized["tables"], seed["tables"], config.min_tables)
+    normalized["cards"] = _pad_object_items(normalized["cards"], seed["cards"], config.min_cards)
+    normalized["timeline"] = _pad_object_items(normalized["timeline"], seed["timeline"], config.min_timeline_items)
+    normalized["delivery_cards"] = _pad_object_items(normalized["delivery_cards"], seed["delivery_cards"], config.min_delivery_cards)
     return normalized
 
 
@@ -207,6 +215,30 @@ def _string_list_or_seed(value: Any, seed: list[str]) -> list[str]:
         if filtered:
             return filtered
     return list(seed)
+
+
+def _pad_string_items(items: list[str], seed: list[str], minimum: int) -> list[str]:
+    if minimum <= 0 or len(items) >= minimum:
+        return items
+    padded = list(items)
+    for candidate in seed:
+        if candidate not in padded:
+            padded.append(candidate)
+        if len(padded) >= minimum:
+            break
+    return padded
+
+
+def _pad_object_items(items: list[JsonObject], seed: list[JsonObject], minimum: int) -> list[JsonObject]:
+    if minimum <= 0 or len(items) >= minimum:
+        return items
+    padded = list(items)
+    for candidate in seed:
+        if candidate not in padded:
+            padded.append(candidate)
+        if len(padded) >= minimum:
+            break
+    return padded
 
 
 def _coerce_collection(value: Any, seed: list[JsonObject], expected_type: type) -> list[JsonObject]:
@@ -401,21 +433,31 @@ def _section_executive_summary(packet: JsonObject) -> JsonObject:
     company = packet["client"]["company"]
     facts = packet["facts"]
     targets = packet["client"]["targets"]
+    company_name = company["name"]
     section["summary"] = (
-        f"{company['name']} can shift a {format_currency(facts['annual_adm_spend_usd'])} annual ADM estate "
+        f"{company_name} can shift a {format_currency(facts['annual_adm_spend_usd'])} annual ADM estate "
         f"from legacy sustainment toward faster digital execution and better operating leverage."
     )
     section["narrative"] = [
         (
-            f"The Northstar estate spans {facts['apps_in_scope']} business applications across "
+            f"The {company_name} estate spans {facts['apps_in_scope']} business applications across "
             f"{facts['business_units_in_scope']} business units, with an average age of {facts['average_app_age_years']} years."
+        ),
+        (
+            f"The current-state burden is anchored in a {format_currency(facts['annual_adm_spend_usd'])} annual ADM model "
+            "that still carries fragmented platforms across stores, commerce, loyalty, merchandising, and supply chain."
         ),
         (
             f"With a five-year transformation investment of {format_currency(facts['transformation_investment_total_usd'])}, "
             f"the modeled business value reaches {format_currency(facts['cumulative_business_value_usd'])} and a target ROI of {format_pct(facts['roi_pct'])}."
         ),
+        (
+            f"The executive challenge is not just cost takeout. {company_name} has to reduce run-cost drag while improving release velocity, "
+            "inventory responsiveness, and cross-channel customer consistency without disrupting peak retail periods."
+        ),
     ]
     section["kpi_cards"] = [
+        _kpi("Annual ADM Spend", facts["annual_adm_spend_usd"], "Current annual run baseline", "annual_adm_spend_usd"),
         _kpi("Total Program Investment", facts["transformation_investment_total_usd"], "5-Year transformation spend", "transformation_investment_total_usd"),
         _kpi("Cumulative Business Value", facts["cumulative_business_value_usd"], "All modeled value streams", "cumulative_business_value_usd"),
         _kpi("Target ROI", facts["roi_pct"], "Net value / investment", "roi_pct", formatter="pct"),
@@ -457,6 +499,20 @@ def _section_portfolio_analysis(packet: JsonObject) -> JsonObject:
             f"Total application run cost is {format_currency(facts['total_app_run_cost_usd'])}, representing "
             f"{round(facts['run_cost_to_adm_ratio'] * 100, 1)}% of annual ADM spend."
         ),
+        (
+            "Run-cost concentration is highest in Digital Commerce and Store Operations, which makes those domains disproportionately important "
+            "for both modernization sequencing and early value capture."
+        ),
+        (
+            "The estate is not excessively large by count, but it is operationally heavy because dependency density and aging core platforms "
+            "create friction across release flow, data latency, and incident recovery."
+        ),
+    ]
+    section["kpi_cards"] = [
+        _kpi("Apps in Scope", facts["apps_in_scope"], "Portfolio breadth", "apps_in_scope", formatter="count"),
+        _kpi("Average App Age", facts["average_app_age_years"], "Legacy profile", "average_app_age_years", formatter="years"),
+        _kpi("Dependency Density", facts["average_dependencies_per_app"], "Average dependencies per app", "average_dependencies_per_app", formatter="decimal"),
+        _kpi("Total Run Cost", facts["total_app_run_cost_usd"], "Annual application run cost", "total_app_run_cost_usd"),
     ]
     section["cards"] = bu_cards
     section["chart"] = {
@@ -474,15 +530,29 @@ def _section_portfolio_analysis(packet: JsonObject) -> JsonObject:
         "run_cost_to_adm_ratio",
         "app_count_by_business_unit",
     ]
+    section["callouts"] = [
+        "Digital Commerce and Store Operations dominate run-cost concentration.",
+        "Dependency density amplifies the release and operations burden beyond simple app count."
+    ]
     return section
 
 
 def _section_app_inventory(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     apps = packet["client"]["apps"]
+    facts = packet["facts"]
+    company_name = packet["client"]["company"]["name"]
     section["summary"] = "Complete inventory of in-scope applications with modernization signals."
     section["narrative"] = [
-        "The inventory preserves business ownership, hosting placement, disposition choice, and dependency metadata for downstream roadmap and delivery planning."
+        "The inventory preserves business ownership, hosting placement, disposition choice, and dependency metadata for downstream roadmap and delivery planning.",
+        "This is the control table for modernization sequencing because it ties each application to both business accountability and execution complexity.",
+        f"Used correctly, the inventory allows {company_name} to move beyond application counting toward explicit cost, dependency, and disposition-based action."
+    ]
+    section["kpi_cards"] = [
+        _kpi("Apps in Scope", facts["apps_in_scope"], "In-scope estate size", "apps_in_scope", formatter="count"),
+        _kpi("Business Units", facts["business_units_in_scope"], "Business ownership spread", "business_units_in_scope", formatter="count"),
+        _kpi("Total App Run Cost", facts["total_app_run_cost_usd"], "Annual application run cost", "total_app_run_cost_usd"),
+        _kpi("Avg Dependencies / App", facts["average_dependencies_per_app"], "Complexity indicator", "average_dependencies_per_app", formatter="decimal"),
     ]
     section["tables"] = [
         {
@@ -503,16 +573,25 @@ def _section_app_inventory(packet: JsonObject) -> JsonObject:
             ],
         }
     ]
-    section["fact_refs"] = ["apps_in_scope"]
+    section["fact_refs"] = ["apps_in_scope", "business_units_in_scope", "total_app_run_cost_usd", "average_dependencies_per_app"]
+    section["callouts"] = [
+        "Inventory should be treated as the operating baseline for wave planning.",
+        "Disposition and dependency context matter as much as raw application count."
+    ]
     return section
 
 
 def _section_competitive_benchmarking(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     competitors = packet["client"]["competitors"]
-    section["summary"] = "Public-signal comparison against Northstar's most relevant retail competitors."
+    company_name = packet["client"]["company"]["name"]
+    section["summary"] = f"Public-signal comparison against {company_name}'s most relevant competitors."
     section["narrative"] = [
         "This section keeps the comparison evidence-backed by tying every competitor card to explicit public signals and structured competitor metrics.",
+        f"The benchmarking goal is not to claim exact parity on every metric; it is to show where {company_name} is structurally behind and where modernization can create measurable competitive lift.",
+        f"Across the comparison set, the strongest patterns are faster operating cadence, stronger data responsiveness, and more mature fulfillment-orchestration capability than {company_name}'s current baseline."
+        ,
+        f"That makes the benchmark useful not as marketing theater, but as a disciplined view of which capabilities {company_name} must close first to improve both economics and customer experience."
     ]
     section["cards"] = [
         {
@@ -548,6 +627,10 @@ def _section_competitive_benchmarking(packet: JsonObject) -> JsonObject:
         for competitor in competitors
         for metric in competitor["competitor_metrics"]
     ]
+    section["callouts"] = [
+        f"Competitor signals indicate stronger operating cadence and fulfillment responsiveness than {company_name}'s current baseline.",
+        "Benchmarking should be used to prioritize gap-closing investments, not to chase parity on every public metric."
+    ]
     return section
 
 
@@ -555,10 +638,13 @@ def _section_ai_transformation(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     context = packet["client"]["narrative_context"]
     metrics = packet["client"]["current_state_metrics"]
+    company_name = packet["client"]["company"]["name"]
     section["summary"] = "AI transformation priorities mapped to current operational bottlenecks."
     section["narrative"] = [
-        "Northstar's AI agenda is anchored in execution bottlenecks that already exist in release flow, incident recovery, inventory latency, and customer identity quality.",
+        f"{company_name}'s AI agenda is anchored in execution bottlenecks that already exist in release flow, incident recovery, inventory latency, and customer identity quality.",
         "The transformation sequence prioritizes shared enablement first so later modernization waves inherit stronger observability, support automation, and data foundations.",
+        "That sequencing matters because isolated AI use cases would not survive contact with the current dependency and governance model without shared platform support.",
+        "The benchmark target is a repeatable operating system for engineering and operations, not a collection of disconnected copilots."
     ]
     section["cards"] = [
         {
@@ -568,6 +654,11 @@ def _section_ai_transformation(packet: JsonObject) -> JsonObject:
         }
         for index, priority in enumerate(context["strategic_priorities"])
     ]
+    section["callouts"] = [
+        "AI value is highest when paired with platform and observability enablement.",
+        "Identity, pricing, and service operations should be early AI priorities.",
+        "The goal is repeatable operating leverage, not one-off pilots."
+    ]
     section["evidence_refs"] = [metric["name"] for metric in metrics]
     return section
 
@@ -575,12 +666,22 @@ def _section_ai_transformation(packet: JsonObject) -> JsonObject:
 def _section_modernization_factory(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     apps = packet["client"]["apps"]
+    facts = packet["facts"]
+    company_name = packet["client"]["company"]["name"]
     grouped: dict[str, list[str]] = defaultdict(list)
     for app in apps:
         grouped[app["disposition"]].append(app["name"])
     section["summary"] = "Six-column modernization matrix and factory sequencing foundation."
     section["narrative"] = [
         "Dispositions are grouped into the benchmark's six required lanes so roadmap planning, financial savings, and delivery ownership stay aligned.",
+        "The factory construct turns modernization from an app-by-app debate into a repeatable operating model with explicit throughput and benefit logic.",
+        "The highest-value lanes are the ones that reduce structural run-cost while simplifying the downstream dependency web.",
+        f"{company_name}'s sequencing needs to front-load foundational lanes before the most entangled order and inventory domains move."
+    ]
+    section["kpi_cards"] = [
+        _kpi("Replatform Count", facts["disposition_counts"]["Replatform"], "Platforms slated for platform modernization", "disposition_counts", formatter="text"),
+        _kpi("Refactor Count", facts["disposition_counts"]["Refactor"], "Apps targeted for code modernization", "disposition_counts", formatter="text"),
+        _kpi("Rearchitect Count", facts["disposition_counts"]["Rearchitect"], "Core estate redesign candidates", "disposition_counts", formatter="text"),
     ]
     section["matrix"] = {
         "widget": "modernization-matrix",
@@ -588,6 +689,11 @@ def _section_modernization_factory(packet: JsonObject) -> JsonObject:
         "items": grouped,
     }
     section["fact_refs"] = ["disposition_counts"]
+    section["callouts"] = [
+        "Six disposition lanes provide the operating grammar for the modernization factory.",
+        "Higher-complexity lanes should be sequenced only after foundational controls and data patterns are stable.",
+        "Disposition mix is directly tied to both savings capture and delivery risk."
+    ]
     return section
 
 
@@ -595,10 +701,16 @@ def _section_cloud_data(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     data_estate = packet["client"]["data_estate"]
     facts = packet["facts"]
+    company_name = packet["client"]["company"]["name"]
     section["summary"] = "Cloud hosting direction and data-governance posture required to support omnichannel modernization."
     section["narrative"] = [
         "The cloud strategy has to balance legacy on-prem DC concentration with selective cloud-native acceleration in the customer-facing estate.",
         "The data strategy is constrained less by platform absence than by ownership fragmentation and stale batch interfaces.",
+        "That means the target state is not merely a hosting migration. It is an operating-model change for data ownership, event timeliness, and control discipline.",
+        f"{company_name}'s benchmark gap is most visible where inventory, order, and customer data still move in delayed, duplicated patterns across channels."
+    ]
+    section["kpi_cards"] = [
+        _kpi("Apps in Scope", facts["apps_in_scope"], "Applications informing cloud and data strategy", "apps_in_scope", formatter="count"),
     ]
     section["cards"] = [
         {
@@ -621,17 +733,23 @@ def _section_cloud_data(packet: JsonObject) -> JsonObject:
     ]
     section["fact_refs"] = ["hosting_environment_mix"]
     section["evidence_refs"] = [owner["domain"] for owner in data_estate["domain_owners"]]
+    section["callouts"] = [
+        "Cloud migration alone will not close the benchmark gap without tighter data ownership.",
+        "Data latency and governance fragmentation are the more material operating constraints."
+    ]
     return section
 
 
 def _section_financials(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     facts = packet["facts"]
-    client = packet["client"]
+    company_name = packet["client"]["company"]["name"]
     section["summary"] = "Code-computed financial profile for the five-year transformation."
     section["narrative"] = [
         "All values in this section are generated by the facts engine, not by the language model.",
         "The benchmark narrative centers on investment, value creation, and return, so the charts and KPI cards use the same computed inputs as the critique and QA passes.",
+        f"The business case is front-loaded on investment because {company_name} needs to establish shared modernization foundations before the largest value pools can be harvested.",
+        "Financial credibility depends on showing not only the headline ROI, but also how workforce, legacy, productivity, and resilience streams combine over time."
     ]
     section["kpi_cards"] = [
         _kpi("5-Year TCV", facts["tcv_5y_usd"], "Annual ADM spend x 5 years", "tcv_5y_usd"),
@@ -669,6 +787,11 @@ def _section_financials(packet: JsonObject) -> JsonObject:
         "investment_by_year_usd",
         "yearly_business_value_usd",
     ]
+    section["callouts"] = [
+        "Investment is front-loaded to unlock later value capture.",
+        "Legacy and workforce savings are the largest value pools in the modeled case.",
+        "The ROI case depends on disciplined execution of the target delivery mix."
+    ]
     return section
 
 
@@ -678,6 +801,8 @@ def _section_execution_roadmap(packet: JsonObject) -> JsonObject:
     section["summary"] = "Year-by-year execution sequencing aligned to value realization."
     section["narrative"] = [
         "The roadmap uses the benchmark's year-based structure and links each wave to investment phasing, platform dependencies, and target-state readiness assumptions.",
+        "Each year has to earn the next by converting enablement work into delivery capacity and measurable business value.",
+        "The roadmap is therefore both a sequencing instrument and a control mechanism for avoiding peak-demand collisions across shared platform teams."
     ]
     year_labels = [
         "Foundation",
@@ -705,15 +830,25 @@ def _section_execution_roadmap(packet: JsonObject) -> JsonObject:
         )
     ]
     section["fact_refs"] = ["investment_by_year_usd", "yearly_business_value_usd"]
+    section["callouts"] = [
+        "Wave sequencing is constrained by holiday freeze windows and shared platform-team capacity.",
+        "Value realization accelerates only after foundational work is complete."
+    ]
     return section
 
 
 def _section_delivery_centers(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     centers = packet["client"]["delivery_centers"]
+    facts = packet["facts"]
     section["summary"] = "Delivery-center architecture and staffing mix for the transformation program."
     section["narrative"] = [
-        "The delivery layout is intentionally weighted toward offshore engineering scale while preserving nearshore and leadership coverage where business-facing collaboration matters most."
+        "The delivery layout is intentionally weighted toward offshore engineering scale while preserving nearshore and leadership coverage where business-facing collaboration matters most.",
+        "This is a deliberate operating model, not just a labor-arbitrage move: engineering scale, business-facing overlap, and governance ownership are distributed by work type.",
+        "The staffing mix has to support both modernization throughput and stable business interaction across North American operating hours."
+    ]
+    section["kpi_cards"] = [
+        _kpi("Delivery Centers", facts["delivery_center_count"], "Primary delivery locations", "delivery_center_count", formatter="count"),
     ]
     section["delivery_cards"] = [
         {
@@ -728,6 +863,10 @@ def _section_delivery_centers(packet: JsonObject) -> JsonObject:
         for center in centers
     ]
     section["fact_refs"] = ["delivery_center_staffing_mix_pct"]
+    section["callouts"] = [
+        "Engineering scale is concentrated offshore by design.",
+        "Nearshore capacity absorbs business-facing coordination and service rhythm."
+    ]
     return section
 
 
@@ -735,9 +874,12 @@ def _section_benchmarking_summary(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     facts = packet["facts"]
     targets = packet["client"]["targets"]
-    section["summary"] = "Synthesis of Northstar's competitive position and modeled post-transformation improvement."
+    company_name = packet["client"]["company"]["name"]
+    section["summary"] = f"Synthesis of {company_name}'s competitive position and modeled post-transformation improvement."
     section["narrative"] = [
         "The summary consolidates competitive signals, transformation targets, and the financial thesis into a concise benchmark-informed position for executive review.",
+        f"{company_name}'s opportunity is not simply to modernize applications, but to close structural operating gaps that show up in release speed, fulfillment responsiveness, and customer consistency.",
+        f"If the target state is executed with discipline, the modeled value case is large enough to justify the transformation while repositioning {company_name} closer to the stronger performers in the comparison set."
     ]
     section["cards"] = [
         {
@@ -761,16 +903,26 @@ def _section_benchmarking_summary(packet: JsonObject) -> JsonObject:
     ]
     section["fact_refs"] = ["roi_pct", "cumulative_business_value_usd"]
     section["evidence_refs"] = ["benchmark-summary-synthesis"]
+    section["callouts"] = [
+        "Modernization closes both cost and capability gaps.",
+        "The modeled ROI case is meaningful only if benchmark gaps are converted into operating-model change."
+    ]
     return section
 
 
 def _section_partnership_overview(packet: JsonObject) -> JsonObject:
     section = _base_section(packet)
     client = packet["client"]
+    facts = packet["facts"]
+    company_name = client["company"]["name"]
     section["summary"] = "Operating model, governance cadence, and partnership structure for sustained delivery."
     section["narrative"] = [
         "The partnership model closes the ADM by translating the delivery architecture and roadmap into explicit governance, staffing, and execution rhythms.",
-        "Northstar's execution assumptions imply a weekly design authority cadence and a monthly architecture review rhythm during active modernization waves.",
+        f"{company_name}'s execution assumptions imply a weekly design authority cadence and a monthly architecture review rhythm during active modernization waves.",
+        "That cadence matters because the transformation spans multiple business domains, delivery geographies, and sequencing dependencies that cannot be managed with ad hoc governance.",
+    ]
+    section["kpi_cards"] = [
+        _kpi("Delivery Centers", facts["delivery_center_count"], "Operating delivery footprint", "delivery_center_count", formatter="count"),
     ]
     section["cards"] = [
         {
@@ -792,6 +944,14 @@ def _section_partnership_overview(packet: JsonObject) -> JsonObject:
 def _kpi(label: str, value: float, subtitle: str, fact_key: str, formatter: str = "currency") -> JsonObject:
     if formatter == "pct":
         rendered = format_pct(value)
+    elif formatter == "count":
+        rendered = str(int(value))
+    elif formatter == "years":
+        rendered = f"{float(value):.1f} Years"
+    elif formatter == "decimal":
+        rendered = f"{float(value):.2f}"
+    elif formatter == "text":
+        rendered = str(value)
     else:
         rendered = format_currency(value)
     return {"label": label, "value": rendered, "subtitle": subtitle, "fact_key": fact_key}

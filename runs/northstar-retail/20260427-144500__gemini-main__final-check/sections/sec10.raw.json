@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"section_id\": \"sec10\",\n  \"title\": \"Delivery Center Architecture\",\n  \"phase\": \"Value Story\",\n  \"summary\": \"Northstar Retail Group's delivery model transitions from a predominantly onshore-led structure to a strategic global distribution of engineering scale and business-facing operations.\",\n  \"narrative\": [\n    \"The delivery architecture is designed as a deliberate operating model to balance high-velocity engineering throughput with the critical need for North American business alignment. By shifting the target delivery mix to 55% offshore by year 3, the program optimizes for labor arbitrage while maintaining onshore leadership for architecture and product ownership.\",\n    \"Engineering scale is concentrated in India, where Bengaluru and Hyderabad serve as the primary hubs for modernization, platform engineering, and data automation. This concentration allows for the industrialization of the 'build' phase of the modernization waves, ensuring that complex re-architecting of legacy POS and supply chain systems can scale without linear cost increases.\",\n    \"To mitigate the risks of timezone gaps and communication latency, a nearshore hub in Guadalajara, Mexico, is positioned as the primary interface for business-facing operations and L2 service stabilization. This ensures that critical store operations and digital commerce support remains synchronized with North American operating hours, preserving service stability during the transition from legacy to modernized platforms.\"\n  ],\n  \"kpi_cards\": [\n    {\n      \"label\": \"Delivery Centers\",\n      \"value\": \"3\",\n      \"subtitle\": \"Primary delivery locations\",\n      \"fact_key\": \"delivery_center_count\"\n    }\n  ],\n  \"tables\": [],\n  \"cards\": [],\n  \"chart\": null,\n  \"matrix\": null,\n  \"timeline\": [],\n  \"delivery_cards\": [\n    {\n      \"widget\": \"delivery-layout\",\n      \"title\": \"Bengaluru, India\",\n      \"subtitle\": \"Offshore\",\n      \"fte_share_pct\": 45,\n      \"primary_scope\": \"Engineering build and platform operations\",\n      \"governance_owner_role\": \"Transformation Director\",\n      \"wave_ownership\": [\n        \"Wave 2 modernization\",\n        \"platform engineering\",\n        \"core engineering build\"\n      ]\n    },\n    {\n      \"widget\": \"delivery-layout\",\n      \"title\": \"Hyderabad, India\",\n      \"subtitle\": \"Offshore\",\n      \"fte_share_pct\": 20,\n      \"primary_scope\": \"Data engineering, QA automation, and analytics enablement\",\n      \"governance_owner_role\": \"Data and Quality Lead\",\n      \"wave_ownership\": [\n        \"Data foundation wave\",\n        \"QA automation enablement\"\n      ]\n    },\n    {\n      \"widget\": \"delivery-layout\",\n      \"title\": \"Guadalajara, Mexico\",\n      \"subtitle\": \"Nearshore\",\n      \"fte_share_pct\": 35,\n      \"primary_scope\": \"Business-facing operations, support coordination, and nearshore product support\",\n      \"governance_owner_role\": \"Service Delivery Director\",\n      \"wave_ownership\": [\n        \"Wave 1 transition\",\n        \"business-facing product operations\",\n        \"L2 service stabilization\"\n      ]\n    }\n  ],\n  \"callouts\": [\n    \"Engineering scale is concentrated offshore by design to industrialize modernization throughput.\",\n    \"Nearshore capacity in Mexico absorbs business-facing coordination to maintain operational rhythm across North American timezones.\"\n  ],\n  \"fact_refs\": [\n    \"delivery_center_staffing_mix_pct\"\n  ],\n  \"evidence_refs\": [],\n  \"required_widgets\": [\n    \"delivery-layout\"\n  ]\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 4267,
+    "candidatesTokenCount": 822,
+    "totalTokenCount": 5089,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 4267
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "eXfvafq-H42exN8Po4eQ6As"
+}

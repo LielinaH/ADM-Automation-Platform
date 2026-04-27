@@ -1,0 +1,118 @@
+{
+  "section_id": "sec08",
+  "title": "Financials",
+  "phase": "Value Story",
+  "summary": "The five-year transformation delivers a net value of $52.19M with a 49.94% ROI, driven by aggressive legacy cost reduction and workforce optimization.",
+  "narrative": [
+    "The financial model for Northstar Retail Group is structured as a front-loaded investment strategy to resolve systemic technical debt. By allocating 30% of the total transformation investment in Year 1, the program establishes the platform engineering and observability foundations required to accelerate later value capture.",
+    "The primary value drivers are legacy cost reduction and workforce savings, which together contribute the vast majority of the cumulative business value. This is achieved through a strategic shift in the delivery mix, moving from 70% onshore to a target state of 35% onshore and 55% offshore by Year 3, leveraging the Bengaluru and Hyderabad hubs.",
+    "Productivity gains from AI-assisted delivery and automation are modeled as a secondary but critical value stream. With a 20% productivity uplift and a 55% capture rate, the program converts engineering efficiency into tangible capacity creation, reducing the need for additional headcount as the application estate is modernized.",
+    "The resilience value stream accounts for a smaller portion of the total value, but it represents the risk mitigation value of reducing P1 incidents and MTTR. This ensures that the stability of the stability of the omnichannel omnichannel retail operations is maintained during the transition from legacy POS and order platforms to a modern architecture."
+  ],
+  "kpi_cards": [
+    {
+      "label": "5-Year TCV",
+      "value": "$475.00M",
+      "subtitle": "Total contract value over 5 years",
+      "fact_key": "tcv_5y_usd"
+    },
+    {
+      "label": "Transformation Investment",
+      "value": "$104.50M",
+      "subtitle": "Total modernization investment",
+      "fact_key": "transformation_investment_total_usd"
+    },
+    {
+      "label": "Net Value Created",
+      "value": "$52.19M",
+      "subtitle": "Business value less investment",
+      "fact_key": "net_value_created_usd"
+    },
+    {
+      "label": "Target ROI",
+      "value": "49.94%",
+      "subtitle": "Net value / investment",
+      "fact_key": "roi_pct"
+    }
+  ],
+  "tables": [
+    {
+      "title": "Value Stream Mix",
+      "columns": [
+        "Value Stream",
+        "5-Year Value"
+      ],
+      "rows": [
+        [
+          "Workforce savings",
+          "$50.45M"
+        ],
+        [
+          "Legacy cost reduction",
+          "$75.30M"
+        ],
+        [
+          "Productivity value",
+          "$19.73M"
+        ],
+        [
+          "Resilience value",
+          "$11.21M"
+        ]
+      ]
+    }
+  ],
+  "cards": [],
+  "chart": {
+    "widget": "financial-chart",
+    "title": "5-Year Investment vs Value",
+    "series": [
+      {
+        "label": "Year 1",
+        "investment": 31350000.0,
+        "value": 5780760.0
+      },
+      {
+        "label": "Year 2",
+        "investment": 25080000.0,
+        "value": 17781900.0
+      },
+      {
+        "label": "Year 3",
+        "investment": 20900000.0,
+        "value": 32787660.0
+      },
+      {
+        "label": "Year 4",
+        "investment": 16720000.0,
+        "value": 45661140.0
+      },
+      {
+        "label": "Year 5",
+        "investment": 10450000.0,
+        "value": 54675000.0
+      }
+    ]
+  },
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "Investment is front-loaded to unlock later value capture.",
+    "Legacy and workforce savings are the largest value pools in the modeled case.",
+    "The ROI case depends on disciplined execution of the target delivery mix."
+  ],
+  "fact_refs": [
+    "tcv_5y_usd",
+    "transformation_investment_total_usd",
+    "net_value_created_usd",
+    "roi_pct",
+    "investment_by_year_usd",
+    "yearly_business_value_usd"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "financial-kpis",
+    "financial-chart"
+  ]
+}

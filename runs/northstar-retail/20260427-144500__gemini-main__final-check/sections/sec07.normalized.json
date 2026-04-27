@@ -1,0 +1,90 @@
+{
+  "section_id": "sec07",
+  "title": "Cloud & Data Strategy",
+  "phase": "Future State",
+  "summary": "A transition from fragmented, batch-oriented data silos to a domain-driven cloud architecture is required to enable real-time omnichannel fulfillment and personalized customer experiences.",
+  "narrative": [
+    "The current hosting posture is heavily weighted toward on-premises data centers, which creates significant friction for the digital commerce and loyalty domains. To meet the target of 65% cloud migration, the strategy must shift from simple infrastructure rehosting to a cloud-native approach for customer-facing services, reducing the dependency on legacy DC concentration.",
+    "Data strategy is currently hampered by fragmented ownership and a reliance on batch-oriented interfaces, evidenced by inventory sync latencies of 360 minutes. The future state requires a transition to real-time eventing via Kafka to eliminate stale availability signals and support same-day fulfillment targets.",
+    "Governance must evolve from a central data office with inconsistent enforcement to a strict data-product ownership model. By assigning clear accountability to VPs across domains like 'Inventory and Fulfillment' and 'Customer and Loyalty', the organization can resolve the 11% duplicate customer record rate and inconsistent SKU hierarchies.",
+    "The architectural narrative focuses on decoupling the core merchandising and supply chain engines from the engagement layer. This allows the digital commerce estate to accelerate release velocity toward the 7-day target without being throttled by the slower release cycles of the legacy on-premises core."
+  ],
+  "kpi_cards": [
+    {
+      "label": "Cloud-Ready Apps",
+      "value": "12",
+      "subtitle": "Total applications in scope for cloud/data strategy",
+      "fact_key": "apps_in_scope"
+    }
+  ],
+  "tables": [
+    {
+      "title": "Domain Ownership",
+      "columns": [
+        "Domain",
+        "Owner Role"
+      ],
+      "rows": [
+        [
+          "Customer and loyalty",
+          "VP Loyalty and Personalization"
+        ],
+        [
+          "Product and catalog",
+          "VP Merchandising Platforms"
+        ],
+        [
+          "Orders and returns",
+          "VP Order Management"
+        ],
+        [
+          "Pricing and promotions",
+          "VP Pricing Strategy"
+        ],
+        [
+          "Inventory and fulfillment",
+          "VP Supply Chain Technology"
+        ],
+        [
+          "Supplier and merchandising",
+          "VP Merchandising Operations"
+        ]
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "widget": "cloud-data-cards",
+      "title": "Current Hosting Mix",
+      "detail": "OnPremDC: 7, CloudRegion: 4, VendorSaaSHybrid: 1"
+    },
+    {
+      "widget": "cloud-data-cards",
+      "title": "Governance Posture",
+      "detail": "Central data office with federated stewardship; enforcement is currently inconsistent across commerce and supply-chain domains."
+    }
+  ],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "Cloud migration alone will not resolve the 360-minute inventory latency; a fundamental shift to event-driven architecture is mandatory.",
+    "The 11% duplicate customer record rate is a governance failure, not a platform limitation, requiring strict domain-led identity resolution."
+  ],
+  "fact_refs": [
+    "hosting_environment_mix",
+    "apps_in_scope"
+  ],
+  "evidence_refs": [
+    "Customer and loyalty",
+    "Product and catalog",
+    "Orders and returns",
+    "Pricing and promotions",
+    "Inventory and fulfillment",
+    "Supplier and merchandising"
+  ],
+  "required_widgets": [
+    "cloud-data-cards"
+  ]
+}

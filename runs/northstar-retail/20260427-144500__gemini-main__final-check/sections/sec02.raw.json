@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"section_id\":\"sec02\",\"title\":\"Portfolio Analysis\",\"phase\":\"Diagnose\",\"summary\":\"The portfolio is characterized by high run-cost concentration in Digital Commerce and Store Operations, coupled with significant legacy debt across 12 core applications.\",\"narrative\":[\"The portfolio comprises 12 applications across 5 business units, with a total annual run cost of $76.40M, which represents 80.4% of the total annual ADM spend. This high ratio indicates a portfolio heavily weighted toward maintenance of existing assets rather than new capability development.\",\"Dependency density is a critical friction point, with 28 total dependency edges averaging 2.33 dependencies per application. This interconnectedness, combined with an average application age of 11 years, suggests that modernization efforts will face significant regression risk and complex orchestration across the estate.\",\"Run-cost concentration is most acute in Digital Commerce ($21.20M) and Store Operations ($17.40M), identifying these as the primary drivers of operational expense. These domains are disproportionately important for both immediate cost takeout and the realization of strategic priorities like improving digital conversion and POS incident MTTR.\",\"The hosting environment mix\u2014consisting of 7 on-premises data center assets, 4 cloud regions and 1 hybrid SaaS\u2014reveals a fragmented infrastructure layer. This fragmentation amplifies the the operational burden of the aging estate, further slowing release velocity and increasing the risk of incident recovery in a highly interdependent environment.\"],\"kpi_cards\":[{\"label\":\"Apps in Scope\",\"value\":\"12\",\"subtitle\":\"Portfolio breadth\",\"fact_key\":\"apps_in_scope\"},{\"label\":\"Average App Age\",\"value\":\"11.0 Years\",\"subtitle\":\"Legacy profile\",\"fact_key\":\"average_app_age_years\"},{\"label\":\"Dependency Density\",\"value\":\"2.33\",\"subtitle\":\"Average dependencies per app\",\"fact_key\":\"average_dependencies_per_app\"},{\"label\":\"Total Run Cost\",\"value\":\"$76.40M\",\"subtitle\":\"Annual application run cost\",\"fact_key\":\"total_app_run_cost_usd\"}],\"tables\":[],\"cards\":[{\"title\":\"Digital Commerce\",\"metric\":\"3 apps\",\"detail\":\"$21.20M run cost\"}, {\"title\":\"Store Operations\",\"metric\":\"2 apps\",\"detail\":\"$17.40M run cost\"}, {\"title\":\"Customer & Loyalty\",\"metric\":\"3 apps\",\"detail\":\"$15.20M run cost\"}, {\"title\":\"Supply Chain\",\"metric\":\"2 apps\",\"detail\":\"$12.50M run cost\"}, {\"title\":\"Merchandising\",\"metric\":\"2 apps\",\"detail\":\"$10.10M run cost\"}],\"chart\":{\n  },\"matrix\":null,\"timeline\":[],\"delivery_cards\":[],\"callouts\":[\"Digital Commerce and Store Operations dominate run-cost concentration, making them the highest-leverage points for cost reduction.\",\"Dependency density and an 11-year average app age amplify the operational burden and release friction beyond simple application count.\"],\"fact_refs\":[\"apps_in_scope\",\"average_app_age_years\",\"average_dependencies_per_app\",\"total_app_run_cost_usd\",\"run_cost_by_business_unit_usd\",\"app_count_by_business_unit\"],\"evidence_refs\":[],\"required_widgets\":[\"portfolio-chart\",\"portfolio-cards\"]}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 4317,
+    "candidatesTokenCount": 707,
+    "totalTokenCount": 5024,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 4317
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "m3bvaf6KJcOZkdUP9aXiyA4"
+}

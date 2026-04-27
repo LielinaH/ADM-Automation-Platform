@@ -1,0 +1,650 @@
+{
+  "section_id": "sec10",
+  "packet": {
+    "section_id": "sec10",
+    "section_title": "Delivery Center Architecture",
+    "phase": "Value Story",
+    "versions": {
+      "schema_version": "2.0",
+      "prompt_set_version": "adm-benchmark-v3",
+      "benchmark_style_version": "cisco-html-v2",
+      "section_schema_version": "section-content-v1"
+    },
+    "client": {
+      "company": {
+        "name": "Northstar Retail Group",
+        "industry": "Retail",
+        "subsector": "Omnichannel general merchandise and grocery",
+        "headquarters": "Chicago, Illinois, USA",
+        "operating_regions": [
+          "United States",
+          "Canada",
+          "United Kingdom"
+        ],
+        "employees": 42000,
+        "annual_revenue_usd": 12800000000,
+        "summary": "Omnichannel retailer with stores, ecommerce, loyalty, merchandising, and supply-chain operations."
+      },
+      "narrative_context": {
+        "strategic_priorities": [
+          "Reduce legacy ADM run-cost and rebalance spend toward innovation",
+          "Create a real-time inventory and fulfillment decision layer",
+          "Improve digital conversion, loyalty personalization, and release velocity",
+          "Industrialize support with AI-assisted operations and observability"
+        ],
+        "pain_points": [
+          "Fragmented application estate across stores, ecommerce, merchandising, and supply chain",
+          "High dependency on aging POS, order, and merchandising platforms",
+          "Slow release cycles and duplicated data pipelines",
+          "Inconsistent customer identity, offer, and returns experiences across channels"
+        ],
+        "regulatory_context": [
+          "PCI DSS",
+          "CCPA/CPRA",
+          "GDPR for UK/EU customer data"
+        ],
+        "operating_model_notes": [
+          "Stores and digital channels share inventory and fulfillment responsibilities",
+          "The client wants margin improvement without slowing innovation"
+        ],
+        "current_state_metrics": [
+          {
+            "name": "Customer-facing release cadence",
+            "baseline_value": 30,
+            "baseline_unit": "days_between_releases",
+            "target_value": 7,
+            "target_unit": "days_between_releases",
+            "scope": "Digital Commerce",
+            "evidence_type": "internal_assessment",
+            "evidence_note": "Modeled from current-state release governance review and platform dependency mapping.",
+            "confidence": "Medium"
+          },
+          {
+            "name": "P1 incident MTTR",
+            "baseline_value": 6.5,
+            "baseline_unit": "hours",
+            "target_value": 1.5,
+            "target_unit": "hours",
+            "scope": "Store Operations and Commerce",
+            "evidence_type": "internal_assessment",
+            "evidence_note": "Modeled from current-state support operations review and major incident patterns.",
+            "confidence": "Medium"
+          },
+          {
+            "name": "Inventory sync latency",
+            "baseline_value": 360,
+            "baseline_unit": "minutes",
+            "target_value": 15,
+            "target_unit": "minutes",
+            "scope": "Supply Chain and Commerce",
+            "evidence_type": "internal_assessment",
+            "evidence_note": "Modeled from batch interface timing across inventory, order, and fulfillment workflows.",
+            "confidence": "Medium"
+          },
+          {
+            "name": "Duplicate customer record rate",
+            "baseline_value": 11,
+            "baseline_unit": "pct",
+            "target_value": 3,
+            "target_unit": "pct",
+            "scope": "Customer and loyalty",
+            "evidence_type": "internal_assessment",
+            "evidence_note": "Modeled from identity-resolution issues across loyalty, ecommerce, and service systems.",
+            "confidence": "Medium"
+          }
+        ],
+        "execution_assumptions": [
+          "Holiday code freeze applies from mid-November through early January for customer-facing platforms.",
+          "Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.",
+          "Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.",
+          "Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites.",
+          "Platform engineering capacity is shared across commerce, loyalty, and supply-chain programs, so sequencing must avoid parallel peak demand."
+        ]
+      },
+      "targets": {
+        "cloud_migration_pct": 65,
+        "legacy_cost_reduction_pct": 28,
+        "release_frequency_improvement_pct": 45,
+        "change_failure_rate_reduction_pct": 25,
+        "innovation_budget_shift_pct": 20
+      },
+      "financial_assumptions": {
+        "contract_years": 5,
+        "transformation_investment_pct_of_tcv": 22,
+        "investment_curve_pct": [
+          30,
+          24,
+          20,
+          16,
+          10
+        ],
+        "labor_share_pct_of_adm": 64,
+        "current_delivery_mix_pct": {
+          "onshore": 70,
+          "nearshore": 10,
+          "offshore": 20
+        },
+        "target_delivery_mix_pct": {
+          "onshore": 35,
+          "nearshore": 10,
+          "offshore": 55
+        },
+        "rate_card_usd_per_hour": {
+          "onshore": 95,
+          "nearshore": 55,
+          "offshore": 32
+        },
+        "automation_productivity_uplift_pct": 20,
+        "productivity_value_capture_pct": 55,
+        "resilience_value_pct_of_adm": 4,
+        "legacy_savings_rate_by_disposition_pct": {
+          "Retire": 100,
+          "Retain": 3,
+          "Rehost": 15,
+          "Replatform": 25,
+          "Refactor": 32,
+          "Rearchitect": 40
+        },
+        "benefit_ramp_curves_pct": {
+          "workforce": [
+            15,
+            35,
+            60,
+            85,
+            100
+          ],
+          "legacy": [
+            8,
+            30,
+            58,
+            82,
+            100
+          ],
+          "productivity": [
+            10,
+            35,
+            65,
+            85,
+            100
+          ],
+          "resilience": [
+            10,
+            35,
+            65,
+            85,
+            100
+          ]
+        },
+        "assumption_provenance": [
+          {
+            "assumption_name": "transformation_investment_pct_of_tcv",
+            "value": 22,
+            "assumption_basis": "Modeled transformation investment envelope for a five-year modernization partnership.",
+            "confidence": "Medium",
+            "owner_function": "strategy"
+          },
+          {
+            "assumption_name": "target_delivery_mix_pct.onshore",
+            "value": 35,
+            "assumption_basis": "Target-state product, architecture, and governance roles remain onshore-led.",
+            "confidence": "Medium",
+            "owner_function": "delivery_strategy"
+          },
+          {
+            "assumption_name": "target_delivery_mix_pct.nearshore",
+            "value": 10,
+            "assumption_basis": "North America timezone coverage is reserved for business analysis and product operations roles.",
+            "confidence": "Medium",
+            "owner_function": "delivery_strategy"
+          },
+          {
+            "assumption_name": "target_delivery_mix_pct.offshore",
+            "value": 55,
+            "assumption_basis": "Year-3 target state assumes engineering factory and shared platform services scale offshore.",
+            "confidence": "Medium",
+            "owner_function": "delivery_strategy"
+          },
+          {
+            "assumption_name": "automation_productivity_uplift_pct",
+            "value": 20,
+            "assumption_basis": "Modeled engineering and support productivity uplift from AI-assisted delivery and automation.",
+            "confidence": "Medium",
+            "owner_function": "strategy"
+          },
+          {
+            "assumption_name": "productivity_value_capture_pct",
+            "value": 55,
+            "assumption_basis": "Assumes slightly above half of gross productivity is monetized as capacity creation or cost takeout.",
+            "confidence": "Medium",
+            "owner_function": "finance"
+          },
+          {
+            "assumption_name": "resilience_value_pct_of_adm",
+            "value": 4,
+            "assumption_basis": "Modeled avoidance value tied to incident reduction, outage prevention, and control automation.",
+            "confidence": "Low",
+            "owner_function": "finance"
+          },
+          {
+            "assumption_name": "legacy_savings_rate_by_disposition_pct.Retire",
+            "value": 100,
+            "assumption_basis": "Full run-cost retirement is assumed once legacy platform decommission completes.",
+            "confidence": "High",
+            "owner_function": "architecture"
+          },
+          {
+            "assumption_name": "legacy_savings_rate_by_disposition_pct.Retain",
+            "value": 3,
+            "assumption_basis": "Retained apps assume marginal efficiency only from support standardization.",
+            "confidence": "Medium",
+            "owner_function": "architecture"
+          },
+          {
+            "assumption_name": "legacy_savings_rate_by_disposition_pct.Rehost",
+            "value": 15,
+            "assumption_basis": "Lift-and-shift actions assume infrastructure savings without major functional redesign.",
+            "confidence": "Medium",
+            "owner_function": "architecture"
+          },
+          {
+            "assumption_name": "legacy_savings_rate_by_disposition_pct.Replatform",
+            "value": 25,
+            "assumption_basis": "Platform modernization assumes moderate operations and infrastructure efficiency gains.",
+            "confidence": "Medium",
+            "owner_function": "architecture"
+          },
+          {
+            "assumption_name": "legacy_savings_rate_by_disposition_pct.Refactor",
+            "value": 32,
+            "assumption_basis": "Code and platform refactoring assume higher supportability and automation benefits.",
+            "confidence": "Medium",
+            "owner_function": "architecture"
+          },
+          {
+            "assumption_name": "legacy_savings_rate_by_disposition_pct.Rearchitect",
+            "value": 40,
+            "assumption_basis": "Strategic rearchitecture assumes the largest long-run operating model simplification.",
+            "confidence": "Medium",
+            "owner_function": "architecture"
+          }
+        ]
+      },
+      "delivery_centers": [
+        {
+          "location": "Bengaluru, India",
+          "location_code": "IN-BLR",
+          "type": "Offshore",
+          "primary_roles": [
+            "Modernization engineering",
+            "Platform engineering",
+            "SRE"
+          ],
+          "strategic_reason": "Primary delivery hub for modernization engineering and platform work",
+          "timezone_overlap_hours": 2.5,
+          "fte_share_pct": 45,
+          "wave_ownership": [
+            "Wave 2 modernization",
+            "platform engineering",
+            "core engineering build"
+          ],
+          "governance_owner_role": "Transformation Director",
+          "primary_scope": "Engineering build and platform operations"
+        },
+        {
+          "location": "Hyderabad, India",
+          "location_code": "IN-HYD",
+          "type": "Offshore",
+          "primary_roles": [
+            "Data engineering",
+            "QA automation",
+            "Customer analytics"
+          ],
+          "strategic_reason": "Secondary hub for data and automation delivery",
+          "timezone_overlap_hours": 2.5,
+          "fte_share_pct": 20,
+          "wave_ownership": [
+            "Data foundation wave",
+            "QA automation enablement"
+          ],
+          "governance_owner_role": "Data and Quality Lead",
+          "primary_scope": "Data engineering, QA automation, and analytics enablement"
+        },
+        {
+          "location": "Guadalajara, Mexico",
+          "location_code": "MX-GDL",
+          "type": "Nearshore",
+          "primary_roles": [
+            "L2 support",
+            "Business analysis",
+            "Product operations"
+          ],
+          "strategic_reason": "North American timezone overlap for business-facing operations",
+          "timezone_overlap_hours": 6.0,
+          "fte_share_pct": 35,
+          "wave_ownership": [
+            "Wave 1 transition",
+            "business-facing product operations",
+            "L2 service stabilization"
+          ],
+          "governance_owner_role": "Service Delivery Director",
+          "primary_scope": "Business-facing operations, support coordination, and nearshore product support"
+        }
+      ],
+      "business_units": [
+        {
+          "name": "Digital Commerce",
+          "owner_role": "Chief Digital Officer",
+          "core_capabilities": [
+            "Ecommerce",
+            "Ordering",
+            "Returns"
+          ],
+          "kpis": [
+            {
+              "name": "Major releases per year",
+              "baseline_value": 12,
+              "baseline_unit": "count",
+              "target_value": 26,
+              "target_unit": "count",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from digital commerce release planning and current train frequency.",
+              "confidence": "Medium"
+            },
+            {
+              "name": "Checkout defect escape rate",
+              "baseline_value": 3.8,
+              "baseline_unit": "pct",
+              "target_value": 1.5,
+              "target_unit": "pct",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from customer-facing defect leakage and QA remediation assumptions.",
+              "confidence": "Medium"
+            }
+          ]
+        },
+        {
+          "name": "Store Operations",
+          "owner_role": "Chief Stores Officer",
+          "core_capabilities": [
+            "POS",
+            "Store tasking",
+            "Workforce productivity"
+          ],
+          "kpis": [
+            {
+              "name": "POS incident MTTR",
+              "baseline_value": 6.5,
+              "baseline_unit": "hours",
+              "target_value": 2,
+              "target_unit": "hours",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from current incident escalation paths and support handoff delays.",
+              "confidence": "Medium"
+            },
+            {
+              "name": "Store task completion SLA",
+              "baseline_value": 81,
+              "baseline_unit": "pct",
+              "target_value": 95,
+              "target_unit": "pct",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from store task orchestration performance and workflow automation assumptions.",
+              "confidence": "Medium"
+            }
+          ]
+        },
+        {
+          "name": "Merchandising",
+          "owner_role": "Chief Merchandising Officer",
+          "core_capabilities": [
+            "Pricing",
+            "Planning",
+            "Supplier operations"
+          ],
+          "kpis": [
+            {
+              "name": "Price-change batch latency",
+              "baseline_value": 18,
+              "baseline_unit": "hours",
+              "target_value": 2,
+              "target_unit": "hours",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from current batch pricing interface cadence and planning-system constraints.",
+              "confidence": "Medium"
+            },
+            {
+              "name": "Plan revision cycle time",
+              "baseline_value": 10,
+              "baseline_unit": "days",
+              "target_value": 3,
+              "target_unit": "days",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from merchandising planning approvals and data refresh timing.",
+              "confidence": "Medium"
+            }
+          ]
+        },
+        {
+          "name": "Supply Chain",
+          "owner_role": "Chief Supply Chain Officer",
+          "core_capabilities": [
+            "Warehouse",
+            "Transport",
+            "Inventory flow"
+          ],
+          "kpis": [
+            {
+              "name": "Warehouse manual exception rate",
+              "baseline_value": 14,
+              "baseline_unit": "pct",
+              "target_value": 6,
+              "target_unit": "pct",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from warehouse exception handling and task automation potential.",
+              "confidence": "Medium"
+            },
+            {
+              "name": "Shipment ETA update latency",
+              "baseline_value": 4,
+              "baseline_unit": "hours",
+              "target_value": 15,
+              "target_unit": "minutes",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from current transport event integration delays and desired real-time orchestration state.",
+              "confidence": "Medium"
+            }
+          ]
+        },
+        {
+          "name": "Customer & Loyalty",
+          "owner_role": "Chief Marketing Officer",
+          "core_capabilities": [
+            "Identity",
+            "Loyalty",
+            "Campaigns"
+          ],
+          "kpis": [
+            {
+              "name": "Anonymous-to-known match rate",
+              "baseline_value": 54,
+              "baseline_unit": "pct",
+              "target_value": 75,
+              "target_unit": "pct",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from current identity stitching quality and personalization program goals.",
+              "confidence": "Medium"
+            },
+            {
+              "name": "Campaign launch lead time",
+              "baseline_value": 10,
+              "baseline_unit": "days",
+              "target_value": 2,
+              "target_unit": "days",
+              "evidence_type": "internal_assessment",
+              "evidence_note": "Modeled from current campaign workflow dependencies and automation roadmap assumptions.",
+              "confidence": "Medium"
+            }
+          ]
+        }
+      ]
+    },
+    "facts": {
+      "annual_adm_spend_usd": 95000000,
+      "apps_in_scope": 12,
+      "business_units_in_scope": 5,
+      "delivery_center_count": 3,
+      "average_app_age_years": 11.0,
+      "disposition_counts": {
+        "Retire": 1,
+        "Retain": 1,
+        "Rehost": 2,
+        "Replatform": 3,
+        "Refactor": 3,
+        "Rearchitect": 2
+      },
+      "delivery_center_staffing_mix_pct": {
+        "IN-BLR": 45,
+        "IN-HYD": 20,
+        "MX-GDL": 35
+      }
+    },
+    "phase_context": {
+      "roi_pct": 49.94,
+      "cumulative_business_value_usd": 156686460.0,
+      "investment_by_year_usd": [
+        31350000.0,
+        25080000.0,
+        20900000.0,
+        16720000.0,
+        10450000.0
+      ]
+    },
+    "quality_guardrails": {
+      "benchmark": "Cisco ADM HTML benchmark",
+      "all_numbers_must_come_from_supplied_inputs": true,
+      "no_html_output": true
+    }
+  },
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "section_id": {
+        "type": "string",
+        "const": "sec10"
+      },
+      "title": {
+        "type": "string",
+        "const": "Delivery Center Architecture"
+      },
+      "phase": {
+        "type": "string",
+        "const": "Value Story"
+      },
+      "summary": {
+        "type": "string"
+      },
+      "narrative": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "kpi_cards": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "fact_key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "value",
+            "subtitle",
+            "fact_key"
+          ]
+        }
+      },
+      "tables": {
+        "type": "array"
+      },
+      "cards": {
+        "type": "array"
+      },
+      "chart": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "matrix": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "timeline": {
+        "type": "array"
+      },
+      "delivery_cards": {
+        "type": "array"
+      },
+      "callouts": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "fact_refs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "evidence_refs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "required_widgets": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "section_id",
+      "title",
+      "phase",
+      "summary",
+      "narrative",
+      "kpi_cards",
+      "tables",
+      "cards",
+      "chart",
+      "matrix",
+      "timeline",
+      "delivery_cards",
+      "callouts",
+      "fact_refs",
+      "evidence_refs",
+      "required_widgets"
+    ]
+  },
+  "prompt": "You are generating section sec10 (Delivery Center Architecture) for an ADM document.\nPrompt set version: adm-benchmark-v3\nBenchmark style version: cisco-html-v2\nSection schema version: section-content-v1\nReturn JSON only, matching the supplied schema.\nDo not emit HTML. All figures must come from the provided facts and section input packet.\nKeep the tone analytical, benchmark-oriented, and executive-ready.\nUse short, information-dense paragraphs. Avoid placeholders and unsupported claims.\n\nCritical rules:\n- For kpi_cards.fact_key and fact_refs, only use these exact keys: [\"annual_adm_spend_usd\",\"apps_in_scope\",\"business_units_in_scope\",\"delivery_center_count\",\"average_app_age_years\",\"disposition_counts\",\"delivery_center_staffing_mix_pct\"]\n- If you want to mention target metrics or assumptions that are not in that list, keep them in narrative or callouts instead of kpi_cards.fact_key or fact_refs.\n- The summary must read like a board-ready lead sentence, not a generic description.\n- Callouts must stand alone as sharp executive observations or implications, not sentence fragments.\n- Narrative, cards, tables, and callouts should complement each other rather than restating the same line in different shapes.\n- When a section includes benchmark, roadmap, financial, or delivery evidence, interpret the implication explicitly instead of merely listing the fact.\n- Preserve the required widgets for this section.\n- Meet or exceed these minimum depth targets: {\"narrative_paragraphs\":3,\"kpi_cards\":1,\"tables\":0,\"cards\":0,\"callouts\":2,\"timeline_items\":0,\"delivery_cards\":3}\n- Section benchmark brief: Describe the operating geography, governance ownership, and work split as a deliberate delivery model rather than a staffing list.\n- Narrative should be denser than a quick summary. Prefer 2-4 sentences per paragraph with explicit interpretation.\n\nOutput contract summary:\n{\"section_id\":\"sec10\",\"title\":\"Delivery Center Architecture\",\"phase\":\"Value Story\",\"benchmark_brief\":\"Describe the operating geography, governance ownership, and work split as a deliberate delivery model rather than a staffing list.\",\"required_top_level_fields\":[\"section_id\",\"title\",\"phase\",\"summary\",\"narrative\",\"kpi_cards\",\"tables\",\"cards\",\"chart\",\"matrix\",\"timeline\",\"delivery_cards\",\"callouts\",\"fact_refs\",\"evidence_refs\",\"required_widgets\"],\"required_widgets\":[\"delivery-layout\"],\"allowed_fact_keys_for_kpi_cards_and_fact_refs\":[\"annual_adm_spend_usd\",\"apps_in_scope\",\"business_units_in_scope\",\"delivery_center_count\",\"average_app_age_years\",\"disposition_counts\",\"delivery_center_staffing_mix_pct\"],\"minimum_depth_targets\":{\"narrative_paragraphs\":3,\"kpi_cards\":1,\"tables\":0,\"cards\":0,\"callouts\":2,\"timeline_items\":0,\"delivery_cards\":3}}\n\nDeterministic scaffold example:\n{\"section_id\":\"sec10\",\"title\":\"Delivery Center Architecture\",\"phase\":\"Value Story\",\"summary\":\"Delivery-center architecture and staffing mix for the transformation program.\",\"narrative\":[\"The delivery layout is intentionally weighted toward offshore engineering scale while preserving nearshore and leadership coverage where business-facing collaboration matters most.\",\"This is a deliberate operating model, not just a labor-arbitrage move: engineering scale, business-facing overlap, and governance ownership are distributed by work type.\",\"The staffing mix has to support both modernization throughput and stable business interaction across North American operating hours.\"],\"kpi_cards\":[{\"label\":\"Delivery Centers\",\"value\":\"3\",\"subtitle\":\"Primary delivery locations\",\"fact_key\":\"delivery_center_count\"}],\"tables\":[],\"cards\":[],\"chart\":null,\"matrix\":null,\"timeline\":[],\"delivery_cards\":[{\"widget\":\"delivery-layout\",\"title\":\"Bengaluru, India\",\"subtitle\":\"Offshore\",\"fte_share_pct\":45,\"primary_scope\":\"Engineering build and platform operations\",\"governance_owner_role\":\"Transformation Director\",\"wave_ownership\":[\"Wave 2 modernization\",\"platform engineering\",\"core engineering build\"]},{\"widget\":\"delivery-layout\",\"title\":\"Hyderabad, India\",\"subtitle\":\"Offshore\",\"fte_share_pct\":20,\"primary_scope\":\"Data engineering, QA automation, and analytics enablement\",\"governance_owner_role\":\"Data and Quality Lead\",\"wave_ownership\":[\"Data foundation wave\",\"QA automation enablement\"]},{\"widget\":\"delivery-layout\",\"title\":\"Guadalajara, Mexico\",\"subtitle\":\"Nearshore\",\"fte_share_pct\":35,\"primary_scope\":\"Business-facing operations, support coordination, and nearshore product support\",\"governance_owner_role\":\"Service Delivery Director\",\"wave_ownership\":[\"Wave 1 transition\",\"business-facing product operations\",\"L2 service stabilization\"]}],\"callouts\":[\"Engineering scale is concentrated offshore by design.\",\"Nearshore capacity absorbs business-facing coordination and service rhythm.\"],\"fact_refs\":[\"delivery_center_staffing_mix_pct\"],\"evidence_refs\":[],\"required_widgets\":[\"delivery-layout\"]}\n\nSection input packet:\n{\"section_id\":\"sec10\",\"section_title\":\"Delivery Center Architecture\",\"phase\":\"Value Story\",\"versions\":{\"schema_version\":\"2.0\",\"prompt_set_version\":\"adm-benchmark-v3\",\"benchmark_style_version\":\"cisco-html-v2\",\"section_schema_version\":\"section-content-v1\"},\"client\":{\"company\":{\"name\":\"Northstar Retail Group\",\"industry\":\"Retail\",\"subsector\":\"Omnichannel general merchandise and grocery\",\"headquarters\":\"Chicago, Illinois, USA\",\"operating_regions\":[\"United States\",\"Canada\",\"United Kingdom\"],\"employees\":42000,\"annual_revenue_usd\":12800000000,\"summary\":\"Omnichannel retailer with stores, ecommerce, loyalty, merchandising, and supply-chain operations.\"},\"narrative_context\":{\"strategic_priorities\":[\"Reduce legacy ADM run-cost and rebalance spend toward innovation\",\"Create a real-time inventory and fulfillment decision layer\",\"Improve digital conversion, loyalty personalization, and release velocity\",\"Industrialize support with AI-assisted operations and observability\"],\"pain_points\":[\"Fragmented application estate across stores, ecommerce, merchandising, and supply chain\",\"High dependency on aging POS, order, and merchandising platforms\",\"Slow release cycles and duplicated data pipelines\",\"Inconsistent customer identity, offer, and returns experiences across channels\"],\"regulatory_context\":[\"PCI DSS\",\"CCPA/CPRA\",\"GDPR for UK/EU customer data\"],\"operating_model_notes\":[\"Stores and digital channels share inventory and fulfillment responsibilities\",\"The client wants margin improvement without slowing innovation\"],\"current_state_metrics\":[{\"name\":\"Customer-facing release cadence\",\"baseline_value\":30,\"baseline_unit\":\"days_between_releases\",\"target_value\":7,\"target_unit\":\"days_between_releases\",\"scope\":\"Digital Commerce\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from current-state release governance review and platform dependency mapping.\",\"confidence\":\"Medium\"},{\"name\":\"P1 incident MTTR\",\"baseline_value\":6.5,\"baseline_unit\":\"hours\",\"target_value\":1.5,\"target_unit\":\"hours\",\"scope\":\"Store Operations and Commerce\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from current-state support operations review and major incident patterns.\",\"confidence\":\"Medium\"},{\"name\":\"Inventory sync latency\",\"baseline_value\":360,\"baseline_unit\":\"minutes\",\"target_value\":15,\"target_unit\":\"minutes\",\"scope\":\"Supply Chain and Commerce\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from batch interface timing across inventory, order, and fulfillment workflows.\",\"confidence\":\"Medium\"},{\"name\":\"Duplicate customer record rate\",\"baseline_value\":11,\"baseline_unit\":\"pct\",\"target_value\":3,\"target_unit\":\"pct\",\"scope\":\"Customer and loyalty\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from identity-resolution issues across loyalty, ecommerce, and service systems.\",\"confidence\":\"Medium\"}],\"execution_assumptions\":[\"Holiday code freeze applies from mid-November through early January for customer-facing platforms.\",\"Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.\",\"Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.\",\"Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites.\",\"Platform engineering capacity is shared across commerce, loyalty, and supply-chain programs, so sequencing must avoid parallel peak demand.\"]},\"targets\":{\"cloud_migration_pct\":65,\"legacy_cost_reduction_pct\":28,\"release_frequency_improvement_pct\":45,\"change_failure_rate_reduction_pct\":25,\"innovation_budget_shift_pct\":20},\"financial_assumptions\":{\"contract_years\":5,\"transformation_investment_pct_of_tcv\":22,\"investment_curve_pct\":[30,24,20,16,10],\"labor_share_pct_of_adm\":64,\"current_delivery_mix_pct\":{\"onshore\":70,\"nearshore\":10,\"offshore\":20},\"target_delivery_mix_pct\":{\"onshore\":35,\"nearshore\":10,\"offshore\":55},\"rate_card_usd_per_hour\":{\"onshore\":95,\"nearshore\":55,\"offshore\":32},\"automation_productivity_uplift_pct\":20,\"productivity_value_capture_pct\":55,\"resilience_value_pct_of_adm\":4,\"legacy_savings_rate_by_disposition_pct\":{\"Retire\":100,\"Retain\":3,\"Rehost\":15,\"Replatform\":25,\"Refactor\":32,\"Rearchitect\":40},\"benefit_ramp_curves_pct\":{\"workforce\":[15,35,60,85,100],\"legacy\":[8,30,58,82,100],\"productivity\":[10,35,65,85,100],\"resilience\":[10,35,65,85,100]},\"assumption_provenance\":[{\"assumption_name\":\"transformation_investment_pct_of_tcv\",\"value\":22,\"assumption_basis\":\"Modeled transformation investment envelope for a five-year modernization partnership.\",\"confidence\":\"Medium\",\"owner_function\":\"strategy\"},{\"assumption_name\":\"target_delivery_mix_pct.onshore\",\"value\":35,\"assumption_basis\":\"Target-state product, architecture, and governance roles remain onshore-led.\",\"confidence\":\"Medium\",\"owner_function\":\"delivery_strategy\"},{\"assumption_name\":\"target_delivery_mix_pct.nearshore\",\"value\":10,\"assumption_basis\":\"North America timezone coverage is reserved for business analysis and product operations roles.\",\"confidence\":\"Medium\",\"owner_function\":\"delivery_strategy\"},{\"assumption_name\":\"target_delivery_mix_pct.offshore\",\"value\":55,\"assumption_basis\":\"Year-3 target state assumes engineering factory and shared platform services scale offshore.\",\"confidence\":\"Medium\",\"owner_function\":\"delivery_strategy\"},{\"assumption_name\":\"automation_productivity_uplift_pct\",\"value\":20,\"assumption_basis\":\"Modeled engineering and support productivity uplift from AI-assisted delivery and automation.\",\"confidence\":\"Medium\",\"owner_function\":\"strategy\"},{\"assumption_name\":\"productivity_value_capture_pct\",\"value\":55,\"assumption_basis\":\"Assumes slightly above half of gross productivity is monetized as capacity creation or cost takeout.\",\"confidence\":\"Medium\",\"owner_function\":\"finance\"},{\"assumption_name\":\"resilience_value_pct_of_adm\",\"value\":4,\"assumption_basis\":\"Modeled avoidance value tied to incident reduction, outage prevention, and control automation.\",\"confidence\":\"Low\",\"owner_function\":\"finance\"},{\"assumption_name\":\"legacy_savings_rate_by_disposition_pct.Retire\",\"value\":100,\"assumption_basis\":\"Full run-cost retirement is assumed once legacy platform decommission completes.\",\"confidence\":\"High\",\"owner_function\":\"architecture\"},{\"assumption_name\":\"legacy_savings_rate_by_disposition_pct.Retain\",\"value\":3,\"assumption_basis\":\"Retained apps assume marginal efficiency only from support standardization.\",\"confidence\":\"Medium\",\"owner_function\":\"architecture\"},{\"assumption_name\":\"legacy_savings_rate_by_disposition_pct.Rehost\",\"value\":15,\"assumption_basis\":\"Lift-and-shift actions assume infrastructure savings without major functional redesign.\",\"confidence\":\"Medium\",\"owner_function\":\"architecture\"},{\"assumption_name\":\"legacy_savings_rate_by_disposition_pct.Replatform\",\"value\":25,\"assumption_basis\":\"Platform modernization assumes moderate operations and infrastructure efficiency gains.\",\"confidence\":\"Medium\",\"owner_function\":\"architecture\"},{\"assumption_name\":\"legacy_savings_rate_by_disposition_pct.Refactor\",\"value\":32,\"assumption_basis\":\"Code and platform refactoring assume higher supportability and automation benefits.\",\"confidence\":\"Medium\",\"owner_function\":\"architecture\"},{\"assumption_name\":\"legacy_savings_rate_by_disposition_pct.Rearchitect\",\"value\":40,\"assumption_basis\":\"Strategic rearchitecture assumes the largest long-run operating model simplification.\",\"confidence\":\"Medium\",\"owner_function\":\"architecture\"}]},\"delivery_centers\":[{\"location\":\"Bengaluru, India\",\"location_code\":\"IN-BLR\",\"type\":\"Offshore\",\"primary_roles\":[\"Modernization engineering\",\"Platform engineering\",\"SRE\"],\"strategic_reason\":\"Primary delivery hub for modernization engineering and platform work\",\"timezone_overlap_hours\":2.5,\"fte_share_pct\":45,\"wave_ownership\":[\"Wave 2 modernization\",\"platform engineering\",\"core engineering build\"],\"governance_owner_role\":\"Transformation Director\",\"primary_scope\":\"Engineering build and platform operations\"},{\"location\":\"Hyderabad, India\",\"location_code\":\"IN-HYD\",\"type\":\"Offshore\",\"primary_roles\":[\"Data engineering\",\"QA automation\",\"Customer analytics\"],\"strategic_reason\":\"Secondary hub for data and automation delivery\",\"timezone_overlap_hours\":2.5,\"fte_share_pct\":20,\"wave_ownership\":[\"Data foundation wave\",\"QA automation enablement\"],\"governance_owner_role\":\"Data and Quality Lead\",\"primary_scope\":\"Data engineering, QA automation, and analytics enablement\"},{\"location\":\"Guadalajara, Mexico\",\"location_code\":\"MX-GDL\",\"type\":\"Nearshore\",\"primary_roles\":[\"L2 support\",\"Business analysis\",\"Product operations\"],\"strategic_reason\":\"North American timezone overlap for business-facing operations\",\"timezone_overlap_hours\":6.0,\"fte_share_pct\":35,\"wave_ownership\":[\"Wave 1 transition\",\"business-facing product operations\",\"L2 service stabilization\"],\"governance_owner_role\":\"Service Delivery Director\",\"primary_scope\":\"Business-facing operations, support coordination, and nearshore product support\"}],\"business_units\":[{\"name\":\"Digital Commerce\",\"owner_role\":\"Chief Digital Officer\",\"core_capabilities\":[\"Ecommerce\",\"Ordering\",\"Returns\"],\"kpis\":[{\"name\":\"Major releases per year\",\"baseline_value\":12,\"baseline_unit\":\"count\",\"target_value\":26,\"target_unit\":\"count\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from digital commerce release planning and current train frequency.\",\"confidence\":\"Medium\"},{\"name\":\"Checkout defect escape rate\",\"baseline_value\":3.8,\"baseline_unit\":\"pct\",\"target_value\":1.5,\"target_unit\":\"pct\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from customer-facing defect leakage and QA remediation assumptions.\",\"confidence\":\"Medium\"}]},{\"name\":\"Store Operations\",\"owner_role\":\"Chief Stores Officer\",\"core_capabilities\":[\"POS\",\"Store tasking\",\"Workforce productivity\"],\"kpis\":[{\"name\":\"POS incident MTTR\",\"baseline_value\":6.5,\"baseline_unit\":\"hours\",\"target_value\":2,\"target_unit\":\"hours\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from current incident escalation paths and support handoff delays.\",\"confidence\":\"Medium\"},{\"name\":\"Store task completion SLA\",\"baseline_value\":81,\"baseline_unit\":\"pct\",\"target_value\":95,\"target_unit\":\"pct\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from store task orchestration performance and workflow automation assumptions.\",\"confidence\":\"Medium\"}]},{\"name\":\"Merchandising\",\"owner_role\":\"Chief Merchandising Officer\",\"core_capabilities\":[\"Pricing\",\"Planning\",\"Supplier operations\"],\"kpis\":[{\"name\":\"Price-change batch latency\",\"baseline_value\":18,\"baseline_unit\":\"hours\",\"target_value\":2,\"target_unit\":\"hours\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from current batch pricing interface cadence and planning-system constraints.\",\"confidence\":\"Medium\"},{\"name\":\"Plan revision cycle time\",\"baseline_value\":10,\"baseline_unit\":\"days\",\"target_value\":3,\"target_unit\":\"days\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from merchandising planning approvals and data refresh timing.\",\"confidence\":\"Medium\"}]},{\"name\":\"Supply Chain\",\"owner_role\":\"Chief Supply Chain Officer\",\"core_capabilities\":[\"Warehouse\",\"Transport\",\"Inventory flow\"],\"kpis\":[{\"name\":\"Warehouse manual exception rate\",\"baseline_value\":14,\"baseline_unit\":\"pct\",\"target_value\":6,\"target_unit\":\"pct\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from warehouse exception handling and task automation potential.\",\"confidence\":\"Medium\"},{\"name\":\"Shipment ETA update latency\",\"baseline_value\":4,\"baseline_unit\":\"hours\",\"target_value\":15,\"target_unit\":\"minutes\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from current transport event integration delays and desired real-time orchestration state.\",\"confidence\":\"Medium\"}]},{\"name\":\"Customer & Loyalty\",\"owner_role\":\"Chief Marketing Officer\",\"core_capabilities\":[\"Identity\",\"Loyalty\",\"Campaigns\"],\"kpis\":[{\"name\":\"Anonymous-to-known match rate\",\"baseline_value\":54,\"baseline_unit\":\"pct\",\"target_value\":75,\"target_unit\":\"pct\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from current identity stitching quality and personalization program goals.\",\"confidence\":\"Medium\"},{\"name\":\"Campaign launch lead time\",\"baseline_value\":10,\"baseline_unit\":\"days\",\"target_value\":2,\"target_unit\":\"days\",\"evidence_type\":\"internal_assessment\",\"evidence_note\":\"Modeled from current campaign workflow dependencies and automation roadmap assumptions.\",\"confidence\":\"Medium\"}]}]},\"facts\":{\"annual_adm_spend_usd\":95000000,\"apps_in_scope\":12,\"business_units_in_scope\":5,\"delivery_center_count\":3,\"average_app_age_years\":11.0,\"disposition_counts\":{\"Retire\":1,\"Retain\":1,\"Rehost\":2,\"Replatform\":3,\"Refactor\":3,\"Rearchitect\":2},\"delivery_center_staffing_mix_pct\":{\"IN-BLR\":45,\"IN-HYD\":20,\"MX-GDL\":35}},\"phase_context\":{\"roi_pct\":49.94,\"cumulative_business_value_usd\":156686460.0,\"investment_by_year_usd\":[31350000.0,25080000.0,20900000.0,16720000.0,10450000.0]},\"quality_guardrails\":{\"benchmark\":\"Cisco ADM HTML benchmark\",\"all_numbers_must_come_from_supplied_inputs\":true,\"no_html_output\":true}}",
+  "repair_notes": []
+}

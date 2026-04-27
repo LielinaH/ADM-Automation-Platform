@@ -1,4 +1,4 @@
-"""Validation for frozen Northstar ingress payloads."""
+"""Validation for frozen ADM ingress payloads."""
 
 from __future__ import annotations
 

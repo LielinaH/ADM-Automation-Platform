@@ -1,0 +1,306 @@
+{
+  "status": "pass",
+  "overall_score": 100,
+  "sections": {
+    "sec01": {
+      "title": "Executive Summary",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "State the estate scale, transformation thesis, ROI case, and the core execution challenge in a polished executive voice.",
+      "actual": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 4,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 4,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 4,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 4,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec02": {
+      "title": "Portfolio Analysis",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Explain cost concentration, dependency density, and business-unit skew with portfolio interpretation rather than just inventory recitation.",
+      "actual": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 4,
+        "tables": 0,
+        "cards": 5,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 4,
+        "tables": 0,
+        "cards": 5,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec03": {
+      "title": "App Inventory",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Frame the inventory as an actionable management view with summary metrics and disposition implications, not just a table dump.",
+      "actual": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 4,
+        "tables": 1,
+        "cards": 0,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 4,
+        "tables": 1,
+        "cards": 0,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec04": {
+      "title": "Competitive Benchmarking",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Synthesize competitor evidence into clear comparative positioning and implications for the client's gap-closing agenda.",
+      "actual": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 0,
+        "tables": 1,
+        "cards": 3,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 0,
+        "tables": 1,
+        "cards": 3,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec05": {
+      "title": "AI Transformation Strategy",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Translate operational pain points into a sequenced AI agenda with explicit enablement logic and business outcomes.",
+      "actual": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 0,
+        "tables": 0,
+        "cards": 4,
+        "callouts": 3,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 0,
+        "tables": 0,
+        "cards": 4,
+        "callouts": 3,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec06": {
+      "title": "Modernization Roadmap / Factory",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Use the six-lane modernization factory view to explain how dispositions convert into execution waves and savings capture.",
+      "actual": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 3,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 3,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 3,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 3,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec07": {
+      "title": "Cloud & Data Strategy",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Connect hosting strategy, governance, and data-domain ownership into a concrete architecture narrative with migration implications.",
+      "actual": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 1,
+        "tables": 1,
+        "cards": 2,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 1,
+        "tables": 1,
+        "cards": 2,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec08": {
+      "title": "Financials",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Interpret the five-year value case like a board-ready business case, including investment phasing and value-stream contribution.",
+      "actual": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 4,
+        "tables": 1,
+        "cards": 0,
+        "callouts": 3,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 4,
+        "kpi_cards": 4,
+        "tables": 1,
+        "cards": 0,
+        "callouts": 3,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec09": {
+      "title": "Execution Roadmap",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Explain why each year matters, what unlocks the next wave, and how value realization tracks the roadmap.",
+      "actual": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 0,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 2,
+        "timeline_items": 5,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 0,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 2,
+        "timeline_items": 5,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec10": {
+      "title": "Delivery Center Architecture",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Describe the operating geography, governance ownership, and work split as a deliberate delivery model rather than a staffing list.",
+      "actual": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 1,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 3
+      },
+      "targets": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 1,
+        "tables": 0,
+        "cards": 0,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 3
+      },
+      "misses": {}
+    },
+    "sec11": {
+      "title": "Benchmarking Summary",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Close with benchmark-informed positioning that synthesizes the value thesis, gap closure, and strategic upside.",
+      "actual": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 0,
+        "tables": 0,
+        "cards": 3,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 0,
+        "tables": 0,
+        "cards": 3,
+        "callouts": 2,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    },
+    "sec12": {
+      "title": "Partnership Overview",
+      "status": "pass",
+      "score": 100,
+      "benchmark_brief": "Finish with governance rhythm, delivery commitments, and execution model confidence in a client-ready close.",
+      "actual": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 1,
+        "tables": 0,
+        "cards": 2,
+        "callouts": 4,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "targets": {
+        "narrative_paragraphs": 3,
+        "kpi_cards": 1,
+        "tables": 0,
+        "cards": 2,
+        "callouts": 4,
+        "timeline_items": 0,
+        "delivery_cards": 0
+      },
+      "misses": {}
+    }
+  }
+}

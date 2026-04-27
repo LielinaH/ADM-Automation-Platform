@@ -1,26 +1,60 @@
-# ADM Pipeline
+# ADM Automation Pipeline
 
-Structured-ingress pipeline for generating Account Development Master HTML reports from client JSON.
+This repository implements an automated pipeline for generating Account Development Master (ADM) documents from structured client input.
 
-## What It Does
+The target outcome is:
 
-- Validates frozen `schema_version: "2.0"` ingress payloads
-- Computes all financial facts in code
-- Builds `section_inputs/sec01.json` through `sec12.json`
-- Generates 12 structured section payloads through a provider adapter
-- Runs a critique and targeted repair pass
-- Renders one self-contained HTML report
-- Runs final HTML QA on the rendered artifact
+- structured client information in
+- publication-ready HTML ADM document out
 
-## Providers
+The implementation is aligned to the assessment materials in:
 
-- `gemini`
-- `openai_responses`
-- `lmstudio_openai_compat`
-- `openrouter`
-- `mock` for deterministic local smoke tests
+- [`archive/ADM_Engineer_Assessment.pdf`](archive/ADM_Engineer_Assessment.pdf)
+- [`archive/Cisco_ADM.html`](archive/Cisco_ADM.html)
 
-Named provider profiles live in [config/providers.json](/C:/Users/Lielina/Desktop/Projects/ADM%20Automation%20Platform/config/providers.json). The `mock` profile exists for local verification and CI-like runs without network access.
+## Assessment Goal
+
+The task is to automate what was previously done with a long manual prompt:
+
+- mirror the benchmark document structure
+- preserve numerical rigor
+- generate all required sections and tables
+- produce a complete HTML artifact rather than raw model prose
+
+This pipeline treats the ADM as a deterministic reporting system, not just a prompt wrapper.
+
+## What This Repo Delivers
+
+- Validation for frozen structured ingress payloads
+- Code-computed financials and portfolio facts
+- Section-by-section generation across the required 12 ADM sections
+- Critique and targeted repair before rendering
+- Self-contained HTML rendering with inline CSS, JS, and SVG
+- Final HTML QA checks
+- CLI-based provider selection and execution flow
+
+## Repository Structure
+
+- [`inputs/clients/northstar-retail.json`](inputs/clients/northstar-retail.json): sample structured client ingress
+- [`archive/ADM_Engineer_Assessment.pdf`](archive/ADM_Engineer_Assessment.pdf): assessment brief
+- [`archive/Cisco_ADM.html`](archive/Cisco_ADM.html): benchmark reference
+- [`config/providers.json`](config/providers.json): named provider profiles
+- [`adm_pipeline/`](adm_pipeline): pipeline implementation
+- [`tests/`](tests): automated verification
+
+## Pipeline Flow
+
+The execution flow is:
+
+1. Validate ingress
+2. Compute facts in code
+3. Build section input packets
+4. Generate 12 section payloads
+5. Run critique and targeted repair
+6. Render one HTML report
+7. Run final HTML QA
+
+The language model does not generate HTML directly. It generates structured section content only. Financials, validation, critique, and rendering are code-driven.
 
 ## Install
 
@@ -28,146 +62,84 @@ Named provider profiles live in [config/providers.json](/C:/Users/Lielina/Deskto
 python -m pip install -e .
 ```
 
-If you do not want to install the console script yet, run the CLI from the repo root with either:
-
-```powershell
-python -m adm_pipeline.cli dashboard
-python -m adm_pipeline.cli doctor
-.\adm.cmd dashboard
-.\adm.cmd doctor
-```
-
-Optional provider dependencies:
+Optional provider extras:
 
 ```powershell
 python -m pip install -e .[providers]
 ```
 
-Only the hosted OpenAI adapter needs the optional Python provider package. Gemini, OpenRouter, and LM Studio use direct HTTP in this repo.
-
-## Provider CLI
-
-Show diagnostics:
+If you do not want to install the console script, you can run everything from the repo root with:
 
 ```powershell
-adm dashboard
-adm doctor
+python -m adm_pipeline.cli -d
+.\adm.cmd -d
+```
+
+## Providers
+
+Supported providers:
+
+- `gemini`
+- `openrouter`
+- `lmstudio_openai_compat`
+- `openai_responses`
+- `mock`
+
+The `mock` provider exists for deterministic local verification. Real report generation can be run through Gemini, OpenRouter, or LM Studio.
+
+## Interactive CLI
+
+The main operator entrypoint is:
+
+```powershell
 adm -d
 ```
 
-`adm -d` now opens the interactive CLI dashboard in a normal terminal. The dashboard lets you:
-- press `1` for provider setup, API key entry, and provider tests
-- press `2` to choose or validate the ingress file
-- press `3` to prepare the folder structure
-- press `4` to run the pipeline
-- press `5` to prune or inspect runs
-
-If stdin is non-interactive, the same command falls back to a plain status summary.
-
-List profiles:
+or from the repo root without install:
 
 ```powershell
-adm providers list
+.\adm.cmd -d
 ```
 
-Show one profile:
+The interactive dashboard lets you:
 
-```powershell
-adm providers show gemini-main
-```
+- choose and test a provider
+- enter API keys for the current session
+- choose the ingress file
+- prepare run folders
+- run the pipeline
+- inspect or prune old runs
 
-Test one profile:
+## Quick Start
 
-```powershell
-adm providers test lmstudio-local
-adm providers test gemini-main
-adm providers test openrouter-main --live
-```
-
-## Run Management
-
-List runs for one client:
-
-```powershell
-adm runs list northstar-retail
-```
-
-Dry-run cleanup to keep only the newest two:
-
-```powershell
-adm runs prune northstar-retail --keep 2 --dry-run
-```
-
-Apply the cleanup:
-
-```powershell
-adm runs prune northstar-retail --keep 2
-```
-
-## Example Commands
-
-Validate ingress:
+Validate the sample ingress:
 
 ```powershell
 adm validate inputs/clients/northstar-retail.json
 ```
 
-Run the full local deterministic pipeline:
+Run a deterministic local smoke:
 
 ```powershell
-adm run inputs/clients/northstar-retail.json --profile mock-local --run-dir runs/northstar-retail/local-smoke
+adm run inputs/clients/northstar-retail.json --profile mock-local
 ```
 
-Shorthand from the repo root:
-
-```powershell
-.\adm.cmd inputs\clients\northstar-retail.json --profile mock-local
-```
-
-That is equivalent to:
-
-```powershell
-.\adm.cmd run inputs\clients\northstar-retail.json --profile mock-local
-```
-
-If you omit `--run-dir`, the CLI now creates standardized names like:
-
-```text
-runs/northstar-retail/20260427-072215__mock-local
-```
-
-Run generation only:
-
-```powershell
-adm generate inputs/clients/northstar-retail.json --profile mock-local --run-dir runs/northstar-retail/local-smoke
-```
-
-Run with Gemini:
+Run a real hosted generation with Gemini:
 
 ```powershell
 $env:GEMINI_API_KEY="..."
-adm run inputs/clients/northstar-retail.json --profile gemini-main --run-dir runs/northstar-retail/gemini
+adm run inputs/clients/northstar-retail.json --profile gemini-main
 ```
 
 Run with LM Studio:
 
 ```powershell
-adm run inputs/clients/northstar-retail.json --profile lmstudio-local --run-dir runs/northstar-retail/lmstudio
-```
-
-Render the final HTML:
-
-```powershell
-adm render --run-dir runs/northstar-retail/local-smoke
-```
-
-Run final HTML QA:
-
-```powershell
-adm qa-html --run-dir runs/northstar-retail/local-smoke
+adm run inputs/clients/northstar-retail.json --profile lmstudio-local
 ```
 
 ## Run Artifacts
+
+Each run produces:
 
 - `manifest.json`
 - `facts.json`
@@ -177,12 +149,36 @@ adm qa-html --run-dir runs/northstar-retail/local-smoke
 - `sections/secNN.normalized.json`
 - `critique/global_critique.json`
 - `critique/repair_actions.json`
+- `critique/benchmark_score.json`
 - `final/<client_id>.html`
 - `final/final_qa.json`
 
-## Notes
+## Verification
 
-- The renderer emits inline CSS, inline JS, and inline SVG only.
-- The language model never produces HTML directly.
-- Token and cost telemetry are best-effort and depend on provider support.
-- This remains a pipeline first. The profile CLI is only for selecting and testing providers, not a separate UI layer.
+Run the automated test suite:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+The repository includes:
+
+- end-to-end mock pipeline verification
+- validation tests
+- financial consistency tests
+- run cleanup tests
+- section normalization tests
+- a regression test to ensure fallback text does not leak the Northstar client name into other client outputs
+
+## Notes for Review
+
+- The sample ingress is `northstar-retail.json`.
+- The benchmark reference is `archive/Cisco_ADM.html`.
+- The repository keeps one representative generated run for review at `runs/northstar-retail/20260427-144500__gemini-main__final-check/`.
+- Other generated runs remain git-ignored to avoid committing the full run cache and transient provider artifacts.
+
+## Scope Notes
+
+This implementation is designed to be reusable for any valid `schema_version: "2.0"` client ingress payload, not only the sample Northstar fixture.
+
+Northstar remains the acceptance fixture used to exercise the benchmark workflow and verify the full pipeline.

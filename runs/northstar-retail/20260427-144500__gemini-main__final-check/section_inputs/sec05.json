@@ -1,0 +1,351 @@
+{
+  "section_id": "sec05",
+  "section_title": "AI Transformation Strategy",
+  "phase": "Future State",
+  "versions": {
+    "schema_version": "2.0",
+    "prompt_set_version": "adm-benchmark-v3",
+    "benchmark_style_version": "cisco-html-v2",
+    "section_schema_version": "section-content-v1"
+  },
+  "client": {
+    "company": {
+      "name": "Northstar Retail Group",
+      "industry": "Retail",
+      "subsector": "Omnichannel general merchandise and grocery",
+      "headquarters": "Chicago, Illinois, USA",
+      "operating_regions": [
+        "United States",
+        "Canada",
+        "United Kingdom"
+      ],
+      "employees": 42000,
+      "annual_revenue_usd": 12800000000,
+      "summary": "Omnichannel retailer with stores, ecommerce, loyalty, merchandising, and supply-chain operations."
+    },
+    "narrative_context": {
+      "strategic_priorities": [
+        "Reduce legacy ADM run-cost and rebalance spend toward innovation",
+        "Create a real-time inventory and fulfillment decision layer",
+        "Improve digital conversion, loyalty personalization, and release velocity",
+        "Industrialize support with AI-assisted operations and observability"
+      ],
+      "pain_points": [
+        "Fragmented application estate across stores, ecommerce, merchandising, and supply chain",
+        "High dependency on aging POS, order, and merchandising platforms",
+        "Slow release cycles and duplicated data pipelines",
+        "Inconsistent customer identity, offer, and returns experiences across channels"
+      ],
+      "regulatory_context": [
+        "PCI DSS",
+        "CCPA/CPRA",
+        "GDPR for UK/EU customer data"
+      ],
+      "operating_model_notes": [
+        "Stores and digital channels share inventory and fulfillment responsibilities",
+        "The client wants margin improvement without slowing innovation"
+      ],
+      "current_state_metrics": [
+        {
+          "name": "Customer-facing release cadence",
+          "baseline_value": 30,
+          "baseline_unit": "days_between_releases",
+          "target_value": 7,
+          "target_unit": "days_between_releases",
+          "scope": "Digital Commerce",
+          "evidence_type": "internal_assessment",
+          "evidence_note": "Modeled from current-state release governance review and platform dependency mapping.",
+          "confidence": "Medium"
+        },
+        {
+          "name": "P1 incident MTTR",
+          "baseline_value": 6.5,
+          "baseline_unit": "hours",
+          "target_value": 1.5,
+          "target_unit": "hours",
+          "scope": "Store Operations and Commerce",
+          "evidence_type": "internal_assessment",
+          "evidence_note": "Modeled from current-state support operations review and major incident patterns.",
+          "confidence": "Medium"
+        },
+        {
+          "name": "Inventory sync latency",
+          "baseline_value": 360,
+          "baseline_unit": "minutes",
+          "target_value": 15,
+          "target_unit": "minutes",
+          "scope": "Supply Chain and Commerce",
+          "evidence_type": "internal_assessment",
+          "evidence_note": "Modeled from batch interface timing across inventory, order, and fulfillment workflows.",
+          "confidence": "Medium"
+        },
+        {
+          "name": "Duplicate customer record rate",
+          "baseline_value": 11,
+          "baseline_unit": "pct",
+          "target_value": 3,
+          "target_unit": "pct",
+          "scope": "Customer and loyalty",
+          "evidence_type": "internal_assessment",
+          "evidence_note": "Modeled from identity-resolution issues across loyalty, ecommerce, and service systems.",
+          "confidence": "Medium"
+        }
+      ],
+      "execution_assumptions": [
+        "Holiday code freeze applies from mid-November through early January for customer-facing platforms.",
+        "Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.",
+        "Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves.",
+        "Wave 1 prioritizes customer identity, pricing, returns, and observability foundations before major order and supply-chain rewrites.",
+        "Platform engineering capacity is shared across commerce, loyalty, and supply-chain programs, so sequencing must avoid parallel peak demand."
+      ]
+    },
+    "targets": {
+      "cloud_migration_pct": 65,
+      "legacy_cost_reduction_pct": 28,
+      "release_frequency_improvement_pct": 45,
+      "change_failure_rate_reduction_pct": 25,
+      "innovation_budget_shift_pct": 20
+    },
+    "financial_assumptions": {
+      "contract_years": 5,
+      "transformation_investment_pct_of_tcv": 22,
+      "investment_curve_pct": [
+        30,
+        24,
+        20,
+        16,
+        10
+      ],
+      "labor_share_pct_of_adm": 64,
+      "current_delivery_mix_pct": {
+        "onshore": 70,
+        "nearshore": 10,
+        "offshore": 20
+      },
+      "target_delivery_mix_pct": {
+        "onshore": 35,
+        "nearshore": 10,
+        "offshore": 55
+      },
+      "rate_card_usd_per_hour": {
+        "onshore": 95,
+        "nearshore": 55,
+        "offshore": 32
+      },
+      "automation_productivity_uplift_pct": 20,
+      "productivity_value_capture_pct": 55,
+      "resilience_value_pct_of_adm": 4,
+      "legacy_savings_rate_by_disposition_pct": {
+        "Retire": 100,
+        "Retain": 3,
+        "Rehost": 15,
+        "Replatform": 25,
+        "Refactor": 32,
+        "Rearchitect": 40
+      },
+      "benefit_ramp_curves_pct": {
+        "workforce": [
+          15,
+          35,
+          60,
+          85,
+          100
+        ],
+        "legacy": [
+          8,
+          30,
+          58,
+          82,
+          100
+        ],
+        "productivity": [
+          10,
+          35,
+          65,
+          85,
+          100
+        ],
+        "resilience": [
+          10,
+          35,
+          65,
+          85,
+          100
+        ]
+      },
+      "assumption_provenance": [
+        {
+          "assumption_name": "transformation_investment_pct_of_tcv",
+          "value": 22,
+          "assumption_basis": "Modeled transformation investment envelope for a five-year modernization partnership.",
+          "confidence": "Medium",
+          "owner_function": "strategy"
+        },
+        {
+          "assumption_name": "target_delivery_mix_pct.onshore",
+          "value": 35,
+          "assumption_basis": "Target-state product, architecture, and governance roles remain onshore-led.",
+          "confidence": "Medium",
+          "owner_function": "delivery_strategy"
+        },
+        {
+          "assumption_name": "target_delivery_mix_pct.nearshore",
+          "value": 10,
+          "assumption_basis": "North America timezone coverage is reserved for business analysis and product operations roles.",
+          "confidence": "Medium",
+          "owner_function": "delivery_strategy"
+        },
+        {
+          "assumption_name": "target_delivery_mix_pct.offshore",
+          "value": 55,
+          "assumption_basis": "Year-3 target state assumes engineering factory and shared platform services scale offshore.",
+          "confidence": "Medium",
+          "owner_function": "delivery_strategy"
+        },
+        {
+          "assumption_name": "automation_productivity_uplift_pct",
+          "value": 20,
+          "assumption_basis": "Modeled engineering and support productivity uplift from AI-assisted delivery and automation.",
+          "confidence": "Medium",
+          "owner_function": "strategy"
+        },
+        {
+          "assumption_name": "productivity_value_capture_pct",
+          "value": 55,
+          "assumption_basis": "Assumes slightly above half of gross productivity is monetized as capacity creation or cost takeout.",
+          "confidence": "Medium",
+          "owner_function": "finance"
+        },
+        {
+          "assumption_name": "resilience_value_pct_of_adm",
+          "value": 4,
+          "assumption_basis": "Modeled avoidance value tied to incident reduction, outage prevention, and control automation.",
+          "confidence": "Low",
+          "owner_function": "finance"
+        },
+        {
+          "assumption_name": "legacy_savings_rate_by_disposition_pct.Retire",
+          "value": 100,
+          "assumption_basis": "Full run-cost retirement is assumed once legacy platform decommission completes.",
+          "confidence": "High",
+          "owner_function": "architecture"
+        },
+        {
+          "assumption_name": "legacy_savings_rate_by_disposition_pct.Retain",
+          "value": 3,
+          "assumption_basis": "Retained apps assume marginal efficiency only from support standardization.",
+          "confidence": "Medium",
+          "owner_function": "architecture"
+        },
+        {
+          "assumption_name": "legacy_savings_rate_by_disposition_pct.Rehost",
+          "value": 15,
+          "assumption_basis": "Lift-and-shift actions assume infrastructure savings without major functional redesign.",
+          "confidence": "Medium",
+          "owner_function": "architecture"
+        },
+        {
+          "assumption_name": "legacy_savings_rate_by_disposition_pct.Replatform",
+          "value": 25,
+          "assumption_basis": "Platform modernization assumes moderate operations and infrastructure efficiency gains.",
+          "confidence": "Medium",
+          "owner_function": "architecture"
+        },
+        {
+          "assumption_name": "legacy_savings_rate_by_disposition_pct.Refactor",
+          "value": 32,
+          "assumption_basis": "Code and platform refactoring assume higher supportability and automation benefits.",
+          "confidence": "Medium",
+          "owner_function": "architecture"
+        },
+        {
+          "assumption_name": "legacy_savings_rate_by_disposition_pct.Rearchitect",
+          "value": 40,
+          "assumption_basis": "Strategic rearchitecture assumes the largest long-run operating model simplification.",
+          "confidence": "Medium",
+          "owner_function": "architecture"
+        }
+      ]
+    },
+    "current_state_metrics": [
+      {
+        "name": "Customer-facing release cadence",
+        "baseline_value": 30,
+        "baseline_unit": "days_between_releases",
+        "target_value": 7,
+        "target_unit": "days_between_releases",
+        "scope": "Digital Commerce",
+        "evidence_type": "internal_assessment",
+        "evidence_note": "Modeled from current-state release governance review and platform dependency mapping.",
+        "confidence": "Medium"
+      },
+      {
+        "name": "P1 incident MTTR",
+        "baseline_value": 6.5,
+        "baseline_unit": "hours",
+        "target_value": 1.5,
+        "target_unit": "hours",
+        "scope": "Store Operations and Commerce",
+        "evidence_type": "internal_assessment",
+        "evidence_note": "Modeled from current-state support operations review and major incident patterns.",
+        "confidence": "Medium"
+      },
+      {
+        "name": "Inventory sync latency",
+        "baseline_value": 360,
+        "baseline_unit": "minutes",
+        "target_value": 15,
+        "target_unit": "minutes",
+        "scope": "Supply Chain and Commerce",
+        "evidence_type": "internal_assessment",
+        "evidence_note": "Modeled from batch interface timing across inventory, order, and fulfillment workflows.",
+        "confidence": "Medium"
+      },
+      {
+        "name": "Duplicate customer record rate",
+        "baseline_value": 11,
+        "baseline_unit": "pct",
+        "target_value": 3,
+        "target_unit": "pct",
+        "scope": "Customer and loyalty",
+        "evidence_type": "internal_assessment",
+        "evidence_note": "Modeled from identity-resolution issues across loyalty, ecommerce, and service systems.",
+        "confidence": "Medium"
+      }
+    ]
+  },
+  "facts": {
+    "annual_adm_spend_usd": 95000000,
+    "apps_in_scope": 12,
+    "business_units_in_scope": 5,
+    "delivery_center_count": 3,
+    "average_app_age_years": 11.0,
+    "disposition_counts": {
+      "Retire": 1,
+      "Retain": 1,
+      "Rehost": 2,
+      "Replatform": 3,
+      "Refactor": 3,
+      "Rearchitect": 2
+    }
+  },
+  "phase_context": {
+    "transformation_targets": {
+      "cloud_migration_pct": 65,
+      "legacy_cost_reduction_pct": 28,
+      "release_frequency_improvement_pct": 45,
+      "change_failure_rate_reduction_pct": 25,
+      "innovation_budget_shift_pct": 20
+    },
+    "top_execution_assumptions": [
+      "Holiday code freeze applies from mid-November through early January for customer-facing platforms.",
+      "Target delivery-mix shift to 55% offshore is achieved by year 3, with architecture and product ownership remaining onshore-led.",
+      "Architecture review board meets monthly and transformation design authority meets weekly during active modernization waves."
+    ]
+  },
+  "quality_guardrails": {
+    "benchmark": "Cisco ADM HTML benchmark",
+    "all_numbers_must_come_from_supplied_inputs": true,
+    "no_html_output": true
+  }
+}

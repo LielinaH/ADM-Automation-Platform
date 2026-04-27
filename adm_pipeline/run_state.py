@@ -7,6 +7,7 @@ from typing import Any
 
 from adm_pipeline.constants import (
     BENCHMARK_STYLE_VERSION,
+    BENCHMARK_SCORE_FILENAME,
     FACTS_FILENAME,
     FINAL_QA_FILENAME,
     GLOBAL_CRITIQUE_FILENAME,
@@ -85,6 +86,7 @@ def init_manifest(
             "facts": str(run_dir / FACTS_FILENAME),
             "global_critique": str(run_dir / "critique" / GLOBAL_CRITIQUE_FILENAME),
             "repair_actions": str(run_dir / "critique" / REPAIR_ACTIONS_FILENAME),
+            "benchmark_score": str(run_dir / "critique" / BENCHMARK_SCORE_FILENAME),
             "final_html": str(run_dir / "final" / f"{client_id}.html"),
             "final_qa": str(run_dir / "final" / FINAL_QA_FILENAME),
         },

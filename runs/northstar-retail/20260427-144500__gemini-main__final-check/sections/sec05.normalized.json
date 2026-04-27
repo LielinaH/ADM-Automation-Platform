@@ -1,0 +1,55 @@
+{
+  "section_id": "sec05",
+  "title": "AI Transformation Strategy",
+  "phase": "Future State",
+  "summary": "Northstar Retail Group's AI strategy translates operational bottlenecks in release flow, incident recovery, and data latency into a sequenced enablement agenda designed to drive margin improvement and innovation velocity.",
+  "narrative": [
+    "The AI transformation is anchored in resolving systemic execution bottlenecks across the fragmented application estate, specifically targeting the 30-day release cadence and 6.5-hour P1 MTTR. By mapping AI capabilities to these pain points, the strategy moves beyond isolated pilots toward a repeatable operating system for engineering and operations.",
+    "Sequencing prioritizes shared enablement\u2014specifically observability foundations and customer identity resolution\u2014to ensure that subsequent modernization waves inherit a stable data layer. This approach prevents the common failure mode where AI use cases are deployed atop fragmented data pipelines, which currently contribute to an 11% duplicate customer record rate.",
+    "The enablement logic dictates that AI-assisted operations must precede major supply-chain rewrites to reduce the operational burden of legacy POS and order platforms. This creates the necessary capacity for the target 20% innovation budget shift by automating the 'run' cost of aging systems.",
+    "The ultimate benchmark for success is the transition from batch-driven latency (currently 360 minutes for inventory sync) to a real-time decision layer. This shift is enabled by integrating AI-driven orchestration with the target 65% cloud migration, ensuring that intelligence is applied to fresh, high-fidelity data."
+  ],
+  "kpi_cards": [],
+  "tables": [],
+  "cards": [
+    {
+      "widget": "transformation-pillars",
+      "title": "Reduce legacy ADM run-cost and rebalance spend toward innovation",
+      "detail": "Targeting a 20% innovation budget shift by automating legacy support"
+    },
+    {
+      "widget": "transformation-pillars",
+      "title": "Create a real-time inventory and fulfillment decision layer",
+      "detail": "Reducing inventory sync latency from 360 to 15 minutes"
+    },
+    {
+      "widget": "transformation-pillars",
+      "title": "Improve digital conversion, loyalty personalization, and release velocity",
+      "detail": "Accelerating release cadence from 30 days to 7 days"
+    },
+    {
+      "widget": "transformation-pillars",
+      "title": "Industrialize support with AI-assisted operations and observability",
+      "detail": "Reducing P1 incident MTTR from 6.5 to 1.5 hours"
+    }
+  ],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "AI value is maximized only when paired with platform observability and identity enablement to avoid automating existing inefficiencies.",
+    "Customer identity, pricing, and returns must be prioritized in Wave 1 to stabilize the foundation for omnichannel personalization.",
+    "The strategic goal is repeatable operating leverage through an AI-augmented delivery factory, not a collection of disconnected copilots."
+  ],
+  "fact_refs": [],
+  "evidence_refs": [
+    "Customer-facing release cadence",
+    "P1 incident MTTR",
+    "Inventory sync latency",
+    "Duplicate customer record rate"
+  ],
+  "required_widgets": [
+    "transformation-pillars"
+  ]
+}

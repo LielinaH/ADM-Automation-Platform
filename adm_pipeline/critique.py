@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from adm_pipeline.constants import GLOBAL_CRITIQUE_FILENAME, PLACEHOLDER_PATTERNS, REPAIR_ACTIONS_FILENAME, REQUIRED_SECTION_IDS
+from adm_pipeline.constants import BENCHMARK_SCORE_FILENAME, GLOBAL_CRITIQUE_FILENAME, PLACEHOLDER_PATTERNS, REPAIR_ACTIONS_FILENAME, REQUIRED_SECTION_IDS, SECTION_CONFIG_BY_ID
 from adm_pipeline.generation import repair_sections
 from adm_pipeline.providers import ProviderConfig
 from adm_pipeline.run_state import load_manifest, save_manifest
@@ -33,6 +33,8 @@ def critique_sections(run_dir: Path, facts: JsonObject, sections: dict[str, Json
     issues.extend(_evidence_issues(sections))
     issues.extend(_style_issues(sections))
     issues.extend(_required_content_issues(sections))
+    benchmark_score = _benchmark_score_report(sections)
+    issues.extend(_benchmark_depth_issues(benchmark_score))
 
     grouped: dict[str, list[JsonObject]] = defaultdict(list)
     repair_map: dict[str, list[str]] = defaultdict(list)
@@ -55,9 +57,11 @@ def critique_sections(run_dir: Path, facts: JsonObject, sections: dict[str, Json
     }
     write_json(run_dir / "critique" / GLOBAL_CRITIQUE_FILENAME, report)
     write_json(run_dir / "critique" / REPAIR_ACTIONS_FILENAME, report["repair_candidates"])
+    write_json(run_dir / "critique" / BENCHMARK_SCORE_FILENAME, benchmark_score)
 
     manifest = load_manifest(run_dir)
     manifest.setdefault("step_status", {})["critique"] = report["status"]
+    manifest.setdefault("step_status", {})["benchmark_score"] = benchmark_score["status"]
     save_manifest(run_dir, manifest)
     return report
 
@@ -184,6 +188,78 @@ def _required_content_issues(sections: dict[str, JsonObject]) -> list[CritiqueIs
         payload = sections.get(section_id)
         if payload and not predicate(payload):
             issues.append(CritiqueIssue(section_id, "error", "missing_required_content", "Section is missing required benchmark content blocks"))
+    return issues
+
+
+def _benchmark_score_report(sections: dict[str, JsonObject]) -> JsonObject:
+    section_scores: dict[str, JsonObject] = {}
+    overall_score = 0
+    all_passing = True
+    for section_id, payload in sections.items():
+        config = SECTION_CONFIG_BY_ID[section_id]
+        actual = {
+            "narrative_paragraphs": len(payload.get("narrative", [])),
+            "kpi_cards": len(payload.get("kpi_cards", [])),
+            "tables": len(payload.get("tables", [])),
+            "cards": len(payload.get("cards", [])),
+            "callouts": len(payload.get("callouts", [])),
+            "timeline_items": len(payload.get("timeline", [])),
+            "delivery_cards": len(payload.get("delivery_cards", [])),
+        }
+        targets = {
+            "narrative_paragraphs": config.min_narrative_paragraphs,
+            "kpi_cards": config.min_kpi_cards,
+            "tables": config.min_tables,
+            "cards": config.min_cards,
+            "callouts": config.min_callouts,
+            "timeline_items": config.min_timeline_items,
+            "delivery_cards": config.min_delivery_cards,
+        }
+        misses = {
+            key: {"actual": actual[key], "target": target}
+            for key, target in targets.items()
+            if target and actual[key] < target
+        }
+        weighted_keys = [key for key, target in targets.items() if target]
+        if not weighted_keys:
+            score = 100
+        else:
+            hits = sum(1 for key in weighted_keys if actual[key] >= targets[key])
+            score = round((hits / len(weighted_keys)) * 100)
+        section_status = "pass" if not misses else "fail"
+        if misses:
+            all_passing = False
+        overall_score += score
+        section_scores[section_id] = {
+            "title": config.title,
+            "status": section_status,
+            "score": score,
+            "benchmark_brief": config.benchmark_brief,
+            "actual": actual,
+            "targets": targets,
+            "misses": misses,
+        }
+    overall = round(overall_score / len(section_scores)) if section_scores else 0
+    return {
+        "status": "pass" if all_passing else "fail",
+        "overall_score": overall,
+        "sections": section_scores,
+    }
+
+
+def _benchmark_depth_issues(score_report: JsonObject) -> list[CritiqueIssue]:
+    issues: list[CritiqueIssue] = []
+    for section_id, section_report in score_report.get("sections", {}).items():
+        misses = section_report.get("misses", {})
+        for metric, values in misses.items():
+            issues.append(
+                CritiqueIssue(
+                    section_id,
+                    "error",
+                    "benchmark_depth",
+                    f"Benchmark depth shortfall for {metric}: {values['actual']} provided, target is {values['target']}",
+                )
+            )
     return issues
 
 

@@ -1,0 +1,181 @@
+{
+  "section_id": "sec03",
+  "title": "App Inventory",
+  "phase": "Diagnose",
+  "summary": "The application inventory establishes a baseline of 12 core assets across 5 business units, mapping run costs and dependencies to drive modernization sequencing.",
+  "narrative": [
+    "The inventory serves as the primary control mechanism for the modernization roadmap, linking each application to its business owner, hosting environment, and strategic disposition. By quantifying the annual run cost of $76.40M against the total ADM spend, the organization can prioritize high-cost legacy assets for aggressive refactoring or retirement.",
+    "Dependency mapping reveals an average of 2.33 connections per application, indicating a moderately coupled estate where changes to core systems like OrderCore or SupplyMesh will have significant ripple effects. This complexity necessitates a wave-based approach to ensure stability during the transition from on-premises data centers to cloud-native architectures.",
+    "The distribution of dispositions\u2014ranging from Retire and Retain to Rearchitect\u2014reflects a balanced strategy to capture immediate cost savings while investing in long-term agility. High-value targets in Digital Commerce and Customer & Loyalty are prioritized for Refactor and Rearchitect paths to resolve fragmented identity and release velocity pain points."
+  ],
+  "kpi_cards": [
+    {
+      "label": "Apps in Scope",
+      "value": "12",
+      "subtitle": "Total application estate size",
+      "fact_key": "apps_in_scope"
+    },
+    {
+      "label": "Business Units",
+      "value": "5",
+      "subtitle": "Cross-functional ownership spread",
+      "fact_key": "business_units_in_scope"
+    },
+    {
+      "label": "Total App Run Cost",
+      "value": "$76.40M",
+      "subtitle": "Annual application operating expenditure",
+      "fact_key": "total_app_run_cost_usd"
+    },
+    {
+      "label": "Avg Dependencies / App",
+      "value": "2.33",
+      "subtitle": "Inter-app complexity indicator",
+      "fact_key": "average_dependencies_per_app"
+    }
+  ],
+  "tables": [
+    {
+      "widget": "app-table",
+      "title": "Application Inventory",
+      "columns": [
+        "ID",
+        "Application",
+        "Business Unit",
+        "Disposition",
+        "Run Cost",
+        "Hosting",
+        "Dependencies"
+      ],
+      "rows": [
+        [
+          "APP-001",
+          "OrderCore",
+          "Digital Commerce",
+          "Refactor",
+          "$12.00M",
+          "Chicago DC",
+          "3"
+        ],
+        [
+          "APP-002",
+          "StoreOps Suite",
+          "Store Operations",
+          "Replatform",
+          "$9.50M",
+          "Dallas DC",
+          "2"
+        ],
+        [
+          "APP-003",
+          "SupplyMesh",
+          "Supply Chain",
+          "Rearchitect",
+          "$8.70M",
+          "Memphis DC",
+          "3"
+        ],
+        [
+          "APP-004",
+          "Loyalty360",
+          "Customer & Loyalty",
+          "Refactor",
+          "$6.40M",
+          "AWS us-east-1",
+          "3"
+        ],
+        [
+          "APP-005",
+          "MerchPlanner",
+          "Merchandising",
+          "Replatform",
+          "$5.20M",
+          "Chicago DC",
+          "3"
+        ],
+        [
+          "APP-006",
+          "InvoiceHub",
+          "Merchandising",
+          "Rehost",
+          "$4.90M",
+          "Chicago DC",
+          "1"
+        ],
+        [
+          "APP-007",
+          "PricingEngine",
+          "Digital Commerce",
+          "Rearchitect",
+          "$5.60M",
+          "AWS us-east-1",
+          "3"
+        ],
+        [
+          "APP-008",
+          "WarehouseMobile",
+          "Supply Chain",
+          "Retain",
+          "$3.80M",
+          "AWS us-east-2",
+          "1"
+        ],
+        [
+          "APP-009",
+          "CustomerID",
+          "Customer & Loyalty",
+          "Refactor",
+          "$4.50M",
+          "AWS us-east-1",
+          "3"
+        ],
+        [
+          "APP-010",
+          "POSLegacy",
+          "Store Operations",
+          "Retire",
+          "$7.90M",
+          "Dallas DC",
+          "2"
+        ],
+        [
+          "APP-011",
+          "CampaignMart",
+          "Customer & Loyalty",
+          "Replatform",
+          "$4.30M",
+          "Vendor SaaS / Chicago integration hub",
+          "2"
+        ],
+        [
+          "APP-012",
+          "ReturnsPortal",
+          "Digital Commerce",
+          "Rehost",
+          "$3.60M",
+          "Chicago DC",
+          "2"
+        ]
+      ]
+    }
+  ],
+  "cards": [],
+  "chart": null,
+  "matrix": null,
+  "timeline": [],
+  "delivery_cards": [],
+  "callouts": [
+    "The high run cost of OrderCore ($12M) combined with its Refactor disposition makes it a primary candidate for early-wave productivity gains.",
+    "The presence of 7 on-premises assets indicates a significant infrastructure tail that must be managed to avoid delaying cloud migration targets."
+  ],
+  "fact_refs": [
+    "apps_in_scope",
+    "business_units_in_scope",
+    "total_app_run_cost_usd",
+    "average_dependencies_per_app"
+  ],
+  "evidence_refs": [],
+  "required_widgets": [
+    "app-table"
+  ]
+}

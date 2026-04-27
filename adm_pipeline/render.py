@@ -546,6 +546,7 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
     }}
     .summary-callouts {{
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 12px;
     }}
     .summary-callout {{
@@ -559,6 +560,8 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
       color: #1f4459;
       font-weight: 600;
       line-height: 1.55;
+      min-height: 100%;
+      box-shadow: 0 10px 24px rgba(12, 34, 52, 0.05);
     }}
     .summary-callout .bullet {{
       margin-top: 7px;
@@ -568,17 +571,222 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
       background: var(--cyan);
       flex: none;
     }}
+    .metric-board,
+    .value-board,
+    .target-board,
+    .signal-board {{
+      display: grid;
+      gap: 18px;
+    }}
+    .metric-grid,
+    .target-grid,
+    .signal-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }}
+    .metric-card,
+    .target-card,
+    .signal-card {{
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbfd 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      box-shadow: 0 10px 24px rgba(12, 34, 52, 0.05);
+    }}
+    .metric-top,
+    .target-top,
+    .signal-top {{
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }}
+    .metric-name,
+    .target-name,
+    .signal-name {{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--surface-ink);
+    }}
+    .metric-scope,
+    .target-detail,
+    .signal-segment {{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      line-height: 1.45;
+    }}
+    .metric-delta,
+    .target-value {{
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(0,188,235,0.09);
+      color: var(--cyan-deep);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }}
+    .metric-scale {{
+      height: 10px;
+      border-radius: 999px;
+      background: #ebf2f6;
+      overflow: hidden;
+      border: 1px solid rgba(219,228,235,0.92);
+    }}
+    .metric-scale-fill,
+    .value-fill {{
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cyan), var(--mint));
+    }}
+    .metric-values {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #324d60;
+      font-size: 13px;
+      font-weight: 700;
+    }}
+    .metric-values span:last-child {{
+      color: var(--teal);
+    }}
+    .value-board-grid {{
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+      gap: 16px;
+    }}
+    .value-mix {{
+      display: grid;
+      gap: 12px;
+    }}
+    .value-row {{
+      display: grid;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
+      border: 1px solid var(--border);
+    }}
+    .value-row-top {{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }}
+    .value-row-top .name {{
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: var(--surface-ink);
+      text-transform: uppercase;
+    }}
+    .value-row-top .amount {{
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      color: var(--cyan-deep);
+    }}
+    .value-track {{
+      height: 10px;
+      border-radius: 999px;
+      background: #ebf2f6;
+      overflow: hidden;
+      border: 1px solid rgba(219,228,235,0.92);
+    }}
+    .year-strip {{
+      display: grid;
+      gap: 10px;
+    }}
+    .year-chip {{
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbfd 100%);
+      display: grid;
+      gap: 4px;
+    }}
+    .year-chip .year {{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #708496;
+    }}
+    .year-chip .net {{
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      color: var(--surface-ink);
+    }}
+    .year-chip .state {{
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }}
+    .year-chip.positive .net,
+    .year-chip.positive .state {{
+      color: var(--teal);
+    }}
+    .year-chip.negative .net,
+    .year-chip.negative .state {{
+      color: #b5475b;
+    }}
+    .signal-metric-list {{
+      display: grid;
+      gap: 9px;
+    }}
+    .signal-metric {{
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+    }}
+    .signal-metric .label {{
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #708496;
+      margin-bottom: 6px;
+    }}
+    .signal-metric .value {{
+      font-size: 13px;
+      font-weight: 700;
+      color: #294559;
+      line-height: 1.55;
+    }}
     .kpi-band {{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 14px;
     }}
     .kpi-card {{
+      position: relative;
+      overflow: hidden;
       background: linear-gradient(180deg, #ffffff 0%, #f5fafc 100%);
       border: 1px solid var(--border);
       border-radius: 24px;
       padding: 18px 18px 20px;
       min-height: 132px;
+    }}
+    .kpi-card::before {{
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--cyan), var(--mint));
+      opacity: 0.95;
     }}
     .kpi-card .label {{
       font-size: 11px;
@@ -658,6 +866,44 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
       color: var(--muted);
       font-weight: 600;
       line-height: 1.6;
+    }}
+    .insight-card strong,
+    .delivery-card strong,
+    .matrix-column strong {{
+      color: var(--surface-ink);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }}
+    .insight-card ul,
+    .delivery-card ul,
+    .matrix-column ul {{
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }}
+    .insight-card li,
+    .delivery-card li,
+    .matrix-column li {{
+      position: relative;
+      padding-left: 16px;
+      color: #30495b;
+      line-height: 1.55;
+      font-weight: 600;
+    }}
+    .insight-card li::before,
+    .delivery-card li::before,
+    .matrix-column li::before {{
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--cyan), var(--mint));
+      box-shadow: 0 0 0 4px rgba(0,188,235,0.08);
     }}
     .table-card {{
       overflow: hidden;
@@ -917,6 +1163,19 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
     }}
+    .trace-card summary {{
+      cursor: pointer;
+      list-style: none;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cyan-deep);
+      margin-bottom: 16px;
+    }}
+    .trace-card summary::-webkit-details-marker {{
+      display: none;
+    }}
     .trace-item {{
       padding: 14px 16px;
       border-radius: 18px;
@@ -1083,6 +1342,7 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
     @media (max-width: 1320px) {{
       .masthead {{ grid-template-columns: 1fr; }}
       .hero-grid {{ grid-template-columns: 1fr; }}
+      .value-board-grid {{ grid-template-columns: 1fr; }}
       .matrix-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
     }}
     @media (max-width: 1120px) {{
@@ -1284,7 +1544,7 @@ def _render_screen_body(section: dict[str, Any], facts: dict[str, Any], client: 
     if section_id == "sec03":
         return _render_inventory_screen(section, facts)
     if section_id == "sec04":
-        return _render_benchmark_screen(section, facts)
+        return _render_benchmark_screen(section, facts, client)
     if section_id == "sec05":
         return _render_strategy_screen(section, facts)
     if section_id == "sec06":
@@ -1292,19 +1552,20 @@ def _render_screen_body(section: dict[str, Any], facts: dict[str, Any], client: 
     if section_id == "sec07":
         return _render_cloud_data_screen(section, facts)
     if section_id == "sec08":
-        return _render_financial_screen(section, facts)
+        return _render_financial_screen(section, facts, client)
     if section_id == "sec09":
         return _render_roadmap_screen(section, facts)
     if section_id == "sec10":
         return _render_delivery_screen(section, facts)
     if section_id == "sec11":
-        return _render_summary_screen(section, facts)
+        return _render_summary_screen(section, facts, client)
     if section_id == "sec12":
         return _render_partnership_screen(section, facts)
     return _render_generic_screen(section, facts)
 
 
 def _render_executive_screen(section: dict[str, Any], facts: dict[str, Any], client: dict[str, Any]) -> str:
+    metrics = client.get("narrative_context", {}).get("current_state_metrics", [])
     return (
         '<div class="hero-grid">'
         f'<div class="statement-card" data-widget="hero-callout" data-filled="true"><h3>Transformation Thesis</h3>{_render_narrative(section.get("narrative", []))}{_render_summary_callouts(section.get("callouts", []))}</div>'
@@ -1319,13 +1580,17 @@ def _render_executive_screen(section: dict[str, Any], facts: dict[str, Any], cli
         '</div>'
         '</div>'
         '</div>'
+        f'{_render_metric_progress_board(metrics, "Current-State Performance Reset", "executive-metrics")}'
+        f'{_render_visual_block("Estate Transformation Posture", "Application density, dependency load, and delivery-mix reset anchored to the locked client ingress.", _render_estate_snapshot_svg(facts, client), "executive-estate-visual")}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
 
 
 def _render_portfolio_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
+        f'{_render_kpi_band(section.get("kpi_cards", []), "portfolio-kpis")}'
         f'{_render_section_block("Portfolio Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Portfolio Signals", section.get("callouts", []))}'
         f'{_render_insight_cards(section.get("cards", []), "portfolio-cards")}'
         f'{_render_visual_block("Portfolio Distribution by Business Unit", "Cost and application count concentration across the estate.", _render_chart(section.get("chart")), "portfolio-chart")}'
         + _render_traceability(section.get("fact_refs", []), facts)
@@ -1334,16 +1599,21 @@ def _render_portfolio_screen(section: dict[str, Any], facts: dict[str, Any]) -> 
 
 def _render_inventory_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
+        f'{_render_kpi_band(section.get("kpi_cards", []), "inventory-kpis")}'
         f'{_render_section_block("Inventory Framing", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Disposition Takeaways", section.get("callouts", []))}'
         f'{_render_tables(section.get("tables", []))}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
 
 
-def _render_benchmark_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+def _render_benchmark_screen(section: dict[str, Any], facts: dict[str, Any], client: dict[str, Any]) -> str:
     return (
         f'{_render_section_block("Benchmark Positioning", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Gap-Closing Imperatives", section.get("callouts", []))}'
         f'{_render_benchmark_cards(section.get("cards", []), "competitor-cards")}'
+        f'{_render_competitor_signal_board(client.get("competitors", []))}'
+        f'{_render_visual_block("Gap Closure Index", "Normalized gap-closure view across the client’s highest-signal performance metrics.", _render_benchmark_gap_svg(client.get("narrative_context", {}).get("current_state_metrics", [])), "benchmark-gap-visual")}'
         f'{_render_tables(section.get("tables", []))}'
         + _render_traceability(section.get("evidence_refs", []), None, title="Evidence Markers")
     )
@@ -1352,6 +1622,7 @@ def _render_benchmark_screen(section: dict[str, Any], facts: dict[str, Any]) -> 
 def _render_strategy_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
         f'{_render_section_block("Strategic Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Priority AI Plays", section.get("callouts", []))}'
         f'{_render_insight_cards(section.get("cards", []), "transformation-pillars")}'
         + _render_traceability(section.get("evidence_refs", []), None, title="Evidence Markers")
     )
@@ -1359,7 +1630,9 @@ def _render_strategy_screen(section: dict[str, Any], facts: dict[str, Any]) -> s
 
 def _render_factory_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
+        f'{_render_kpi_band(section.get("kpi_cards", []), "factory-kpis")}'
         f'{_render_section_block("Factory Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Factory Implications", section.get("callouts", []))}'
         f'{_render_matrix(section.get("matrix"))}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
@@ -1368,16 +1641,21 @@ def _render_factory_screen(section: dict[str, Any], facts: dict[str, Any]) -> st
 def _render_cloud_data_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
         f'{_render_section_block("Cloud & Data Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_kpi_band(section.get("kpi_cards", []), "cloud-data-kpis")}'
+        f'{_render_signal_block("Architecture Implications", section.get("callouts", []))}'
         f'{_render_insight_cards(section.get("cards", []), "cloud-data-cards")}'
         f'{_render_tables(section.get("tables", []))}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
 
 
-def _render_financial_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+def _render_financial_screen(section: dict[str, Any], facts: dict[str, Any], client: dict[str, Any]) -> str:
     return (
         f'{_render_section_block("Financial Narrative", _render_narrative(section.get("narrative", [])))}'
         f'{_render_kpi_band(section.get("kpi_cards", []), "financial-kpis")}'
+        f'{_render_signal_block("Value Interpretation", section.get("callouts", []))}'
+        f'{_render_value_stream_board(facts)}'
+        f'{_render_visual_block("Value Bridge", "Waterfall view from transformation investment through the modeled value streams to net value creation.", _render_value_bridge_svg(facts), "financial-value-bridge")}'
         f'{_render_tables(section.get("tables", []))}'
         f'{_render_visual_block("5-Year Investment vs Value", "The financial section uses only code-computed values from the facts engine.", _render_chart(section.get("chart")), "financial-chart")}'
         + _render_traceability(section.get("fact_refs", []), facts)
@@ -1387,6 +1665,7 @@ def _render_financial_screen(section: dict[str, Any], facts: dict[str, Any]) -> 
 def _render_roadmap_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
         f'{_render_section_block("Roadmap Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Program Guardrails", section.get("callouts", []))}'
         f'{_render_timeline(section.get("timeline", []))}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
@@ -1395,16 +1674,21 @@ def _render_roadmap_screen(section: dict[str, Any], facts: dict[str, Any]) -> st
 def _render_delivery_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     strip = _render_delivery_strip(section.get("delivery_cards", []))
     return (
+        f'{_render_kpi_band(section.get("kpi_cards", []), "delivery-kpis")}'
         f'{_render_section_block("Delivery Narrative", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Operating Model Principles", section.get("callouts", []))}'
         f'<div class="section-block"><h3>Delivery Footprint Allocation</h3>{strip}</div>'
         f'{_render_delivery_cards(section.get("delivery_cards", []))}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
 
 
-def _render_summary_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
+def _render_summary_screen(section: dict[str, Any], facts: dict[str, Any], client: dict[str, Any]) -> str:
     return (
         f'{_render_section_block("Executive Synthesis", _render_narrative(section.get("narrative", [])))}'
+        f'{_render_signal_block("Board-Level Takeaways", section.get("callouts", []))}'
+        f'{_render_target_board(client.get("targets", {}), facts)}'
+        f'{_render_visual_block("Target Outcome Mix", "Closing section view of the target-state operating outcomes tied back to the financial anchor.", _render_target_outcome_svg(client.get("targets", {}), facts), "target-outcome-visual")}'
         f'{_render_insight_cards(section.get("cards", []), "benchmark-summary")}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
@@ -1412,6 +1696,7 @@ def _render_summary_screen(section: dict[str, Any], facts: dict[str, Any]) -> st
 
 def _render_partnership_screen(section: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
+        f'{_render_kpi_band(section.get("kpi_cards", []), "partnership-kpis")}'
         f'{_render_section_block("Operating Model Narrative", _render_narrative(section.get("narrative", [])))}'
         f'{_render_insight_cards(section.get("cards", []), "partnership-overview")}'
         f'{_render_section_block("Execution Assumptions", _render_summary_callouts(section.get("callouts", [])))}'
@@ -1447,6 +1732,139 @@ def _render_summary_callouts(callouts: list[str]) -> str:
     return '<div class="summary-callouts">' + "".join(
         f'<div class="summary-callout"><span class="bullet"></span><span>{escape(item)}</span></div>' for item in callouts
     ) + "</div>"
+
+
+def _render_signal_block(title: str, callouts: list[str]) -> str:
+    return _render_section_block(title, _render_summary_callouts(callouts))
+
+
+def _render_metric_progress_board(metrics: list[dict[str, Any]], title: str, widget: str) -> str:
+    if not metrics:
+        return ""
+    cards = []
+    for metric in metrics:
+        baseline = float(metric.get("baseline_value", 0) or 0)
+        target = float(metric.get("target_value", 0) or 0)
+        unit = str(metric.get("baseline_unit") or metric.get("target_unit") or "")
+        improvement = _metric_delta_label(baseline, target, unit)
+        gap_width = _metric_gap_width(baseline, target)
+        cards.append(
+            '<div class="metric-card">'
+            '<div class="metric-top">'
+            f'<div><div class="metric-name">{escape(str(metric.get("name", "Metric")))}</div><div class="metric-scope">{escape(str(metric.get("scope", "Enterprise")))}</div></div>'
+            f'<div class="metric-delta">{escape(improvement)}</div>'
+            '</div>'
+            f'<div class="metric-scale"><div class="metric-scale-fill" style="width:{gap_width:.0f}%;"></div></div>'
+            f'<div class="metric-values"><span>Baseline {_format_metric_value(metric.get("baseline_value"), unit)}</span><span>Target {_format_metric_value(metric.get("target_value"), unit)}</span></div>'
+            '</div>'
+        )
+    inner = f'<div class="metric-board"><div class="metric-grid">{"".join(cards)}</div></div>'
+    return f'<div class="data-card" data-widget="{escape(widget)}" data-filled="true"><h3>{escape(title)}</h3>{inner}</div>'
+
+
+def _render_competitor_signal_board(competitors: list[dict[str, Any]]) -> str:
+    if not competitors:
+        return ""
+    cards = []
+    for competitor in competitors:
+        metrics = competitor.get("competitor_metrics", [])[:2]
+        metric_html = "".join(
+            '<div class="signal-metric">'
+            f'<div class="label">{escape(_humanize_metric_name(str(metric.get("metric_name", "Signal"))))} · {escape(str(metric.get("metric_year", "")))}</div>'
+            f'<div class="value">{escape(str(metric.get("metric_value", "")))}</div>'
+            '</div>'
+            for metric in metrics
+        )
+        signals = competitor.get("evidence_signals", [])[:2]
+        signal_points = "".join(f"<li>{escape(item)}</li>" for item in signals)
+        cards.append(
+            '<div class="signal-card">'
+            '<div class="signal-top">'
+            f'<div><div class="signal-name">{escape(str(competitor.get("name", "Competitor")))}</div><div class="signal-segment">{escape(str(competitor.get("segment", "")))}</div></div>'
+            f'<div class="benchmark-chip">{escape(str(metrics[0].get("confidence", "Medium") if metrics else "Medium"))} confidence</div>'
+            '</div>'
+            f'<div class="signal-metric-list">{metric_html}</div>'
+            f'<div><strong>Signals</strong><ul>{signal_points}</ul></div>'
+            '</div>'
+        )
+    return f'<div class="data-card" data-widget="competitor-signal-board" data-filled="true"><h3>Competitor Signal Snapshot</h3><div class="signal-board"><div class="signal-grid">{"".join(cards)}</div></div></div>'
+
+
+def _render_value_stream_board(facts: dict[str, Any]) -> str:
+    streams = [
+        ("Workforce savings", float(facts.get("workforce_savings_rate_arbitrage_cumulative_usd", 0) or 0)),
+        ("Legacy cost reduction", float(facts.get("legacy_cost_reduction_cumulative_usd", 0) or 0)),
+        ("Productivity value", float(facts.get("productivity_value_cumulative_usd", 0) or 0)),
+        ("Resilience value", float(facts.get("resilience_value_cumulative_usd", 0) or 0)),
+    ]
+    if not any(amount for _, amount in streams):
+        return ""
+    max_amount = max(amount for _, amount in streams) or 1.0
+    mix = []
+    for name, amount in streams:
+        width = max(10.0, (amount / max_amount) * 100.0)
+        mix.append(
+            '<div class="value-row">'
+            f'<div class="value-row-top"><div class="name">{escape(name)}</div><div class="amount">{escape(format_currency(amount))}</div></div>'
+            f'<div class="value-track"><div class="value-fill" style="width:{width:.0f}%;"></div></div>'
+            '</div>'
+        )
+    year_chips = []
+    for index, amount in enumerate(facts.get("yearly_investment_net_usd", []), start=1):
+        amount_float = float(amount or 0)
+        chip_class = "positive" if amount_float >= 0 else "negative"
+        state = "Net positive" if amount_float >= 0 else "Investment-led"
+        year_chips.append(
+            f'<div class="year-chip {chip_class}">'
+            f'<div class="year">Year {index}</div>'
+            f'<div class="net">{escape(format_currency(amount_float))}</div>'
+            f'<div class="state">{escape(state)}</div>'
+            '</div>'
+        )
+    inner = (
+        '<div class="value-board">'
+        '<div class="value-board-grid">'
+        f'<div class="value-mix">{"".join(mix)}</div>'
+        f'<div class="year-strip">{"".join(year_chips)}</div>'
+        '</div>'
+        '</div>'
+    )
+    return f'<div class="data-card" data-widget="financial-value-board" data-filled="true"><h3>Value Stream Profile</h3>{inner}</div>'
+
+
+def _render_target_board(targets: dict[str, Any], facts: dict[str, Any]) -> str:
+    if not targets:
+        return ""
+    roi_label = f'{float(facts["roi_pct"]):.2f}%'
+    net_value_label = format_currency(float(facts["net_value_created_usd"]))
+    total_value_label = format_currency(float(facts["cumulative_business_value_usd"]))
+    ordered_targets = [
+        ("Cloud migration", targets.get("cloud_migration_pct"), "workloads shifted into the target-state cloud footprint"),
+        ("Legacy reduction", targets.get("legacy_cost_reduction_pct"), "run-cost removed from the legacy estate"),
+        ("Release uplift", targets.get("release_frequency_improvement_pct"), "release-velocity improvement against the current baseline"),
+        ("Failure-rate reduction", targets.get("change_failure_rate_reduction_pct"), "stability gain from platform and delivery modernization"),
+        ("Innovation shift", targets.get("innovation_budget_shift_pct"), "budget rebalanced from maintenance into innovation"),
+    ]
+    cards = []
+    for label, value, detail in ordered_targets:
+        if value is None:
+            continue
+        cards.append(
+            '<div class="target-card">'
+            '<div class="target-top">'
+            f'<div><div class="target-name">{escape(label)}</div><div class="target-detail">{escape(detail)}</div></div>'
+            f'<div class="target-value">{escape(f"{float(value):.0f}%")}</div>'
+            '</div>'
+            f'<div class="metric-scale"><div class="metric-scale-fill" style="width:{max(8.0, min(float(value), 100.0)):.0f}%;"></div></div>'
+            '</div>'
+        )
+    anchor = (
+        f'<div class="summary-callouts">'
+        f'<div class="summary-callout"><span class="bullet"></span><span>Modeled ROI anchor: {escape(roi_label)} from {escape(net_value_label)} net value created.</span></div>'
+        f'<div class="summary-callout"><span class="bullet"></span><span>Five-year value pool: {escape(total_value_label)} supported by code-computed workforce, legacy, productivity, and resilience streams.</span></div>'
+        '</div>'
+    )
+    return f'<div class="data-card" data-widget="target-board" data-filled="true"><h3>Target-State Outcome Board</h3><div class="target-board"><div class="target-grid">{"".join(cards)}</div>{anchor}</div></div>'
 
 
 def _render_kpi_band(cards: list[dict[str, Any]], widget: str) -> str:
@@ -1503,7 +1921,7 @@ def _render_benchmark_cards(cards: list[dict[str, Any]], widget: str) -> str:
             f'<div class="benchmark-chip">{escape(str(card.get("segment", "")))}</div>'
             f'<div class="title">{escape(str(card.get("title", "")))}</div>'
             f'<div><strong>Public strengths</strong><ul>{strengths}</ul></div>'
-            f'<div><strong>Northstar gap</strong><ul>{gaps}</ul></div>'
+            f'<div><strong>Client gap</strong><ul>{gaps}</ul></div>'
             f'<div><strong>Signals</strong><ul>{signals}</ul></div>'
             '</div>'
         )
@@ -1550,6 +1968,218 @@ def _render_chart(chart: dict[str, Any] | None) -> str:
     else:
         svg = _render_simple_bar_svg(chart["series"])
     return f'<div class="svg-shell">{svg}</div>'
+
+
+def _render_estate_snapshot_svg(facts: dict[str, Any], client: dict[str, Any]) -> str:
+    width = 920
+    height = 360
+    stats = [
+        ("Apps", str(facts["apps_in_scope"])),
+        ("Avg Age", f'{float(facts["average_app_age_years"]):.1f}y'),
+        ("Dependencies", str(facts["dependency_edges"])),
+        ("Run-Cost Ratio", f'{float(facts["run_cost_to_adm_ratio"]) * 100:.1f}%'),
+    ]
+    stat_blocks = []
+    positions = [(32, 34), (242, 34), (32, 132), (242, 132)]
+    for (label, value), (x, y) in zip(stats, positions):
+        stat_blocks.append(
+            f'<g><rect x="{x}" y="{y}" width="178" height="76" rx="18" fill="#f7fbfd" stroke="#dbe4eb"></rect>'
+            f'<text x="{x + 18}" y="{y + 24}" font-size="11" font-weight="900" letter-spacing="1.6" fill="#708496">{escape(label.upper())}</text>'
+            f'<text x="{x + 18}" y="{y + 56}" font-size="28" font-weight="950" fill="#14283a">{escape(value)}</text></g>'
+        )
+    bu_mix = sorted(facts.get("run_cost_by_business_unit_usd", {}).items(), key=lambda item: float(item[1]), reverse=True)
+    max_cost = max((float(value) for _, value in bu_mix), default=1.0)
+    bu_bars = []
+    base_x = 462
+    base_y = 66
+    for index, (name, value) in enumerate(bu_mix):
+        y = base_y + index * 40
+        bar_width = (float(value) / max_cost) * 250.0
+        bu_bars.append(
+            f'<g><text x="{base_x}" y="{y}" font-size="12" font-weight="800" fill="#5f7283">{escape(name)}</text>'
+            f'<rect x="{base_x}" y="{y + 10}" width="250" height="12" rx="6" fill="#eaf2f6"></rect>'
+            f'<rect x="{base_x}" y="{y + 10}" width="{bar_width:.1f}" height="12" rx="6" fill="#00bceb"></rect>'
+            f'<text x="{base_x + 262}" y="{y + 21}" font-size="12" font-weight="900" fill="#14283a">{escape(_format_currency_short(float(value)))}</text></g>'
+        )
+    delivery = client.get("financial_assumptions", {})
+    current_mix = delivery.get("current_delivery_mix_pct", {})
+    target_mix = delivery.get("target_delivery_mix_pct", {})
+    mix_colors = {"onshore": "#073b5a", "nearshore": "#4dc7ae", "offshore": "#00bceb"}
+    current_segments = _render_mix_bar_svg(42, 254, 300, 16, current_mix, mix_colors)
+    target_segments = _render_mix_bar_svg(42, 304, 300, 16, target_mix, mix_colors)
+    legend = []
+    for idx, key in enumerate(("onshore", "nearshore", "offshore")):
+        x = 462 + idx * 120
+        legend.append(
+            f'<g><rect x="{x}" y="286" width="12" height="12" rx="6" fill="{mix_colors[key]}"></rect>'
+            f'<text x="{x + 18}" y="296" font-size="12" font-weight="800" fill="#5f7283">{escape(key.title())}</text></g>'
+        )
+    return (
+        f'<svg viewBox="0 0 {width} {height}" width="100%" height="360" role="img">'
+        '<rect x="12" y="12" width="896" height="336" rx="28" fill="#ffffff" stroke="#dbe4eb"></rect>'
+        '<text x="32" y="26" font-size="10" font-weight="900" letter-spacing="2.2" fill="#00779b">ESTATE SNAPSHOT</text>'
+        f'{"".join(stat_blocks)}'
+        '<text x="462" y="34" font-size="14" font-weight="900" fill="#14283a">Run-cost concentration by business unit</text>'
+        f'{"".join(bu_bars)}'
+        '<text x="42" y="238" font-size="14" font-weight="900" fill="#14283a">Delivery mix reset</text>'
+        '<text x="42" y="250" font-size="11" font-weight="800" fill="#708496">Current</text>'
+        '<text x="42" y="300" font-size="11" font-weight="800" fill="#708496">Target</text>'
+        f'{current_segments}{target_segments}'
+        f'{"".join(legend)}'
+        '</svg>'
+    )
+
+
+def _render_benchmark_gap_svg(metrics: list[dict[str, Any]]) -> str:
+    if not metrics:
+        return ""
+    width = 920
+    height = 360
+    rows = []
+    max_gap = max((_metric_gap_width(float(m.get("baseline_value", 0) or 0), float(m.get("target_value", 0) or 0)) for m in metrics), default=100.0)
+    for index, metric in enumerate(metrics[:4]):
+        y = 52 + index * 72
+        baseline = float(metric.get("baseline_value", 0) or 0)
+        target = float(metric.get("target_value", 0) or 0)
+        unit = str(metric.get("baseline_unit") or metric.get("target_unit") or "")
+        gap = _metric_gap_width(baseline, target)
+        width_fill = (gap / max_gap) * 330.0 if max_gap else 80.0
+        delta = _metric_delta_label(baseline, target, unit)
+        rows.append(
+            f'<g><text x="32" y="{y}" font-size="13" font-weight="900" fill="#14283a">{escape(str(metric.get("name", "Metric")))}</text>'
+            f'<text x="32" y="{y + 18}" font-size="11" font-weight="800" fill="#708496">{escape(str(metric.get("scope", "Enterprise")))}</text>'
+            f'<text x="470" y="{y}" font-size="11" font-weight="900" fill="#00779b">{escape(delta.upper())}</text>'
+            f'<rect x="470" y="{y + 10}" width="330" height="12" rx="6" fill="#eaf2f6"></rect>'
+            f'<rect x="470" y="{y + 10}" width="{width_fill:.1f}" height="12" rx="6" fill="#00bceb"></rect>'
+            f'<text x="32" y="{y + 46}" font-size="12" font-weight="700" fill="#324d60">Baseline {_format_metric_value(baseline, unit)}</text>'
+            f'<text x="260" y="{y + 46}" font-size="12" font-weight="700" fill="#0f8f74">Target {_format_metric_value(target, unit)}</text></g>'
+        )
+    return (
+        f'<svg viewBox="0 0 {width} {height}" width="100%" height="360" role="img">'
+        '<rect x="12" y="12" width="896" height="336" rx="28" fill="#ffffff" stroke="#dbe4eb"></rect>'
+        '<text x="32" y="28" font-size="10" font-weight="900" letter-spacing="2.2" fill="#00779b">BENCHMARK GAP</text>'
+        '<text x="470" y="28" font-size="11" font-weight="900" fill="#708496">Normalized gap-closure requirement</text>'
+        f'{"".join(rows)}'
+        '</svg>'
+    )
+
+
+def _render_value_bridge_svg(facts: dict[str, Any]) -> str:
+    width = 920
+    height = 360
+    deltas = [
+        ("Investment", -float(facts.get("transformation_investment_total_usd", 0) or 0), "#d7edf7"),
+        ("Workforce", float(facts.get("workforce_savings_rate_arbitrage_cumulative_usd", 0) or 0), "#00bceb"),
+        ("Legacy", float(facts.get("legacy_cost_reduction_cumulative_usd", 0) or 0), "#0f8f74"),
+        ("Productivity", float(facts.get("productivity_value_cumulative_usd", 0) or 0), "#4dc7ae"),
+        ("Resilience", float(facts.get("resilience_value_cumulative_usd", 0) or 0), "#8fdcc8"),
+    ]
+    cumulative = 0.0
+    min_value = 0.0
+    max_value = 0.0
+    for _, amount, _ in deltas:
+        cumulative += amount
+        min_value = min(min_value, cumulative, amount, 0.0)
+        max_value = max(max_value, cumulative, amount, 0.0)
+    final_total = float(facts.get("net_value_created_usd", 0) or 0)
+    min_value = min(min_value, final_total)
+    max_value = max(max_value, final_total)
+    span = max(abs(min_value), abs(max_value), 1.0)
+    scale = 130.0 / span
+    zero_y = 210.0
+    x = 58.0
+    bar_width = 92.0
+    gap = 36.0
+    pieces = ['<line x1="40" y1="210" x2="880" y2="210" stroke="#dbe4eb" stroke-width="2"></line>']
+    running = 0.0
+    prev_end_x = None
+    prev_y = zero_y
+    for label, amount, color in deltas:
+        next_running = running + amount
+        start_y = zero_y - (running * scale)
+        end_y = zero_y - (next_running * scale)
+        top = min(start_y, end_y)
+        height_bar = abs(end_y - start_y) or 1.0
+        pieces.append(f'<rect x="{x:.1f}" y="{top:.1f}" width="{bar_width:.1f}" height="{height_bar:.1f}" rx="16" fill="{color}"></rect>')
+        if prev_end_x is not None:
+            pieces.append(f'<line x1="{prev_end_x:.1f}" y1="{prev_y:.1f}" x2="{x:.1f}" y2="{start_y:.1f}" stroke="#94a8b8" stroke-dasharray="4 4"></line>')
+        pieces.append(f'<text x="{x + bar_width / 2:.1f}" y="{top - 10:.1f}" text-anchor="middle" font-size="12" font-weight="900" fill="#14283a">{escape(_format_currency_short(amount))}</text>')
+        pieces.append(f'<text x="{x + bar_width / 2:.1f}" y="244" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">{escape(label)}</text>')
+        running = next_running
+        prev_end_x = x + bar_width
+        prev_y = end_y
+        x += bar_width + gap
+    final_y = zero_y - (final_total * scale)
+    top = min(zero_y, final_y)
+    height_bar = abs(final_y - zero_y) or 1.0
+    pieces.append(f'<rect x="{x:.1f}" y="{top:.1f}" width="{bar_width:.1f}" height="{height_bar:.1f}" rx="16" fill="#14283a"></rect>')
+    pieces.append(f'<text x="{x + bar_width / 2:.1f}" y="{top - 10:.1f}" text-anchor="middle" font-size="12" font-weight="900" fill="#14283a">{escape(_format_currency_short(final_total))}</text>')
+    pieces.append(f'<text x="{x + bar_width / 2:.1f}" y="244" text-anchor="middle" font-size="12" font-weight="900" fill="#6b8093">Net Value</text>')
+    return (
+        f'<svg viewBox="0 0 {width} {height}" width="100%" height="360" role="img">'
+        '<rect x="12" y="12" width="896" height="336" rx="28" fill="#ffffff" stroke="#dbe4eb"></rect>'
+        '<text x="32" y="28" font-size="10" font-weight="900" letter-spacing="2.2" fill="#00779b">VALUE BRIDGE</text>'
+        '<text x="32" y="332" font-size="11" font-weight="800" fill="#708496">Bridge from transformation investment to net value created</text>'
+        f'{"".join(pieces)}'
+        '</svg>'
+    )
+
+
+def _render_target_outcome_svg(targets: dict[str, Any], facts: dict[str, Any]) -> str:
+    if not targets:
+        return ""
+    width = 920
+    height = 360
+    items = [
+        ("Cloud", float(targets.get("cloud_migration_pct", 0) or 0), "#00bceb"),
+        ("Legacy", float(targets.get("legacy_cost_reduction_pct", 0) or 0), "#0f8f74"),
+        ("Release", float(targets.get("release_frequency_improvement_pct", 0) or 0), "#4dc7ae"),
+        ("Failure", float(targets.get("change_failure_rate_reduction_pct", 0) or 0), "#8fdcc8"),
+        ("Innovation", float(targets.get("innovation_budget_shift_pct", 0) or 0), "#073b5a"),
+    ]
+    bars = []
+    for index, (label, value, color) in enumerate(items):
+        y = 54 + index * 52
+        bars.append(
+            f'<g><text x="32" y="{y}" font-size="13" font-weight="900" fill="#14283a">{escape(label)}</text>'
+            f'<rect x="136" y="{y - 10}" width="360" height="14" rx="7" fill="#eaf2f6"></rect>'
+            f'<rect x="136" y="{y - 10}" width="{(max(6.0, min(value, 100.0)) * 3.6):.1f}" height="14" rx="7" fill="{color}"></rect>'
+            f'<text x="510" y="{y + 1}" font-size="12" font-weight="900" fill="#14283a">{value:.0f}%</text></g>'
+        )
+    roi = float(facts.get("roi_pct", 0) or 0)
+    total_value = float(facts.get("cumulative_business_value_usd", 0) or 0)
+    net_value = float(facts.get("net_value_created_usd", 0) or 0)
+    cards = (
+        f'<rect x="610" y="52" width="260" height="96" rx="20" fill="#f7fbfd" stroke="#dbe4eb"></rect>'
+        f'<text x="632" y="78" font-size="11" font-weight="900" letter-spacing="1.6" fill="#708496">ROI ANCHOR</text>'
+        f'<text x="632" y="120" font-size="34" font-weight="950" fill="#14283a">{roi:.2f}%</text>'
+        f'<rect x="610" y="172" width="260" height="120" rx="20" fill="#f7fbfd" stroke="#dbe4eb"></rect>'
+        f'<text x="632" y="198" font-size="11" font-weight="900" letter-spacing="1.6" fill="#708496">VALUE CREATED</text>'
+        f'<text x="632" y="234" font-size="26" font-weight="950" fill="#14283a">{escape(_format_currency_short(total_value))}</text>'
+        f'<text x="632" y="264" font-size="12" font-weight="800" fill="#5f7283">Net after investment: {escape(_format_currency_short(net_value))}</text>'
+    )
+    return (
+        f'<svg viewBox="0 0 {width} {height}" width="100%" height="360" role="img">'
+        '<rect x="12" y="12" width="896" height="336" rx="28" fill="#ffffff" stroke="#dbe4eb"></rect>'
+        '<text x="32" y="28" font-size="10" font-weight="900" letter-spacing="2.2" fill="#00779b">TARGET OUTCOMES</text>'
+        f'{"".join(bars)}{cards}'
+        '</svg>'
+    )
+
+
+def _render_mix_bar_svg(x: float, y: float, width: float, height: float, mix: dict[str, Any], colors: dict[str, str]) -> str:
+    segments = []
+    cursor = x
+    for key in ("onshore", "nearshore", "offshore"):
+        share = float(mix.get(key, 0) or 0)
+        segment_width = width * (share / 100.0)
+        if segment_width <= 0:
+            continue
+        segments.append(f'<rect x="{cursor:.1f}" y="{y:.1f}" width="{segment_width:.1f}" height="{height:.1f}" rx="{height/2:.1f}" fill="{colors[key]}"></rect>')
+        segments.append(f'<text x="{cursor + segment_width / 2:.1f}" y="{y - 6:.1f}" text-anchor="middle" font-size="11" font-weight="900" fill="#5f7283">{share:.0f}%</text>')
+        cursor += segment_width
+    segments.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{width:.1f}" height="{height:.1f}" rx="{height/2:.1f}" fill="none" stroke="#dbe4eb"></rect>')
+    return "".join(segments)
 
 
 def _render_simple_bar_svg(series: list[dict[str, Any]]) -> str:
@@ -1727,6 +2357,67 @@ def _format_value(value: Any, key: str | None = None) -> str:
             parts.append("…")
         return "; ".join(parts)
     return str(value)
+
+
+def _format_currency_short(value: float) -> str:
+    amount = float(value)
+    sign = "-" if amount < 0 else ""
+    absolute = abs(amount)
+    if absolute >= 1_000_000_000:
+        return f"{sign}${absolute / 1_000_000_000:.1f}B"
+    if absolute >= 1_000_000:
+        return f"{sign}${absolute / 1_000_000:.1f}M"
+    if absolute >= 1_000:
+        return f"{sign}${absolute / 1_000:.1f}K"
+    return f"{sign}${absolute:,.0f}"
+
+
+def _format_metric_value(value: Any, unit: str) -> str:
+    if value is None:
+        return "N/A"
+    unit_map = {
+        "days_between_releases": "days",
+        "days": "days",
+        "hours": "hours",
+        "minutes": "min",
+        "pct": "%",
+        "count": "",
+    }
+    suffix = unit_map.get(unit, unit.replace("_", " "))
+    number = float(value)
+    if number.is_integer():
+        rendered = f"{int(number):,}"
+    else:
+        rendered = f"{number:,.1f}"
+    if suffix == "%":
+        return f"{rendered}%"
+    return f"{rendered} {suffix}".strip()
+
+
+def _metric_delta_label(baseline: float, target: float, unit: str) -> str:
+    if baseline <= 0:
+        return "Target state"
+    if target < baseline and target > 0:
+        ratio = baseline / target
+        if unit in {"days_between_releases", "hours", "minutes"}:
+            return f"{ratio:.1f}x faster"
+        delta_pct = ((baseline - target) / baseline) * 100.0
+        return f"{delta_pct:.0f}% lower"
+    if target > baseline:
+        delta_pct = ((target - baseline) / baseline) * 100.0
+        return f"{delta_pct:.0f}% lift"
+    return "No change"
+
+
+def _metric_gap_width(baseline: float, target: float) -> float:
+    if baseline <= 0:
+        return 12.0
+    gap = abs(target - baseline) / baseline * 100.0
+    return max(12.0, min(gap, 100.0))
+
+
+def _humanize_metric_name(name: str) -> str:
+    return name.replace("_", " ").strip().title()
 
 
 def _company_initials(name: str) -> str:

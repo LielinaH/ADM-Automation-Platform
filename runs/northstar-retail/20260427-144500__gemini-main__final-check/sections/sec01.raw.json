@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": " {\n  \"section_id\": \"sec01\",\n  \"title\": \"Executive Summary\",\n  \"phase\": \"Diagnose\",\n  \"summary\": \"Northstar Retail Group can shift a $95.00M annual ADM estate from legacy sustainment toward faster digital execution and better operating leverage.\",\n  \"narrative\": [\n    \"The Northstar Retail Group estate spans 12 business applications across 5 business units, with an average age of 11.0 years. This aging infrastructure creates significant drag, manifesting as 360-minute inventory sync latencies and a 30-day release cadence that hinders omnichannel responsiveness.\",\n    \"The current-state burden is anchored in a $95.00M annual ADM model that carries fragmented platforms across stores, commerce, loyalty, merchandising, and supply chain. This fragmentation results in an 11% duplicate customer record rate, undermining the strategic priority of personalized loyalty and consistent customer identity.\",\n    \"With a five-year transformation investment of $104.50M, the modeled business value reaches $156.69M and a target ROI of 49.94%. This value is driven by a shift in delivery mix toward 55% offshore and the aggressive modernization of legacy platforms through a mix of refactoring and rearchitecting.\",\n    \"The executive challenge is not just cost takeout; Northstar Retail Group must reduce run-cost drag while improving release velocity and inventory responsiveness without disrupting peak retail periods. Success requires navigating a strict holiday code freeze while industrializing support through AI-assisted operations and observability.\"\n  ],\n  \"kpi_cards\": [\n    {\n      \"label\": \"Annual ADM Spend\",\n      \"value\": \"$95.00M\",\n      \"subtitle\": \"Current annual run baseline\",\n      \"fact_key\": \"annual_adm_spend_usd\"\n    },\n    {\n      \"label\": \"Total Program Investment\",\n      \"value\": \"$104.50M\",\n      \"subtitle\": \"5-Year transformation spend\",\n      \"fact_key\": \"transformation_investment_total_usd\"\n    },\n    {\n      \"label\": \"Cumulative Business Value\",\n      \"value\": \"$156.69M\",\n      \"subtitle\": \"All modeled value streams\",\n      \"fact_key\": \"cumulative_business_value_usd\"\n    },\n    {\n      \"label\": \"Target ROI\",\n      \"value\": \"49.94%\",\n      \"subtitle\": \"Net value / investment\",\n      \"fact_key\": \"roi_pct\"\n    }\n  ],\n  \"tables\": [],\n  \"cards\": [],\n  \"chart\": null,\n  \"matrix\": null,\n  \"timeline\": [],\n  \"delivery_cards\": [],\n  \"callouts\": [\n    \"Legacy cost reduction target: 28%\",\n    \"Cloud migration target: 65%\",\n    \"Innovation budget shift target: 20%\",\n    \"Release-frequency improvement target: 45%\"\n  ],\n  \"fact_refs\": [\n    \"annual_adm_spend_usd\",\n    \"transformation_investment_total_usd\",\n    \"cumulative_business_value_usd\",\n    \"roi_pct\"\n  ],\n  \"evidence_refs\": [],\n  \"required_widgets\": [\n    \"kpi-grid\",\n    \"hero-callout\"\n  ]\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 3759,
+    "candidatesTokenCount": 764,
+    "totalTokenCount": 4523,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3759
+      }
+    ]
+  },
+  "modelVersion": "gemma-4-31b-it",
+  "responseId": "hXbvaf7uELCdkdUP3KXT4A0"
+}
