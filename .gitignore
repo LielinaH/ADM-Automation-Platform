@@ -7,8 +7,7 @@ runs/northstar-retail/*
 !runs/northstar-retail/20260427-144500__gemini-main__final-check/
 !runs/northstar-retail/20260427-144500__gemini-main__final-check/**
 .tmp-tests/
-archive/adm-ingress-contract.md
-archive/deep-research-report*.md
+archive/
 
 # Python cache and local envs
 __pycache__/

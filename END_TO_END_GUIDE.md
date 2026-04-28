@@ -24,13 +24,11 @@ Output:
 
 - one publication-ready HTML ADM document
 
-The target benchmark is the Cisco sample in:
+The target benchmark was a Cisco-style sample used locally during development.
 
-- [`archive/Cisco_ADM.html`](archive/Cisco_ADM.html)
+The assessment brief was also part of the local working materials used during development.
 
-The assessment brief is in:
-
-- [`archive/ADM_Engineer_Assessment.pdf`](archive/ADM_Engineer_Assessment.pdf)
+Those reference materials are not included in the shared repository snapshot.
 
 ## 2. What Was Built
 

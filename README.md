@@ -7,10 +7,7 @@ The target outcome is:
 - structured client information in
 - publication-ready HTML ADM document out
 
-The implementation is aligned to the assessment materials in:
-
-- [`archive/ADM_Engineer_Assessment.pdf`](archive/ADM_Engineer_Assessment.pdf)
-- [`archive/Cisco_ADM.html`](archive/Cisco_ADM.html)
+The implementation was developed against an assessment brief and a Cisco-style benchmark artifact that were used locally during development but are not included in the shared repository snapshot.
 
 ## Assessment Goal
 
@@ -36,8 +33,6 @@ This pipeline treats the ADM as a deterministic reporting system, not just a pro
 ## Repository Structure
 
 - [`inputs/clients/northstar-retail.json`](inputs/clients/northstar-retail.json): sample structured client ingress
-- [`archive/ADM_Engineer_Assessment.pdf`](archive/ADM_Engineer_Assessment.pdf): assessment brief
-- [`archive/Cisco_ADM.html`](archive/Cisco_ADM.html): benchmark reference
 - [`END_TO_END_GUIDE.md`](END_TO_END_GUIDE.md): complete system guide
 - [`config/providers.json`](config/providers.json): named provider profiles
 - [`adm_pipeline/`](adm_pipeline): pipeline implementation
@@ -218,7 +213,6 @@ The repository includes:
 ## Notes for Review
 
 - The sample ingress is `northstar-retail.json`.
-- The benchmark reference is `archive/Cisco_ADM.html`.
 - The complete working guide is [`END_TO_END_GUIDE.md`](END_TO_END_GUIDE.md).
 - The repository keeps one representative generated run for review at `runs/northstar-retail/20260427-144500__gemini-main__final-check/`.
 - Other generated runs remain git-ignored to avoid committing the full run cache and transient provider artifacts.
