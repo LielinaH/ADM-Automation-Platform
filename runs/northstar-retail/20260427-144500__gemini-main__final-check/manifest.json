@@ -219,7 +219,7 @@
     "benchmark_style_version": "cisco-html-v2",
     "section_schema_version": "section-content-v1"
   },
-  "updated_at": "2026-04-27T14:50:05Z",
+  "updated_at": "2026-04-29T22:08:08Z",
   "smoke_tests": {
     "gemini:gemma-4-31b-it:sec01": {
       "status": "pass",

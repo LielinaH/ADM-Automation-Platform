@@ -1414,7 +1414,7 @@ def _build_html(client: dict[str, Any], facts: dict[str, Any], sections: dict[st
         {masthead}
         {screens}
       </div>
-      <div class="footer-note">Structured ingress · code-computed financials · benchmark-aligned HTML artifact</div>
+      <div class="footer-note">Transformation blueprint · financial case · delivery roadmap</div>
     </main>
   </div>
   <script>
@@ -1506,7 +1506,7 @@ def _render_masthead(client: dict[str, Any], facts: dict[str, Any]) -> str:
         '<div class="masthead-copy">'
         '<div class="masthead-label">Account Development Master</div>'
         f'<h1 class="masthead-title">{escape(company["name"])} transformation blueprint</h1>'
-        f'<p>This publication-ready ADM translates structured client inputs into an executive narrative, transformation roadmap, financial case, and delivery blueprint aligned to the Cisco benchmark style while preserving code-traceable calculations.</p>'
+        f'<p>This ADM condenses the client estate into an executive narrative, transformation roadmap, financial case, and delivery blueprint aligned to the benchmark report style.</p>'
         '<div class="masthead-meta">'
         f'<span>{escape(company["industry"])}</span>'
         f'<span>{escape(company.get("subsector", "Enterprise Transformation"))}</span>'
@@ -1657,7 +1657,7 @@ def _render_financial_screen(section: dict[str, Any], facts: dict[str, Any], cli
         f'{_render_value_stream_board(facts)}'
         f'{_render_visual_block("Value Bridge", "Waterfall view from transformation investment through the modeled value streams to net value creation.", _render_value_bridge_svg(facts), "financial-value-bridge")}'
         f'{_render_tables(section.get("tables", []))}'
-        f'{_render_visual_block("5-Year Investment vs Value", "The financial section uses only code-computed values from the facts engine.", _render_chart(section.get("chart")), "financial-chart")}'
+        f'{_render_visual_block("5-Year Investment vs Value", "Five-year view of investment phasing against modeled business value realization.", _render_chart(section.get("chart")), "financial-chart")}'
         + _render_traceability(section.get("fact_refs", []), facts)
     )
 
@@ -1861,7 +1861,7 @@ def _render_target_board(targets: dict[str, Any], facts: dict[str, Any]) -> str:
     anchor = (
         f'<div class="summary-callouts">'
         f'<div class="summary-callout"><span class="bullet"></span><span>Modeled ROI anchor: {escape(roi_label)} from {escape(net_value_label)} net value created.</span></div>'
-        f'<div class="summary-callout"><span class="bullet"></span><span>Five-year value pool: {escape(total_value_label)} supported by code-computed workforce, legacy, productivity, and resilience streams.</span></div>'
+        f'<div class="summary-callout"><span class="bullet"></span><span>Five-year value pool: {escape(total_value_label)} supported by workforce, legacy, productivity, and resilience value streams.</span></div>'
         '</div>'
     )
     return f'<div class="data-card" data-widget="target-board" data-filled="true"><h3>Target-State Outcome Board</h3><div class="target-board"><div class="target-grid">{"".join(cards)}</div>{anchor}</div></div>'
@@ -2438,11 +2438,11 @@ def _render_cover_visual(client: dict[str, Any], facts: dict[str, Any]) -> str:
     return (
         '<div class="cover-visual">'
         '<div class="cover-visual-top">'
-        '<div class="cover-badge">Benchmark-style report shell</div>'
+        '<div class="cover-badge">Transformation outlook</div>'
         f'<div class="cover-logo" aria-hidden="true">{_render_mark_svg(initials)}</div>'
         '</div>'
         f'<h3>{escape(client["company"]["name"])} operating transformation</h3>'
-        '<p>A report-grade visual shell that can later swap to a real client logo or program image, while staying self-contained for HTML export and print.</p>'
+        '<p>A modern operating model anchored in estate simplification, faster execution, and measurable value capture across the transformation horizon.</p>'
         '<div class="cover-stat-ribbon">'
         f'<div class="cover-stat"><div class="label">ADM Base</div><div class="value">{escape(format_currency(facts["annual_adm_spend_usd"]))}</div></div>'
         f'<div class="cover-stat"><div class="label">Estate Age</div><div class="value">{facts["average_app_age_years"]:.1f} yrs</div></div>'
